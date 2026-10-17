@@ -24,7 +24,8 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - **Modern:** WASD flight, mouse aim and fire, click to select ships and give fleet orders, mouse wheel zoom.
 - A rebinding screen so every action can be reassigned to keyboard keys or mouse buttons.
 - Bindings are saved in the player's config and survive updates.
-- Later, maybe: gamepad support.
+- Gamepad support already exists (see `docs/current-state.md` §1.4). Both presets and the rebinding screen must cover gamepad as well as keyboard and mouse.
+- Mouse-wheel zoom needs new input handling: the game currently ignores the scroll wheel. M2 includes adding it.
 - Exact action list to be taken from `docs/current-state.md`.
 
 ## 5. User interface
