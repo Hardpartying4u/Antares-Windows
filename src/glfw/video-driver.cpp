@@ -384,6 +384,10 @@ void GLFWVideoDriver::mouse_move(double x, double y) {
 }
 
 void GLFWVideoDriver::window_size(int width, int height) {
+    // Minimized windows report 0x0; keep the last real size so scale() never divides by zero.
+    if ((width == 0) || (height == 0)) {
+        return;
+    }
     _screen_size = {width, height};
     if (!_fullscreen) {
         sys.prefs->set_window_size(_screen_size);
