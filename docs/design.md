@@ -98,7 +98,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - Should every ship be rendered with one shared camera (tilt and perspective distance; simpler, consistent) or with each original's fitted camera (closer match, more fitting work)? The Human cruiser needed 44° tilt and a perspective camera about 200 units away to fit its frames within 1 %.
 - ~~Which modernisation level (A subtle, B balanced, C richest; see `docs/art-direction.md`) becomes the fleet standard?~~ None, 2026-10-18: the variants drifted from the original design; replaced by remastering from the original frames (§6).
 - ~~Should new art keep the original ship designs or reinterpret them?~~ Answered 2026-10-18: keep them, the same ship remastered (cleaner and sharper, recognisably the original).
-- Team colour on engine lights: the originals tint the whole ship, lights included, and the cruiser remaster does the same. `docs/art-direction.md` §3 keeps glows out of the overlay. Which should win?
+- ~~Team colour on engine lights?~~ Decided 2026-10-18: keep the originals' behaviour. The team tint covers the whole ship, engine lights included (`docs/art-direction.md` §3).
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.

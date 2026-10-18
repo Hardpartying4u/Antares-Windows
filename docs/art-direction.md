@@ -22,10 +22,11 @@ How new ship sprites should look. It applies to every sprite rendered with
 2. **The three-quarter camera.** The originals are seen from above at a tilt, from the bottom of
    the screen, so you see a little of each ship's side. Tilt is set per ship (about 44° for the
    Human cruiser) to match its original. Frame 0 points up and frames turn clockwise.
-3. **Team colour on the hull.** The overlay keeps covering the hull, so tinted sides still read
-   as one colour. Engine glows and lights stay out of the overlay, so they keep their own colour.
-   Surface detail must therefore come from shape and shading, not only from paint. Under a tint,
-   only the overlay's brightness survives.
+3. **Team colour on the whole ship, as in the originals.** The overlay covers every part,
+   engine glows and lights included, so a tinted side reads as one colour and its lights take the
+   tint too (decided 2026-10-18, matching the originals' overlays). Surface detail must therefore
+   come from shape and shading, not only from paint. Under a tint, only the overlay's brightness
+   survives, so glows must stay the brightest parts of the overlay.
 4. **Readability at small sizes.** At 1× and at 1:2 zoom a ship must still read as itself:
    - a clear silhouette and a light-to-dark separation between major parts;
    - no busy, high-contrast surface noise that turns to grain;
@@ -62,7 +63,8 @@ How new ship sprites should look. It applies to every sprite rendered with
    cooler rim light from behind to outline the silhouette against black space. Lights stay fixed
    while the ship turns, so every frame is lit the same way on screen.
 6. **Emissive glows and lights.** Engine nozzles and running lights are real emitters in the
-   faction's glow colour, bright enough to read at 1× and outside the team overlay.
+   faction's glow colour, bright enough to read at 1×. Like the rest of the ship they take the
+   team tint (§3).
 
 ## Levels of modernisation (trial on the Human cruiser)
 
@@ -76,3 +78,7 @@ Three variants test how far to go. All three share the same silhouette.
   and the strongest rim and glow.
 
 The chosen level becomes the standard for the rest of the fleet.
+
+*Superseded (2026-10-18):* none of the three was chosen; they drifted from the original design.
+Ships are now remastered from their original frames instead (`docs/design.md` §6), with the
+modernisation in "What we're modernising" applied to the fitted shape.
