@@ -314,6 +314,7 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   - Textures with `@Nx` variants are chosen by `load_hidpi_texture` (`src/data/resource.cpp`) at
     load time, which happens once at startup. Only fonts ship `@2x` art, so a later scale change
     upscales whatever was loaded. At 3× it falls back to 1× art (it tries `@3x`, then halves).
+    Sprites use their own, better rule (§4.3) and are loaded when a level loads.
 - **Saved window size** is DPI-independent: the window is created with `GLFW_SCALE_TO_MONITOR`,
   which multiplies the requested size by the monitor's content scale on Windows, so the driver
   saves window size ÷ that scale (`saved_size_ratio()`). At 125 % a 1920 × 1080 window is saved
@@ -386,12 +387,29 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
 - **Frame geometry is gameplay.** `calc_bounds()` (`src/game/motion.cpp` ~703) builds each
   object's collision bounds from its current frame's size and centre, so the `.pn` rectangles
   affect hits, not just drawing. Briefing maps and the minicomputer also size icons from them.
-- **No `@2x` sprites yet.** `Resource::sprite_image`/`sprite_overlay` load only `image.png` and
-  `overlay.png`, and `NatePixTable::Frame` creates its texture at scale 1
-  (`src/drawing/pix-table.cpp` ~109). To support high-resolution sprites: load `image@2x.png` and
-  `overlay@2x.png` when present, cut each frame at 2× the `.pn` rectangle, tint the overlay at that
-  size, and pass scale 2 to `sys.video->texture()`. Keep `width()`/`height()`/`center()` at 1× so
-  collisions and layout don't change. Pictures and fonts already support `@2x` this way.
+- **High-resolution sheets (`@2x`, `@4x`).** A sprite may have `image@2x.png`/`overlay@2x.png`
+  and `@4x` versions next to the 1× sheets (`NatePixTable::NatePixTable`,
+  `src/drawing/pix-table.cpp`).
+  - Choice per draw scale (`sys.video->scale()`, chosen when the sprite loads): the smallest sheet
+    at least as detailed as the screen, then larger, then smaller. 1× → 1×; 2× → @2x, @4x, 1×;
+    3× → @4x, @2x, 1×; 4× and up → @4x, @2x, 1×. There's no `@3x`.
+  - A sheet is used only if both its image and overlay exist and are exactly that multiple of the
+    1× size; otherwise it's skipped with a message on stderr, and the next one is tried.
+  - Frame rectangles and pivots stay in 1× units (`width()`, `height()`, `center()`), so collision
+    bounds, weapon mounts and replays are unchanged. Only the pixels in `pix_map()` and the
+    texture grow (`Frame::scale()`).
+  - Memory grows with the square of the scale (16× per sprite at @4x), for each owner colour
+    loaded.
+- **Renderer fix that came with this:** `OpenGlTextureImpl::draw_internal`
+  (`src/video/opengl-driver.cpp`) used to set texture coordinates to `size / scale`, so a whole
+  texture with scale > 1 showed only its top-left part. It never showed up before, because
+  fonts draw through `draw_quad` and there were no `@2x` pictures. It now covers the full texture.
+- **Viewing a sprite in game without touching the save:** pass a scenario folder on the command
+  line (`antares.exe … <folder>`). The folder needs only an `info.pn` with a different title,
+  which gives it its own progress file, and a `levels/` folder; chapter 1 is always unlocked.
+  Everything else falls back to the factory scenario folder and `data/`, so override sprites still
+  apply. A one-level scenario with four Human cruisers was used to test `@2x`/`@4x` at UI 1×, 2×,
+  3× and 4×.
 
 ### 4.3.1 Sprite render tools (`tools/sprite-render/`)
 
@@ -414,7 +432,8 @@ Output goes to `out/sprite-render/` (ignored by git); nothing is written to `dat
     the ship falls outside the original rectangle (threshold 0.5 %).
   - About 17 s for the cruiser's 24 frames.
 - `compare_sheet.py` (Pillow) makes `compare.png`: original vs new 1× vs overlay vs new 4×, with pivots marked.
-- `override.py install --sprite <name>` / `remove` / `status` copies the 1× sheets into the
+- `override.py install --sprite <name> [--scales 1,2,4]` / `remove` / `status` copies the sheets
+  (1× by default) into the
   factory scenario folder for an in-game test. A manifest records exactly which files and folders
   it created, and `remove` deletes only those. It refuses to overwrite files it didn't install.
 - Placeholder Human cruiser (2026-10-18): fits all 24 frames with at most 4.2 % overflow (the

@@ -47,12 +47,13 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
 - Pipeline: model, consistent lighting and camera, render a full set of rotation frames, export in the format the game already loads.
 - Ships are replaced one type at a time. Anything not yet replaced uses the original sprite.
 - After ships: planets, stations, weapon effects, explosions and thruster effects.
-- High-resolution sprites (finding, 2026-10-18): the game uses each sprite frame's size and centre from the `.pn` table for **collision bounds** (`calc_bounds`, `src/game/motion.cpp`), not just for drawing. New art must therefore keep the original 1× frame rectangles and centres, and supply extra detail as `@2x`/`@4x` images used only as textures. Pictures and fonts already load `@2x` files automatically; sprites do not yet, so the sprite loader needs a small change before M4 (see `docs/current-state.md` §4.3).
+- High-resolution sprites (finding, 2026-10-18): the game uses each sprite frame's size and centre from the `.pn` table for **collision bounds** (`calc_bounds`, `src/game/motion.cpp`), not just for drawing. New art must therefore keep the original 1× frame rectangles and centres, and supply extra detail as `@2x`/`@4x` images used only as textures. Pictures and fonts already load `@2x` files automatically. Sprites now do too (see the decision below and `docs/current-state.md` §4.3).
 - **Decisions (2026-10-18): sprite render pipeline.**
   - **Keep the original frame geometry.** New sprites use each original frame's rectangle and pivot unchanged, and the `.pn` tables are never rewritten. Collisions, weapon mounts and replays stay identical. New silhouettes must fit the old frames; the render script's fit check reports any overflow.
   - **Prove the pipeline with a placeholder.** The test ship is the Human cruiser (`uns/cruiser`, 24 frames). The script builds a placeholder from basic shapes (capsule hull, three engine pods). A real model replaces it later.
   - **Test through the scenario override folder.** Rendered 1× sheets go into `Documents/Antares/Scenarios/<factory scenario>/sprites/…`, which the game reads before `data/`. Nothing in `data/` or the game code changes for a test, and a tool removes the files afterwards. Where finished art will live permanently is still open.
-  - **Render 1×, 2× and 4×.** Only 1× is used in game until the `@2x` sprite loader change is approved separately.
+  - **Render 1×, 2× and 4×.** The game now loads all three (next decision).
+- **Decision (2026-10-18): sprites load `@2x`/`@4x` sheets when present.** This reuses the HiDPI draw scale. For each sprite the game picks the smallest sheet at least as detailed as the screen, then larger, then smaller: UI 1× uses 1×; 2× uses @2x; 3× and 4× use @4x. If a sheet is missing, or isn't an exact multiple of the 1× size, it falls back to the next one and ultimately to the original. Frame rectangles and pivots stay in 1× units, so collisions, weapon mounts and replays are unchanged. Tested with the placeholder cruiser at UI 1×–4×, including the fallbacks.
   - `ASSETS.md` stays unchanged until a real model replaces an original sprite.
 - **Finding: the original sprites use a three-quarter view.** They were rendered with a camera tilted about 44° from vertical, viewing from the bottom of the screen, which shortens ships' length on screen. Each ship's pivot also sits above the hull. New renders have to match both, or ships won't line up with their pivots. The angle was fitted for the Human cruiser; other ships give noisier estimates (8°–52°), so the tilt is a per-sprite setting (`--tilt`). Tools: `tools/sprite-render/`, described in `docs/current-state.md` §4.3.
 
@@ -75,7 +76,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M1 | UI scales with the window | Menus and HUD scale crisply with the window (automatic integer scale plus Video options override), mouse input stays exact, tested at 1080p, 1440p, ultrawide and small windows, windowed and fullscreen |
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
-| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; placeholder Human cruiser rendered and tested in game via the override folder; real model pending) |
+| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; real model pending) |
 | M5 | All ships replaced | Every ship type uses new sprites |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
