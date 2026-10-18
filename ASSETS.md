@@ -33,7 +33,14 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-All 839 entries are currently **original**.
+836 entries are **original**. The 3 Human ship sprites (fighter, cruiser, carrier) have **replaced** images
+(2026-10-18), rendered into `art/` (read before `data/`); their frame tables stay original.
+
+Remastered sprites are fitted to, and coloured from, the original sprites (`docs/fleet-plan.md`),
+so they are most likely *adaptations* of the CC BY-NC-SA 3.0 originals and still carry that
+licence. They are marked "replaced (…, adaptation)" so they are not mistaken for assets that free
+the game from the original licence; whether they count for selling the game is an open question
+(`docs/design.md` §10).
 
 ## Sprites, sounds, music, text and interface art
 
@@ -209,12 +216,12 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/tmp/friend/transport.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/ares.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/aslttran.pn` | image.png, overlay.png | original |
-| `data/sprites/uns/carrier.pn` | image.png, overlay.png | original |
-| `data/sprites/uns/cruiser.pn` | image.png, overlay.png | original |
+| `data/sprites/uns/carrier.pn` | image.png, overlay.png | replaced (images, remastered: `art/sprites/uns/carrier/`, adaptation); frame table original |
+| `data/sprites/uns/cruiser.pn` | image.png, overlay.png | replaced (images, remastered: `art/sprites/uns/cruiser/`, adaptation); frame table original |
 | `data/sprites/uns/etc/bttlship.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/etc/human/turning.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/etc/human/waving.pn` | image.png, overlay.png | original |
-| `data/sprites/uns/fighter.pn` | image.png, overlay.png | original |
+| `data/sprites/uns/fighter.pn` | image.png, overlay.png | replaced (images, remastered: `art/sprites/uns/fighter/`, adaptation); frame table original |
 | `data/sprites/uns/gunship.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/hvd.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/transport.pn` | image.png, overlay.png | original |
