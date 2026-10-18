@@ -3,14 +3,14 @@
 # This file is part of Star Bound, based on Antares. Distributed under the LGPL+. See COPYING.
 """Install or remove rendered 1x sprite sheets in the scenario override folder, for in-game tests.
 
-    python tools/sprite-render/override.py install --sprite uns/cruiser [--from out/sprite-render]
+    python tools/sprite-render/override.py install --sprite uns/cruiser [--scales 1,2,4] [--from DIR]
     python tools/sprite-render/override.py remove
     python tools/sprite-render/override.py status
 
 Antares looks for resources in the factory scenario folder before its own data folder, so files
 placed at <Documents>/Antares/Scenarios/<scenario>/sprites/<sprite>/ replace the originals without
-touching data/ or the game code. Only image.png and overlay.png are installed; the original .pn
-frame table keeps being used. Installed files are recorded in starbound-override.json in the
+touching data/ or the game code. Only the image and overlay sheets are installed (1x by default;
+--scales 1,2,4 adds the @2x/@4x sheets); the original .pn frame table keeps being used. Installed files are recorded in starbound-override.json in the
 scenario folder, and "remove" deletes exactly those files (if unchanged) and the folders it made.
 Existing files that this tool didn't install are never overwritten.
 """
@@ -26,7 +26,15 @@ import sys
 # Factory scenario identifier (kFactoryScenarioIdentifier); its downloaded data lives here.
 SCENARIO = "4cab7415715aeeacf1486a352267ae82c0efb220"
 MANIFEST = "starbound-override.json"
-FILES = ("image.png", "overlay.png")
+
+
+def sheet_files(scales):
+    """File names of the image and overlay sheets at the given scales."""
+    names = []
+    for s in scales:
+        suffix = "" if s == 1 else f"@{s}x"
+        names += [f"image{suffix}.png", f"overlay{suffix}.png"]
+    return names
 
 
 def documents_dir():
@@ -72,14 +80,15 @@ def save_manifest(scenario_dir, manifest):
         os.remove(path)
 
 
-def install(scenario_dir, sprite, source_root):
+def install(scenario_dir, sprite, source_root, scales):
+    files = sheet_files(scales)
     manifest = load_manifest(scenario_dir)
     src_dir = os.path.join(source_root, "sprites", *sprite.split("/"))
     dst_dir = os.path.join(scenario_dir, "sprites", *sprite.split("/"))
-    for name in FILES:
+    for name in files:
         if not os.path.isfile(os.path.join(src_dir, name)):
             raise SystemExit(f"missing {os.path.join(src_dir, name)}; render the sprite first")
-    for name in FILES:
+    for name in files:
         rel = f"sprites/{sprite}/{name}"
         if os.path.exists(os.path.join(dst_dir, name)) and rel not in manifest["files"]:
             raise SystemExit(f"refusing to overwrite {rel}: it wasn't installed by this tool")
@@ -95,7 +104,7 @@ def install(scenario_dir, sprite, source_root):
         if rel not in manifest["dirs"]:
             manifest["dirs"].append(rel)
 
-    for name in FILES:
+    for name in files:
         dst = os.path.join(dst_dir, name)
         shutil.copyfile(os.path.join(src_dir, name), dst)
         manifest["files"][f"sprites/{sprite}/{name}"] = sha256(dst)
@@ -140,6 +149,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("action", choices=["install", "remove", "status"])
     p.add_argument("--sprite", help="sprite to install, e.g. uns/cruiser")
+    p.add_argument("--scales", default="1", help="sheet scales to install (default: 1)")
     p.add_argument("--from", dest="source", default="out/sprite-render",
                    help="render output root (default: out/sprite-render)")
     p.add_argument("--scenario-dir", help="override folder (default: the factory scenario's)")
@@ -151,7 +161,7 @@ def main():
     if a.action == "install":
         if not a.sprite:
             p.error("install needs --sprite")
-        install(scenario_dir, a.sprite, a.source)
+        install(scenario_dir, a.sprite, a.source, sorted({int(x) for x in a.scales.split(",")}))
     elif a.action == "remove":
         remove(scenario_dir)
     else:

@@ -485,8 +485,16 @@ SpriteData Resource::sprite_data(pn::string_view name) {
     }
 }
 
-ArrayPixMap Resource::sprite_image(pn::string_view name) {
-    pn::string path = pn::format("sprites/{0}/image.png", name);
+// Path of a sprite sheet: "image.png" at 1x, "image@2x.png" at 2x, and so on.
+static pn::string sprite_path(pn::string_view name, pn::string_view kind, int scale) {
+    if (scale > 1) {
+        return pn::format("sprites/{0}/{1}@{2}x.png", name, kind, scale);
+    }
+    return pn::format("sprites/{0}/{1}.png", name, kind);
+}
+
+static ArrayPixMap load_sprite_sheet(pn::string_view name, pn::string_view kind, int scale) {
+    pn::string path = sprite_path(name, kind, scale);
     try {
         return read_png(BinaryResourceData::load(path).input());
     } catch (...) {
@@ -494,13 +502,17 @@ ArrayPixMap Resource::sprite_image(pn::string_view name) {
     }
 }
 
-ArrayPixMap Resource::sprite_overlay(pn::string_view name) {
-    pn::string path = pn::format("sprites/{0}/overlay.png", name);
-    try {
-        return read_png(BinaryResourceData::load(path).input());
-    } catch (...) {
-        std::throw_with_nested(std::runtime_error(path.c_str()));
-    }
+ArrayPixMap Resource::sprite_image(pn::string_view name, int scale) {
+    return load_sprite_sheet(name, "image", scale);
+}
+
+ArrayPixMap Resource::sprite_overlay(pn::string_view name, int scale) {
+    return load_sprite_sheet(name, "overlay", scale);
+}
+
+bool Resource::sprite_exists(pn::string_view name, int scale) {
+    return resource_exists(sprite_path(name, "image", scale)) &&
+           resource_exists(sprite_path(name, "overlay", scale));
 }
 
 pn::string Resource::text(pn::string_view name) {

@@ -290,8 +290,11 @@ class OpenGlTextureImpl : public Texture::Impl {
         glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, nullptr);
 
         glBindBuffer(GL_ARRAY_BUFFER, _vbuf[2]);
-        const int32_t w            = _size.width / _scale;
-        const int32_t h            = _size.height / _scale;
+        // Rectangle-texture coordinates are in texels, so cover the whole image whatever its
+        // scale (as draw_quad does: 1x units times _scale). Dividing by _scale here sampled only
+        // the top-left 1/scale of a high-resolution texture.
+        const int32_t w            = _size.width;
+        const int32_t h            = _size.height;
         GLshort       tex_coords[] = {
                 GLshort(1),     GLshort(1),     GLshort(1),     GLshort(h + 1),
                 GLshort(w + 1), GLshort(h + 1), GLshort(w + 1), GLshort(1),

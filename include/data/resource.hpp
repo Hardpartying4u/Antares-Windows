@@ -56,8 +56,9 @@ class Resource {
     static std::vector<int32_t>    rotation_table();
     static SoundData               sound(pn::string_view name);
     static SpriteData              sprite_data(pn::string_view name);
-    static ArrayPixMap             sprite_image(pn::string_view name);
-    static ArrayPixMap             sprite_overlay(pn::string_view name);
+    static ArrayPixMap             sprite_image(pn::string_view name, int scale = 1);
+    static ArrayPixMap             sprite_overlay(pn::string_view name, int scale = 1);
+    static bool                    sprite_exists(pn::string_view name, int scale);
     static std::vector<pn::string> strings(pn::string_view name);
     static pn::string              text(pn::string_view name);
     static Texture                 texture(pn::string_view name);

@@ -47,16 +47,20 @@ class NatePixTable {
 
 class NatePixTable::Frame {
   public:
-    Frame(Rect bounds, const PixMap& image, pn::string_view name, int frame);
-    Frame(Rect bounds, const PixMap& image, pn::string_view name, int frame, const PixMap& overlay,
-          Hue hue);
+    // `bounds` is the frame's rectangle around its pivot in 1x units; `image` and `overlay` hold
+    // `scale` times as many pixels in each direction.
+    Frame(Rect bounds, int scale, const PixMap& image, pn::string_view name, int frame);
+    Frame(Rect bounds, int scale, const PixMap& image, pn::string_view name, int frame,
+          const PixMap& overlay, Hue hue);
     Frame(Frame&&) = default;
     ~Frame();
 
+    // Geometry in 1x units, whatever sheet the texture came from.
     uint16_t       width() const;
     uint16_t       height() const;
     Size           size() const { return Size{width(), height()}; };
     Point          center() const;
+    int            scale() const { return _scale; }  // pixels per 1x unit in pix_map()
     const PixMap&  pix_map() const;
     const Texture& texture() const;
 
@@ -66,6 +70,7 @@ class NatePixTable::Frame {
     void build(pn::string_view name, int frame);
 
     Rect        _bounds;
+    int         _scale;
     ArrayPixMap _pix_map;
     Texture     _texture;
 };

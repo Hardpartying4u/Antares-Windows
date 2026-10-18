@@ -35,6 +35,26 @@ using std::vector;
 
 namespace antares {
 
+// Sprite sheets come at 1x and optionally at @2x and @4x. Returns the order in which to try them
+// for a draw scale: first the smallest sheet at least as detailed as the screen (shrinking a
+// sharper sheet looks better than enlarging a blurrier one), then larger ones, then smaller ones.
+// For example 2 -> 2, 4, 1; 3 -> 4, 2, 1; 4 -> 4, 2, 1. A 1x screen always uses the 1x sheet.
+static vector<int> sheet_scales_to_try(int draw_scale) {
+    static const int kSheetScales[] = {1, 2, 4};
+    vector<int>      order;
+    for (int s : kSheetScales) {
+        if (s >= draw_scale) {
+            order.push_back(s);
+        }
+    }
+    for (int i = 2; i >= 0; --i) {
+        if (kSheetScales[i] < draw_scale) {
+            order.push_back(kSheetScales[i]);
+        }
+    }
+    return order;
+}
+
 NatePixTable::NatePixTable(pn::string_view name, Hue hue) {
     SpriteData  data    = Resource::sprite_data(name);
     ArrayPixMap image   = Resource::sprite_image(name);
@@ -43,15 +63,44 @@ NatePixTable::NatePixTable(pn::string_view name, Hue hue) {
     if (image.size() != overlay.size()) {
         throw std::runtime_error("size mismatch between image and overlay");
     }
+
+    // Use a higher-resolution sheet when the screen can show it. It must be an exact multiple of
+    // the 1x sheet, because frame rectangles and pivots stay in 1x units: they define collision
+    // bounds and weapon mounts, so only the texture changes.
+    int scale = 1;
+    for (int s : sheet_scales_to_try(sys.video->scale())) {
+        if (s == 1) {
+            break;
+        } else if (!Resource::sprite_exists(name, s)) {
+            continue;
+        }
+        ArrayPixMap hi_image   = Resource::sprite_image(name, s);
+        ArrayPixMap hi_overlay = Resource::sprite_overlay(name, s);
+        const Size  want{image.size().width * s, image.size().height * s};
+        if ((hi_image.size() != want) || (hi_overlay.size() != want)) {
+            pn::err.format(
+                    "sprites/{0}: ignoring @{1}x sheets: not exactly {1} times the 1x size\n",
+                    name, s);
+            continue;
+        }
+        image   = std::move(hi_image);
+        overlay = std::move(hi_overlay);
+        scale   = s;
+        break;
+    }
+
     for (SpriteData::Frame frame : data.frames) {
         const int i = _frames.size();
         Rect      sprite{frame.left, frame.top, frame.right, frame.bottom};
         Rect      bounds = sprite;
         bounds.offset(-frame.cx, -frame.cy);
+        Rect sheet_rect{sprite.left * scale, sprite.top * scale, sprite.right * scale,
+                        sprite.bottom * scale};
         if (hue == Hue::GRAY) {
-            _frames.emplace_back(bounds, image.view(sprite), name, i);
+            _frames.emplace_back(bounds, scale, image.view(sheet_rect), name, i);
         } else {
-            _frames.emplace_back(bounds, image.view(sprite), name, i, overlay.view(sprite), hue);
+            _frames.emplace_back(
+                    bounds, scale, image.view(sheet_rect), name, i, overlay.view(sheet_rect), hue);
         }
     }
 }
@@ -63,16 +112,21 @@ const NatePixTable::Frame& NatePixTable::at(size_t index) const { return _frames
 size_t NatePixTable::size() const { return _size; }
 
 NatePixTable::Frame::Frame(
-        Rect bounds, const PixMap& image, pn::string_view name, int frame, const PixMap& overlay,
-        Hue hue)
-        : _bounds(bounds), _pix_map(bounds.width(), bounds.height()) {
+        Rect bounds, int scale, const PixMap& image, pn::string_view name, int frame,
+        const PixMap& overlay, Hue hue)
+        : _bounds(bounds),
+          _scale(scale),
+          _pix_map(bounds.width() * scale, bounds.height() * scale) {
     load_image(image);
     load_overlay(overlay, hue);
     build(name, frame);
 }
 
-NatePixTable::Frame::Frame(Rect bounds, const PixMap& image, pn::string_view name, int frame)
-        : _bounds(bounds), _pix_map(bounds.width(), bounds.height()) {
+NatePixTable::Frame::Frame(
+        Rect bounds, int scale, const PixMap& image, pn::string_view name, int frame)
+        : _bounds(bounds),
+          _scale(scale),
+          _pix_map(bounds.width() * scale, bounds.height() * scale) {
     load_image(image);
     build(name, frame);
 }
@@ -82,8 +136,8 @@ NatePixTable::Frame::~Frame() {}
 void NatePixTable::Frame::load_image(const PixMap& pix) { _pix_map.copy(pix); }
 
 void NatePixTable::Frame::load_overlay(const PixMap& pix, Hue hue) {
-    for (auto x : range(width())) {
-        for (auto y : range(height())) {
+    for (auto x : range(_pix_map.size().width)) {
+        for (auto y : range(_pix_map.size().height)) {
             RgbColor over  = pix.get(x, y);
             uint8_t  value = over.red;
             uint8_t  frac  = over.alpha;
@@ -106,7 +160,8 @@ const PixMap&  NatePixTable::Frame::pix_map() const { return _pix_map; }
 const Texture& NatePixTable::Frame::texture() const { return _texture; }
 
 void NatePixTable::Frame::build(pn::string_view name, int frame) {
-    _texture = sys.video->texture(pn::format("/sprites/{0}%{1}", name, frame), _pix_map, 1);
+    // The texture is drawn at the frame's 1x size; a larger pixmap just gives it more detail.
+    _texture = sys.video->texture(pn::format("/sprites/{0}%{1}", name, frame), _pix_map, _scale);
 }
 
 }  // namespace antares
