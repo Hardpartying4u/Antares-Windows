@@ -386,10 +386,22 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78â
 - **Players see `image.png`.** A side is tinted only if its level sets a `hue`, and almost none do
   (default grey draws the image as painted). The overlay matters only for hued sides. See
   `docs/art-direction.md`.
-- **Resource search order:** plugin folder or zip, then the factory scenario folder
-  (`Documents/Antares/Scenarios/<id>`), then the app's `data/` (`src/data/resource.cpp` ~89). A
-  file in the scenario folder therefore replaces the same-named file in `data/`, which the sprite
-  tools use for in-game tests.
+- **Resource search order:**
+  1. plugin folder or zip;
+  2. the factory scenario folder (`Documents/Antares/Scenarios/<id>`);
+  3. the Star Bound art folder (`art_path()`; added 2026-10-18);
+  4. the app's `data/` (`src/data/resource.cpp` ~89).
+
+  A file in the scenario folder therefore replaces the same-named file everywhere else, which the
+  sprite tools use for in-game tests. The art folder holds finished replacement art (`art/`).
+  - The game uses `art/` next to the data folder when it exists. `--art DIR` points elsewhere;
+    `--no-art` shows the originals (`src/win/main.cpp`).
+  - Tests and tools never set it, so they always see the original art.
+  - `scripts/dist.py` packages `art/` next to `data/`.
+  - Each file is looked up on its own, so a sprite takes its sheets from `art/` and its frame table
+    from `data/`.
+  - Tested in game: by default the Human fighter, cruiser and carrier draw from `art/`; with
+    `--no-art` they show the originals.
 - **Team colour**: `NatePixTable(name, hue)` (`src/drawing/pix-table.cpp` ~38) tints the
   overlay layer with the owner's hue and composites it onto the image; gray = untinted.
 - Drawing: `draw_sprites()` (`src/drawing/sprite-handling.cpp` ~168) draws three layers in order

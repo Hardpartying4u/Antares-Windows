@@ -1,4 +1,11 @@
-# Star Bound: Fleet Remaster Plan (draft for approval)
+# Star Bound: Fleet Remaster Plan
+
+**Approved 2026-10-18.** Decisions:
+- the batch order, starting with batch 1 (Ishiman core);
+- art in an `art/` folder with Git LFS;
+- keep the original EVA troopers (kit F) for now.
+
+The `ASSETS.md` licensing question stays open (`docs/design.md` §10).
 
 This plan covers remastering every rotating ship sprite in the way the Human cruiser, fighter and
 carrier were done (`docs/current-state.md` §4.3.1): the shape is fitted to the original frames,

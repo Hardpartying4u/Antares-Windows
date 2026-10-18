@@ -96,14 +96,15 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
 | M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; Human fighter and carrier remastered with shared shape kits, approved, and all three tested in game at UI 1×, 2×, 4×; full-fleet plan next) |
-| M5 | All ships replaced | Every ship type uses new sprites (plan drafted in `docs/fleet-plan.md`, awaiting approval: 67 ships in 7 batches) |
+| M5 | All ships replaced | Every ship type uses new sprites (`docs/fleet-plan.md`, approved 2026-10-18: 67 ships in 7 batches; art in `art/`; batch 1 Ishiman core in progress) |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
 ## 10. Open questions
 
 - Which parts of the UI need a full redesign and which only need scaling?
 - ~~How many ship types and frames per ship does the game load?~~ Answered 2026-10-18: 78 rotating sprites are in use, by 106 objects (corrected from "82 objects" by `fleet_inventory.py`); all have 24 frames (15° steps) except the Bazidan battleship (36). 70 are ships, 8 are missiles, effects or figures. Frames range from 12 × 11 to 108 × 78 px (see `docs/current-state.md` §4.3).
-- Where should finished replacement art live: a fork of the data repository, or a separate Star Bound art folder with a loader change?
+- ~~Where should finished replacement art live?~~ Decided 2026-10-18: an `art/` folder at the repository root, read after the factory scenario folder and before `data/`, with its PNGs in Git LFS (`docs/fleet-plan.md` §5).
+- Do remastered sprites (fitted to and coloured from the originals) count as replacements for selling the game, or are they adaptations still under CC BY-NC-SA 3.0? `ASSETS.md` marks them "replaced (…, adaptation)" until decided. (This is not legal advice; it may need one.)
 - Should every ship be rendered with one shared camera (tilt and perspective distance; simpler, consistent) or with each original's fitted camera (closer match, more fitting work)? The Human cruiser needed 44° tilt and a perspective camera about 200 units away to fit its frames within 1 %.
 - ~~Which modernisation level (A subtle, B balanced, C richest; see `docs/art-direction.md`) becomes the fleet standard?~~ None, 2026-10-18: the variants drifted from the original design; replaced by remastering from the original frames (§6).
 - ~~Should new art keep the original ship designs or reinterpret them?~~ Answered 2026-10-18: keep them, the same ship remastered (cleaner and sharper, recognisably the original).
