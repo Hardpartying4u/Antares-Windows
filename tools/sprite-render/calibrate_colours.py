@@ -21,24 +21,27 @@ import os
 import numpy as np
 from PIL import Image
 
-import uns_cruiser_shape as shape
+import importlib
+
 from carve import visible_colours
 from sprite_geometry import Camera, Sprite
 
-# Colour regions on the hull, in model units (measured from the original, carve.py; the same
-# numbers mark the regions in uns_cruiser_remaster.py).
-STRIP = {"hw": 1.0, "y": (-12.0, 5.5)}
-COCKPIT = {"hw": 1.75, "y": (6.0, 10.5)}
+# Colour regions on the cruiser's hull, in model units (measured from the original, carve.py; the
+# same numbers mark the regions in uns_cruiser_remaster.py). Twin-pod ships carry theirs in LOOK.
+CRUISER_LOOK = {"strip": {"hw": 1.0, "y": (-12.0, 5.5)}, "cockpit": {"hw": 1.75, "y": (6.0, 10.5)}}
 
 
-def regions(p, pts, normals):
+def regions(shape, p, pts, normals):
+    look = getattr(shape, "LOOK", CRUISER_LOOK)
     part = shape.part_of(p, pts)
     x, y = np.abs(pts[:, 0]), pts[:, 1]
     up = normals[:, 2] > 0.5
     label = part.astype(object)
     label[(part == "pod")] = "pods"
-    label[(part == "hull") & up & (x < STRIP["hw"]) & (y > STRIP["y"][0]) & (y < STRIP["y"][1])] = "strip"
-    label[(part == "hull") & up & (x < COCKPIT["hw"]) & (y > COCKPIT["y"][0]) & (y < COCKPIT["y"][1])] = "cockpit"
+    for key in ("strip", "cockpit"):
+        if key in look:
+            r = look[key]
+            label[(part == "hull") & up & (x < r["hw"]) & (y > r["y"][0]) & (y < r["y"][1])] = key
     return label
 
 
@@ -53,12 +56,16 @@ def main():
     a.add_argument("--data", default="data")
     a.add_argument("--render", required=True)
     a.add_argument("--carve", required=True)
-    a.add_argument("--fit", default=os.path.join(os.path.dirname(__file__), "uns_cruiser_fit.json"))
+    a.add_argument("--shape", default="uns_cruiser_shape", help="shape module of the ship")
+    a.add_argument("--fit", help="fitted parameters (default: <ship>_fit.json next to the shape)")
     a.add_argument("--colours", required=True, help="JSON of linear base colours to update")
     a.add_argument("--damping", type=float, default=0.8, help="fraction of the correction to apply")
     args = a.parse_args()
 
-    with open(args.fit, encoding="utf-8") as f:
+    shape = importlib.import_module(args.shape)
+    fit_path = args.fit or os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        args.shape.replace("_shape", "_fit.json"))
+    with open(fit_path, encoding="utf-8") as f:
         fit = json.load(f)
     p, cam_cfg = fit["params"], fit["camera"]
     cam = Camera(cam_cfg["tilt"], cam_cfg["distance"])
@@ -74,7 +81,7 @@ def main():
     # skip the red lights and anything seen too rarely to trust
     red = (co[:, 0] > co[:, 1] * 1.6) & (co[:, 0] > 90)
     use = (seen_o >= 3) & (seen_n >= 3) & ~red & (co[:, 3] > 200) & (cn[:, 3] > 200)
-    label = regions(p, pts, normals)
+    label = regions(shape, p, pts, normals)
 
     with open(args.colours, encoding="utf-8") as f:
         colours = json.load(f)
