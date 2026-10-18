@@ -89,6 +89,7 @@ class TextResourceData {
         if ((plug.dir.has_value() && data.load(*plug.dir, resource_path)) ||
             (plug.zip && data.load(*plug.zip, resource_path)) ||
             data.load(factory_scenario_path(), resource_path) ||
+            (!art_path().empty() && data.load(art_path(), resource_path)) ||
             data.load(application_path(), resource_path)) {
             return data;
         }
@@ -158,6 +159,7 @@ class BinaryResourceData {
         if ((plug.dir.has_value() && data.load(*plug.dir, resource_path)) ||
             (plug.zip && data.load(*plug.zip, resource_path)) ||
             data.load(factory_scenario_path(), resource_path) ||
+            (!art_path().empty() && data.load(art_path(), resource_path)) ||
             data.load(application_path(), resource_path)) {
             return data;
         }
@@ -212,6 +214,7 @@ static bool resource_exists(pn::string_view resource_path) {
     return (plug.dir.has_value() && resource_exists_in_dir(*plug.dir, resource_path)) ||
            (plug.zip && resource_exists_in_zip(*plug.zip, resource_path)) ||
            resource_exists_in_dir(factory_scenario_path(), resource_path) ||
+           (!art_path().empty() && resource_exists_in_dir(art_path(), resource_path)) ||
            resource_exists_in_dir(application_path(), resource_path);
 }
 

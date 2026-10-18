@@ -60,6 +60,9 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "                        (default: {2})\n"
             "    -f, --factory       set path to factory scenario\n"
             "                        (default: {3})\n"
+            "        --art           set path to the Star Bound art folder\n"
+            "                        (default: art next to the application data)\n"
+            "        --no-art        use only the original art\n"
             "    -h, --help          display this help screen\n",
             progname, default_application_path(), default_config_path(),
             default_factory_scenario_path());
@@ -81,8 +84,10 @@ void main(int argc, char* const* argv) {
         return true;
     };
 
-    pn::string_view config_path = default_config_path();
-    callbacks.short_option      = [&progname, &config_path](
+    pn::string_view                config_path = default_config_path();
+    sfz::optional<pn::string_view> art;
+    bool                           no_art  = false;
+    callbacks.short_option                 = [&progname, &config_path](
                                      pn::rune opt, const args::callbacks::get_value_f& get_value) {
         switch (opt.value()) {
             case 'a': set_application_path(get_value()); return true;
@@ -94,8 +99,15 @@ void main(int argc, char* const* argv) {
     };
 
     callbacks.long_option =
-            [&callbacks](pn::string_view opt, const args::callbacks::get_value_f& get_value) {
-                if (opt == "app-data") {
+            [&callbacks, &art, &no_art](
+                    pn::string_view opt, const args::callbacks::get_value_f& get_value) {
+                if (opt == "art") {
+                    art.emplace(get_value());
+                    return true;
+                } else if (opt == "no-art") {
+                    no_art = true;
+                    return true;
+                } else if (opt == "app-data") {
                     return callbacks.short_option(pn::rune{'a'}, get_value);
                 } else if (opt == "config") {
                     return callbacks.short_option(pn::rune{'c'}, get_value);
@@ -121,6 +133,14 @@ void main(int argc, char* const* argv) {
                     pn::format("{0}: application data not found", application_path()).c_str());
         }
         exit(1);
+    }
+    if (!no_art) {
+        pn::string dir = art.has_value() ? art->copy() : default_art_path();
+        if (sfz::path::isdir(dir)) {
+            set_art_path(dir);
+        } else if (art.has_value()) {
+            throw std::runtime_error(pn::format("{0}: art folder not found", dir).c_str());
+        }
     }
 
     FilePrefsDriver prefs(config_path);

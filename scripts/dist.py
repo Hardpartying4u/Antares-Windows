@@ -72,6 +72,9 @@ def add_files(archive_content, archive_root, add):
     elif archive_content == "win":
         for real_path, archive_path in walk("Antares/data", "data"):
             add(real_path, archive_path)
+        # Star Bound art folder: replacement art, read before data/ (src/data/resource.cpp).
+        for real_path, archive_path in walk("Antares/art", "art"):
+            add(real_path, archive_path)
         add("out/win/opt/antares.exe", "Antares/Antares.exe")
     else:
         raise RuntimeError(archive_content)

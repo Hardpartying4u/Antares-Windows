@@ -44,6 +44,13 @@ pn::string_view default_factory_scenario_path();
 pn::string_view factory_scenario_path();
 void            set_factory_scenario_path(pn::string_view path);
 
+// Star Bound art folder: replacement art (remastered sprite sheets), searched after the factory
+// scenario folder and before the application data, so `data/` is never edited. Empty (unused)
+// unless the game sets it; tools and tests keep the original art.
+pn::string      default_art_path();  // "art" next to the application data folder
+pn::string_view art_path();
+void            set_art_path(pn::string_view path);
+
 }  // namespace antares
 
 #endif  // ANTARES_CONFIG_DIRS_HPP_

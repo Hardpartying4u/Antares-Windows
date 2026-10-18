@@ -47,4 +47,21 @@ pn::string_view factory_scenario_path() {
 
 void set_factory_scenario_path(pn::string_view path) { factory_scenario.emplace(path.copy()); }
 
+static pn::string art;
+
+pn::string default_art_path() {
+    pn::string_view app = application_path();
+    int             cut = -1;
+    for (int i = 0; i < app.size(); ++i) {
+        if ((app.data()[i] == '/') || (app.data()[i] == '\\')) {
+            cut = i;
+        }
+    }
+    return (cut < 0) ? pn::string{"art"} : pn::format("{0}/art", app.substr(0, cut));
+}
+
+pn::string_view art_path() { return art; }
+
+void set_art_path(pn::string_view path) { art = path.copy(); }
+
 }  // namespace antares
