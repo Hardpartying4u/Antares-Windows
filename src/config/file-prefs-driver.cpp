@@ -106,6 +106,10 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
     pn::map_cref video = m.get("video").as_map();
     set(_current.fullscreen, video.get("fullscreen"));
     set(_current.window_size, video.get("window"));
+    set(_current.ui_scale, video.get("ui scale"));
+    if ((_current.ui_scale < 0) || (_current.ui_scale > 4)) {
+        _current.ui_scale = 0;
+    }
 }
 
 void FilePrefsDriver::set(const Preferences& p) {
@@ -135,6 +139,7 @@ void FilePrefsDriver::set(const Preferences& p) {
                               {"width", p.window_size.width},
                               {"height", p.window_size.height},
                       }},
+                     {"ui scale", p.ui_scale},
              }},
     });
 }

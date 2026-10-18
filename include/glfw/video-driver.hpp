@@ -40,8 +40,10 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
 
     virtual pn::string_view glsl_version() const;
 
-    virtual Size viewport_size() const { return _viewport_size; }
-    virtual Size screen_size() const { return _screen_size; }
+    virtual Size  viewport_size() const { return _viewport_size; }
+    virtual Point viewport_origin() const;
+    virtual Size  screen_size() const { return _screen_size; }
+    virtual int   scale() const { return _scale; }
 
     virtual Point     get_mouse();
     virtual InputMode input_mode() const;
@@ -63,6 +65,8 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
     void        mouse_move(double x, double y);
     void        window_size(int width, int height);
     void        window_maximize(bool maximized);
+    void        update_layout();
+    Point       to_screen(double x, double y) const;
     static void key_callback(GLFWwindow* w, int key, int scancode, int action, int mods);
     static void char_callback(GLFWwindow* w, unsigned int code_point);
     static void mouse_button_callback(GLFWwindow* w, int button, int action, int mods);
@@ -70,9 +74,19 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
     static void window_size_callback(GLFWwindow* w, int width, int height);
     static void window_maximize_callback(GLFWwindow* w, int maximized);
 
-    bool            _fullscreen;
-    Size            _screen_size;
-    Size            _viewport_size;
+    bool _fullscreen;
+
+    // The window is _window_size in GLFW screen coordinates and _framebuffer_size in pixels.
+    // Antares draws a logical screen of _screen_size, magnified by an integer _scale (the UI
+    // scale times the display's own pixel ratio) into a _viewport_size area that is centered in
+    // the framebuffer, leaving a thin black border where the sizes don't divide evenly.
+    Size  _window_size;
+    Size  _framebuffer_size;
+    Size  _screen_size;
+    Size  _viewport_size;
+    Point _viewport_offset;  // top-left of the viewport within the framebuffer
+    int   _scale = 1;
+
     pn::string_view _glsl_version;
     GLFWwindow*     _window;
     MainLoop*       _loop;

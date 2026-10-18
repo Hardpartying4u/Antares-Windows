@@ -227,6 +227,19 @@ void SoundControlScreen::overlay() const {
     }
 }
 
+// UI scale choices, shown as a column of checkboxes that act like radio buttons. They are added
+// in code rather than in data/interfaces/options/video.pn, which belongs to the separately
+// licensed data repository.
+static const struct {
+    const char* id;
+    const char* label;
+    int         scale;  // 0: automatic
+} kUiScaleChoices[] = {
+        {"ui-scale-auto", "UI Scale: Auto", 0}, {"ui-scale-1", "UI Scale: 1x", 1},
+        {"ui-scale-2", "UI Scale: 2x", 2},      {"ui-scale-3", "UI Scale: 3x", 3},
+        {"ui-scale-4", "UI Scale: 4x", 4},
+};
+
 VideoControlScreen::VideoControlScreen(OptionsScreen::State* state)
         : InterfaceScreen("options/video", {0, 0, 640, 480}), _state(state) {
     checkbox(kFullscreenButton)
@@ -234,6 +247,29 @@ VideoControlScreen::VideoControlScreen(OptionsScreen::State* state)
                     [] { return sys.prefs->fullscreen(); },
                     [](bool on) { sys.prefs->set_fullscreen(on); },
             });
+
+    int top = 111;  // aligned with the Fullscreen checkbox
+    for (const auto& choice : kUiScaleChoices) {
+        CheckboxButtonData data;
+        data.id     = choice.id;
+        data.type   = WidgetDataBase::CHECKBOX;
+        data.bounds = {340, top, 540, top + 10};
+        data.label  = choice.label;
+        data.hue    = Hue::PALE_PURPLE;
+        data.style  = InterfaceStyle::LARGE;
+        top += 33;
+
+        const int scale = choice.scale;
+        dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
+                ->bind({
+                        [scale] { return sys.prefs->ui_scale() == scale; },
+                        [scale](bool on) {
+                            if (on) {
+                                sys.prefs->set_ui_scale(scale);
+                            }
+                        },
+                });
+    }
 
     button(kDoneButton)
             ->bind({

@@ -102,6 +102,10 @@ class OpenGlVideoDriver : public VideoDriver {
     virtual Size            viewport_size() const = 0;
     virtual pn::string_view glsl_version() const  = 0;
 
+    // Bottom-left corner of the viewport within the framebuffer, in GL coordinates. Drivers
+    // that leave a border around the viewport override this.
+    virtual Point viewport_origin() const { return {0, 0}; }
+
   private:
     virtual void begin_points();
     virtual void end_points();

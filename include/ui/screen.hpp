@@ -60,6 +60,9 @@ class InterfaceScreen : public Card {
     const Widget*         widget(pn::string_view id) const;
     Widget*               widget(pn::string_view id);
 
+    // Adds a widget that isn't in the screen's interface file.
+    Widget* add_widget(const WidgetData& data);
+
   private:
     enum State {
         NORMAL,

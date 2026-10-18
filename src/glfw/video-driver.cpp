@@ -22,6 +22,8 @@
 
 #include <game/sys.hpp>
 #include <pn/output>
+#include <algorithm>
+#include <cmath>
 #include <sfz/sfz.hpp>
 
 #ifdef _MSC_VER
@@ -167,11 +169,23 @@ static void throw_error(int code, const char* message) {
     pn::err.format("{0}: {1}\n", code, message);
 }
 
+// Smallest logical screen the UI is laid out for; the UI scale never shrinks it below this.
+static const Size kMinScreenSize = {640, 480};
+
+// Window height per step of automatic UI scale: 1x below 1080, 2x from 1080, 3x from 1620...
+static const int kAutoScaleStep = 540;
+
 GLFWVideoDriver::GLFWVideoDriver()
         : _fullscreen(sys.prefs->fullscreen()),
-          _screen_size(sys.prefs->window_size()),
+          _window_size(sys.prefs->window_size()),
           _last_click_count(0),
           _text(nullptr) {
+    if ((_window_size.width <= 0) || (_window_size.height <= 0)) {
+        _window_size = kMinScreenSize;
+    }
+    _framebuffer_size = _window_size;
+    _screen_size      = _window_size;
+    _viewport_size    = _window_size;
     if (!glfwInit()) {
         throw std::runtime_error("glfwInit()");
     }
@@ -185,7 +199,48 @@ pn::string_view GLFWVideoDriver::glsl_version() const { return _glsl_version; }
 Point GLFWVideoDriver::get_mouse() {
     double x, y;
     glfwGetCursorPos(_window, &x, &y);
-    return {int(x), int(y)};
+    return to_screen(x, y);
+}
+
+Point GLFWVideoDriver::viewport_origin() const {
+    // GL viewports are measured from the bottom-left corner of the framebuffer.
+    return {_viewport_offset.h,
+            _framebuffer_size.height - _viewport_size.height - _viewport_offset.v};
+}
+
+// Converts a cursor position in GLFW window coordinates to logical screen coordinates.
+Point GLFWVideoDriver::to_screen(double x, double y) const {
+    const double px = x * _framebuffer_size.width / _window_size.width;
+    const double py = y * _framebuffer_size.height / _window_size.height;
+    return {int(std::floor((px - _viewport_offset.h) / _scale)),
+            int(std::floor((py - _viewport_offset.v) / _scale))};
+}
+
+void GLFWVideoDriver::update_layout() {
+    if ((_window_size.width <= 0) || (_window_size.height <= 0) ||
+        (_framebuffer_size.width <= 0) || (_framebuffer_size.height <= 0)) {
+        return;  // minimized
+    }
+
+    // Pixels per window coordinate: 1 on Windows, 2 on a Mac Retina display.
+    const int pixel_ratio = std::max(1, _framebuffer_size.width / _window_size.width);
+
+    int ui_scale = sys.prefs->ui_scale();
+    if (ui_scale <= 0) {
+        ui_scale = std::max(1, _window_size.height / kAutoScaleStep);
+    }
+    // Never shrink the logical screen below the size the menus and HUD are laid out for.
+    const int max_scale = std::max(
+            1, std::min(
+                       _window_size.width / kMinScreenSize.width,
+                       _window_size.height / kMinScreenSize.height));
+    ui_scale = std::min(ui_scale, max_scale);
+
+    _scale         = ui_scale * pixel_ratio;
+    _screen_size   = {_framebuffer_size.width / _scale, _framebuffer_size.height / _scale};
+    _viewport_size = {_screen_size.width * _scale, _screen_size.height * _scale};
+    _viewport_offset = {(_framebuffer_size.width - _viewport_size.width) / 2,
+                        (_framebuffer_size.height - _viewport_size.height) / 2};
 }
 
 InputMode GLFWVideoDriver::input_mode() const { return KEYBOARD_MOUSE; }
@@ -380,7 +435,7 @@ void GLFWVideoDriver::mouse_button(int button, int action, int mods) {
 }
 
 void GLFWVideoDriver::mouse_move(double x, double y) {
-    MouseMoveEvent(now(), Point(x, y)).send(_loop->top());
+    MouseMoveEvent(now(), to_screen(x, y)).send(_loop->top());
 }
 
 void GLFWVideoDriver::window_size(int width, int height) {
@@ -388,11 +443,12 @@ void GLFWVideoDriver::window_size(int width, int height) {
     if ((width == 0) || (height == 0)) {
         return;
     }
-    _screen_size = {width, height};
+    _window_size = {width, height};
     if (!_fullscreen) {
-        sys.prefs->set_window_size(_screen_size);
+        sys.prefs->set_window_size(_window_size);
     }
-    glfwGetFramebufferSize(_window, &_viewport_size.width, &_viewport_size.height);
+    glfwGetFramebufferSize(_window, &_framebuffer_size.width, &_framebuffer_size.height);
+    update_layout();
 }
 
 void GLFWVideoDriver::window_maximize(bool maximized) {
@@ -408,14 +464,14 @@ void GLFWVideoDriver::window_maximize(bool maximized) {
     if (_fullscreen) {
         monitor      = glfwGetPrimaryMonitor();
         mode         = glfwGetVideoMode(monitor);
-        _screen_size = {mode->width, mode->height};
+        _window_size = {mode->width, mode->height};
     } else {
         mode         = glfwGetVideoMode(glfwGetWindowMonitor(_window));
-        _screen_size = sys.prefs->window_size();
+        _window_size = sys.prefs->window_size();
     }
 
     Rect screen_rect{Point{0, 0}, Size{mode->width, mode->height}};
-    Rect window_rect{Point{0, 0}, _screen_size};
+    Rect window_rect{Point{0, 0}, _window_size};
     window_rect.center_in(screen_rect);
     glfwSetWindowMonitor(
             _window, monitor, window_rect.left, window_rect.top, window_rect.width(),
@@ -477,7 +533,7 @@ void GLFWVideoDriver::loop(Card* initial) {
     if (_fullscreen) {
         monitor      = glfwGetPrimaryMonitor();
         mode         = glfwGetVideoMode(monitor);
-        _screen_size = {mode->width, mode->height};
+        _window_size = {mode->width, mode->height};
     }
 
     for (const auto hint_version : {hint_opengl32, hint_opengl20}) {
@@ -489,7 +545,7 @@ void GLFWVideoDriver::loop(Card* initial) {
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
         }
-        _window = glfwCreateWindow(_screen_size.width, _screen_size.height, "", monitor, NULL);
+        _window = glfwCreateWindow(_window_size.width, _window_size.height, "", monitor, NULL);
         if (_window) {
             break;
         }
@@ -498,7 +554,10 @@ void GLFWVideoDriver::loop(Card* initial) {
         throw std::runtime_error("glfwCreateWindow");
     }
 
-    glfwGetFramebufferSize(_window, &_viewport_size.width, &_viewport_size.height);
+    // GLFW_SCALE_TO_MONITOR may have resized the window, so read back its real size.
+    glfwGetWindowSize(_window, &_window_size.width, &_window_size.height);
+    glfwGetFramebufferSize(_window, &_framebuffer_size.width, &_framebuffer_size.height);
+    update_layout();
     glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glfwSetWindowUserPointer(_window, this);
@@ -517,6 +576,7 @@ void GLFWVideoDriver::loop(Card* initial) {
 
     while (!main_loop.done() && !glfwWindowShouldClose(_window)) {
         glfwPollEvents();
+        update_layout();  // picks up UI scale changes made in the options screen
         _loop->draw();
         glfwSwapBuffers(_window);
         wall_time at;

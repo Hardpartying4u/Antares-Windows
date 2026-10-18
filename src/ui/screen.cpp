@@ -218,4 +218,9 @@ CheckboxButton* InterfaceScreen::checkbox(pn::string_view id) {
     return dynamic_cast<CheckboxButton*>(widget(id));
 }
 
+Widget* InterfaceScreen::add_widget(const WidgetData& data) {
+    _widgets.push_back(Widget::from(data));
+    return _widgets.back().get();
+}
+
 }  // namespace antares

@@ -37,6 +37,7 @@ struct Preferences {
     int16_t volume;
     bool    fullscreen;
     Size    window_size;
+    int16_t ui_scale;  // 0: automatic; 1-4: fixed integer UI scale.
 };
 
 class PrefsDriver {
@@ -54,6 +55,7 @@ class PrefsDriver {
     int  volume() const { return get().volume; }
     int  fullscreen() const { return get().fullscreen; }
     Size window_size() const { return get().window_size; }
+    int  ui_scale() const { return get().ui_scale; }
 
     void set_key(size_t index, Key key);
     void set_play_idle_music(bool on);
@@ -62,6 +64,7 @@ class PrefsDriver {
     void set_volume(int volume);
     void set_fullscreen(bool on);
     void set_window_size(Size size);
+    void set_ui_scale(int scale);
 
     static PrefsDriver* driver();
 };
