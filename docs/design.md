@@ -54,6 +54,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - **Test through the scenario override folder.** Rendered 1× sheets go into `Documents/Antares/Scenarios/<factory scenario>/sprites/…`, which the game reads before `data/`. Nothing in `data/` or the game code changes for a test, and a tool removes the files afterwards. Where finished art will live permanently is still open.
   - **Render 1×, 2× and 4×.** The game now loads all three (next decision).
 - **Decision (2026-10-18): sprites load `@2x`/`@4x` sheets when present.** This reuses the HiDPI draw scale. For each sprite the game picks the smallest sheet at least as detailed as the screen, then larger, then smaller: UI 1× uses 1×; 2× uses @2x; 3× and 4× use @4x. If a sheet is missing, or isn't an exact multiple of the 1× size, it falls back to the next one and ultimately to the original. Frame rectangles and pivots stay in 1× units, so collisions, weapon mounts and replays are unchanged. Tested with the placeholder cruiser at UI 1×–4×, including the fallbacks.
+  - **Amended 2026-10-18:** the sheet is chosen from the effective draw scale, UI scale × the object's own sprite scale. So capital ships, drawn at 2×, use @2x at UI 1× and @4x from UI 2×.
   - `ASSETS.md` stays unchanged until a real model replaces an original sprite.
 - **Finding: the original sprites use a three-quarter view.** They were rendered with a camera tilted about 44° from vertical, viewing from the bottom of the screen, which shortens ships' length on screen. Each ship's pivot also sits above the hull. New renders have to match both, or ships won't line up with their pivots. The angle was fitted for the Human cruiser; other ships give noisier estimates (8°–52°), so the tilt is a per-sprite setting (`--tilt`). Tools: `tools/sprite-render/`, described in `docs/current-state.md` §4.3.
 
@@ -68,7 +69,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Approved 2026-10-18 and tested in game at UI 1×, 2× and 4× (`docs/current-state.md` §4.3). Details: `docs/current-state.md` §4.3.1.
   - Two more Human ships done the same way (2026-10-18):
     - fighter: IoU 0.90 / 0.87, outline 0.29 px;
-    - carrier: IoU 0.94 / 0.92, outline 0.46 px; its p95 is 2.0 px, from frame 0's 1 px antenna.
+    - carrier: IoU 0.94 / 0.92, outline 0.46 px; its p95 is 2.0 px, from frame 0's 1 px antenna (miss accepted 2026-10-18).
   - They use two reusable shape kits: twin-pod and box-kit. Per ship, the hand-written part is a
     30–35 line shape module (layout, starting values, measured look); camera finding, carving,
     fitting, offset, colour calibration and the comparison sheet are automatic.
@@ -94,7 +95,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M1 | UI scales with the window | Menus and HUD scale crisply with the window (automatic integer scale plus Video options override), mouse input stays exact, tested at 1080p, 1440p, ultrawide and small windows, windowed and fullscreen |
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
-| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; Human fighter and carrier remastered with shared shape kits, awaiting review) |
+| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; Human fighter and carrier remastered with shared shape kits, approved, and all three tested in game at UI 1×, 2×, 4×; full-fleet plan next) |
 | M5 | All ships replaced | Every ship type uses new sprites |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
@@ -109,5 +110,5 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - ~~Team colour on engine lights?~~ Decided 2026-10-18: keep the originals' behaviour. The team tint covers the whole ship, engine lights included (`docs/art-direction.md` §3).
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
-- Should capital ships (drawn at 2×, `tpl/capship`) pick their sprite sheet from UI scale × object scale, so the carrier uses its @2x sheet at UI 1×? Today the choice uses the UI scale only (`src/drawing/pix-table.cpp`).
+- ~~Should capital ships pick their sprite sheet from UI scale × object scale?~~ Decided 2026-10-18: yes (see §6, sprite sheet decision).
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.

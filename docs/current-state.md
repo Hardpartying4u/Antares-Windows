@@ -400,9 +400,15 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
 - **High-resolution sheets (`@2x`, `@4x`).** A sprite may have `image@2x.png`/`overlay@2x.png`
   and `@4x` versions next to the 1× sheets (`NatePixTable::NatePixTable`,
   `src/drawing/pix-table.cpp`).
-  - Choice per draw scale (`sys.video->scale()`, chosen when the sprite loads): the smallest sheet
-    at least as detailed as the screen, then larger, then smaller. 1× → 1×; 2× → @2x, @4x, 1×;
-    3× → @4x, @2x, 1×; 4× and up → @4x, @2x, 1×. There's no `@3x`.
+  - Choice per effective draw scale, made when the level loads the sprite (`Pix::add`,
+    `src/drawing/sprite-handling.cpp`).
+    - The effective draw scale is the UI scale × the object's sprite scale (`sprite_scale`,
+      rounded up). Capital ships (`tpl/capship`, `rotation: {scale: 2.0}`) count double.
+    - Order: the smallest sheet at least as detailed as the screen, then larger, then smaller.
+      1× → 1×; 2× → @2x, @4x, 1×; 3× → @4x, @2x, 1×; 4× and up → @4x, @2x, 1×. There's no `@3x`.
+    - A capital ship therefore uses @2x at UI 1× and @4x from UI 2×.
+    - A sprite first loaded for a smaller scale is reloaded with the sharper sheet. The cursor and
+      other non-object sprites use the UI scale.
   - A sheet is used only if both its image and overlay exist and are exactly that multiple of the
     1× size; otherwise it's skipped with a message on stderr, and the next one is tried.
   - Frame rectangles and pivots stay in 1× units (`width()`, `height()`, `center()`), so collision
@@ -593,9 +599,16 @@ Results:
     light per pod.
   - **Both:** the team overlay covers the whole ship.
 
-**Capital ships and @2x sheets.** The game picks a sheet from the UI scale alone
-(`src/drawing/pix-table.cpp` ~71). The carrier is drawn at 2× (`tpl/capship`), so at UI 1× it
-shows its 1× sheet stretched, although an @2x sheet would match the screen.
+**Capital ships and @2x sheets.** Fixed 2026-10-18: sheets are now chosen by effective draw scale
+(§4.3).
+- In game, the remastered carrier at UI 1× draws from its @2x sheet: about a third of its 2×2
+  pixel blocks are uniform, against nearly all for a stretched 1× sheet.
+- **In-game test of all three** (2026-10-18): the remastered fighter, cruiser and carrier were
+  shown beside the original gunship, heavy destroyer and transport at UI 1×, 2× and 4× and 1:1 and
+  1:2 zoom. The test files were removed afterwards, and the save was unchanged (checked by hash).
+- **Observation:** the carrier's flat, light deck reads brighter than the mottled originals around
+  it, although its average tone matches its own original.
+- The carrier's frame-0 miss (p95 2.0 px, from the original's 1 px bow antenna) is accepted.
 
 ### 4.4 Effects and other layers
 
