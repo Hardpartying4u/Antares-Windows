@@ -548,6 +548,55 @@ The frames don't contain the following, so the remaster had to invent it:
 - the cockpit's glass look;
 - the lights' shape and size.
 
+#### Shared remaster tools and the next Human ships (2026-10-18)
+
+The pipeline per ship:
+1. `camera_sweep.py` finds the original's camera.
+2. `carve.py` measures the layout, colour regions and lights.
+3. A small hand-written `<ship>_shape.py` sets the layout, starting values and `look`.
+4. `fit_shape.py` fits it.
+5. A render, then `fit_metric.py --set-offset` stores the ship's sub-pixel offset.
+6. `calibrate_colours.py` (two or three rounds).
+7. `remaster_sheet.py`.
+
+Two reusable shape kits cover the ships so far:
+- `twin_pod.py` + `twin_pod_model.py`: hull loft, two engine pods, engine block. This is the
+  cruiser's layout, generalised with per-ship stations, bounds and `look` (dorsal strip, cockpit,
+  nacelle groove, one light per pod or per nacelle). Render with
+  `--model tools/sprite-render/twin_pod_model.py --variant <ship>`.
+- `box_kit.py` + `box_kit_model.py`: any list of fitted rounded boxes, which can be mirrored,
+  repeated as segments (hangar modules) or chamfered at the front. Use it for layouts that aren't
+  twin-pod.
+
+Each ship's `<ship>_fit.json` stores its camera, including the measured screen offset. The offset
+differs per ship (cruiser −0.5, fighter −0.69, carrier +0.04 px), so it is measured, not fixed.
+Notes on the tools:
+- `fit_shape.py --sub`: keep the grid step at most one sub-pixel, or frames seen straight on get
+  empty stripes and fit badly.
+
+Results:
+
+| | Camera | Ceiling (carved) | Rendered remaster | Wall-clock | Per-ship code |
+|---|---|---|---|---|---|
+| `uns/fighter` | 44°, 200 | 0.91 / 0.875 / 0.24 px | IoU 0.90 / 0.87, outline 0.29 px, p95 1.0 px | 7 min | 30-line shape module |
+| `uns/carrier` | 46°, 400 | 0.989 / 0.977 / 0.07 px | IoU 0.94 / 0.92, outline 0.46 px, p95 2.0 px | 12 min | 35-line shape module, plus the new box kit |
+
+- The cameras support one renderer framing every ship: a tilt of 44–46°, with the distance
+  growing with ship size.
+- The carrier's p95 misses 1.5 px only in frame 0, where the original has a 1 px bow antenna.
+- Compute per ship is about 2–4 minutes (sweep, carve, fit, about 8 renders of 10–30 s each). The
+  rest is the hand-written shape module plus fixing what a new ship shows up.
+- What the frames showed:
+  - **Fighter:** cockpit, dark crossbar, one red light per pod; the pods are single units, with
+    no nacelle groove.
+  - **Carrier:** bright deck spine between two dark stripes, four hangar modules, a fin, one red
+    light per pod.
+  - **Both:** the team overlay covers the whole ship.
+
+**Capital ships and @2x sheets.** The game picks a sheet from the UI scale alone
+(`src/drawing/pix-table.cpp` ~71). The carrier is drawn at 2× (`tpl/capship`), so at UI 1× it
+shows its 1× sheet stretched, although an @2x sheet would match the screen.
+
 ### 4.4 Effects and other layers
 
 Drawn each frame in this order (`GamePlay::draw`, `src/game/main.cpp` ~399):

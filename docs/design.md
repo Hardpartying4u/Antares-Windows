@@ -66,6 +66,14 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - The Human cruiser trial reaches 0.91 / 0.88 / 0.38 px / 1.41 px. The carving ceiling is 0.97 / 0.94 / 0.12 px; the old variants scored 0.79 / 0.73 / 0.92 px.
   - The frames only show one elevation, so section heights, the underside, panel lines and materials are invented.
   - Approved 2026-10-18 and tested in game at UI 1×, 2× and 4× (`docs/current-state.md` §4.3). Details: `docs/current-state.md` §4.3.1.
+  - Two more Human ships done the same way (2026-10-18):
+    - fighter: IoU 0.90 / 0.87, outline 0.29 px;
+    - carrier: IoU 0.94 / 0.92, outline 0.46 px; its p95 is 2.0 px, from frame 0's 1 px antenna.
+  - They use two reusable shape kits: twin-pod and box-kit. Per ship, the hand-written part is a
+    30–35 line shape module (layout, starting values, measured look); camera finding, carving,
+    fitting, offset, colour calibration and the comparison sheet are automatic.
+  - Ships that fit an existing kit took about 7 minutes of agent time; the carrier, which needed
+    the new box kit, took about 12. Compute is 2–4 minutes per ship.
 
 ## 7. Out of scope for now
 
@@ -86,7 +94,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M1 | UI scales with the window | Menus and HUD scale crisply with the window (automatic integer scale plus Video options override), mouse input stays exact, tested at 1080p, 1440p, ultrawide and small windows, windowed and fullscreen |
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
-| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; fighter and carrier next) |
+| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; Human fighter and carrier remastered with shared shape kits, awaiting review) |
 | M5 | All ships replaced | Every ship type uses new sprites |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
@@ -101,4 +109,5 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - ~~Team colour on engine lights?~~ Decided 2026-10-18: keep the originals' behaviour. The team tint covers the whole ship, engine lights included (`docs/art-direction.md` §3).
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
+- Should capital ships (drawn at 2×, `tpl/capship`) pick their sprite sheet from UI scale × object scale, so the carrier uses its @2x sheet at UI 1×? Today the choice uses the UI scale only (`src/drawing/pix-table.cpp`).
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.
