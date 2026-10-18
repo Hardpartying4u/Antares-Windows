@@ -419,7 +419,30 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   which gives it its own progress file, and a `levels/` folder; chapter 1 is always unlocked.
   Everything else falls back to the factory scenario folder and `data/`, so override sprites still
   apply. A one-level scenario with four Human cruisers was used to test `@2x`/`@4x` at UI 1×, 2×,
-  3× and 4×.
+  3× and 4×. Only the flagship stayed in view in that test, for the reasons below.
+- **Showing ships side by side in a test level** (2026-10-18). Ships don't sit where a level puts
+  them:
+  - Every ship starts at full speed in a random direction (`tpl/ship`: `initial_direction` 0–360,
+    and the initial velocity is `max_velocity` unless the object sets `initial_velocity`;
+    `src/game/space-object.cpp` ~257).
+  - The camera follows the flagship, so the others are soon out of view.
+  - The test scenario can also hold `objects/…` files, which take precedence over `data/`. Test
+    copies with `initial_velocity: 0.0` and a fixed `initial_direction` (plus zero
+    `max_velocity`/`thrust`/`turn_rate` for non-player ships) park every ship facing the same way.
+  - Without an `angle`, a level also rotates all start positions randomly (`src/game/level.cpp`
+    ~203).
+  - Return in a mission opens the text entry, which then swallows keys such as F9/F10.
+  - Synthetic key presses need hardware scan codes, or GLFW ignores function keys.
+- **Capital ships are drawn at 2×.** `tpl/capship` sets `rotation: {scale: 2.0}`, so the carrier's
+  1× sheet appears twice its size at 1:1 zoom (measured in game: 196 × 93 px for a 100 × 48 px
+  frame).
+- **Remastered Human cruiser in game** (2026-10-18): installed at 1×, 2× and 4× through the
+  override folder and shown beside the original fighter and carrier in the test scenario, at UI 1×,
+  2× and 4× and 1:1 and 1:2 zoom.
+  - It draws on its pivot at its 1× frame size (40 × 25 px for the frame shown, the same as the
+    original).
+  - UI 2× and 4× use the @2x/@4x sheets.
+  - Test files removed afterwards; the save was untouched (checked by hash).
 
 ### 4.3.1 Sprite render tools (`tools/sprite-render/`)
 

@@ -65,7 +65,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Targets: IoU mean ≥ 0.88, worst ≥ 0.85, outline mean ≤ 0.5 px, worst p95 ≤ 1.5 px.
   - The Human cruiser trial reaches 0.91 / 0.88 / 0.38 px / 1.41 px. The carving ceiling is 0.97 / 0.94 / 0.12 px; the old variants scored 0.79 / 0.73 / 0.92 px.
   - The frames only show one elevation, so section heights, the underside, panel lines and materials are invented.
-  - The trial is awaiting review; not yet tested in game. Details: `docs/current-state.md` §4.3.1.
+  - Approved 2026-10-18 and tested in game at UI 1×, 2× and 4× (`docs/current-state.md` §4.3). Details: `docs/current-state.md` §4.3.1.
 
 ## 7. Out of scope for now
 
@@ -86,7 +86,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M1 | UI scales with the window | Menus and HUD scale crisply with the window (automatic integer scale plus Video options override), mouse input stays exact, tested at 1080p, 1440p, ultrawide and small windows, windowed and fullscreen |
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
-| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames, awaiting review) |
+| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; fighter and carrier next) |
 | M5 | All ships replaced | Every ship type uses new sprites |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
