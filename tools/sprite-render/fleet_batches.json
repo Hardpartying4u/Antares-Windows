@@ -1,0 +1,11 @@
+{
+  "1 Ishiman core (player fleet, play order 1-5)": ["ish/cruiser", "ish/transport", "ish/carrier", "ish/fighter", "ish/hvc", "ish/gunship", "ish/hvd"],
+  "2 Gaitori core (play order 2-8)": ["gai/cruiser", "gai/fighter", "gai/transport", "gai/gunship", "gai/carrier", "gai/hvd"],
+  "3 Cantharan core (play order 1-12)": ["can/transport", "can/carrier", "can/hvd", "can/gunship", "can/hvc", "can/schooner", "can/fighter", "can/cruiser"],
+  "4 Early support craft (play order 4-12)": ["obi/escort", "obi/transport", "loc/flak", "ish/engineer", "gai/engineer", "ish/etc/astrominer", "ish/defdrone", "can/defdrone"],
+  "5 Mid campaign (play order 14-16)": ["sal/cruiser", "sal/fighter", "sal/carrier", "ish/evat", "ish/etc/cargo", "ish/aslttran", "can/aslttran", "can/engineer", "uns/etc/bttlship", "ele/etc/liner"],
+  "6 Late campaign (play order 17-22)": ["baz/bttlship", "sal/gunship", "sal/aslttran", "sal/transport", "aud/carrier", "aud/cruiser", "aud/fighter", "aud/gunship", "aud/aslttran", "aud/hvd", "aud/transport", "ele/cruiser", "ish/etc/research", "uns/gunship", "uns/transport", "can/gateship"],
+  "7 Not in the solo campaign (net levels, unused)": ["uns/aslttran", "uns/hvd", "gai/aslttran", "sal/hvd", "ish/schooner", "obi/etc/liner", "gro/cruiser", "gro/ctf/cruiser", "aud/evat", "can/evat", "gai/evat", "sal/evat"],
+  "Done (Human trial)": ["uns/cruiser", "uns/fighter", "uns/carrier"],
+  "Not ships (later, with weapons and effects)": ["dev/amissile", "dev/cm", "dev/fusion", "sfx/gunsmoke", "sfx/crew", "gro/ctf/flag", "uns/etc/human/turning", "obi/etc/obiard/turning"]
+}
