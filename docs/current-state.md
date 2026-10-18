@@ -464,6 +464,67 @@ Output goes to `out/sprite-render/` (ignored by git); nothing is written to `dat
 - `variant_sheet.py` (Pillow) compares an original with variants: a detail sheet at 2× and 4×,
   and a readability sheet at real 1× size, 1:2 zoom and team-tinted.
 
+#### Remastering from the original frames (2026-10-18, Human cruiser trial)
+
+The A/B/C variants drifted from the original design. The remaster instead takes the shape and
+colours from the original's 24 frames. These tools need numpy, scipy and Pillow; the Blender
+model only needs numpy.
+
+- `fit_metric.py --sprite X --render DIR`: per frame and overall, compares the 1× silhouettes
+  (alpha ≥ 50 %): IoU, extra/missing pixels, mean and 95th-percentile outline distance, centroid
+  shift. Targets: IoU mean ≥ 0.88, worst ≥ 0.85, outline mean ≤ 0.5 px, worst p95 ≤ 1.5 px.
+  At these sizes 1 px all round costs about 20 % IoU, so outline distance is the more intuitive
+  number.
+- `sprite_geometry.py`: the original camera as code. It projects model points into frame *i*
+  (rotation clockwise from nose-up, tilt, perspective distance, per-frame pivot).
+- `carve.py`: the visual hull. It keeps every voxel that falls inside the silhouette in (almost)
+  all frames, then back-projects the original's colours and overlay onto the hull's surface.
+  - For the cruiser (tilt 44°, distance 200) it reprojects at IoU 0.97 mean, 0.94 worst, outline
+    0.12 px. That is the ceiling for any rigid shape, and it shows the frames are very consistent.
+  - The hull itself is lumpy and **too tall**. Every frame looks down from the same 44°, so the
+    outlines can't separate a section's height from its width (it comes out lens-shaped).
+    Carving is used for measurement only.
+- `uns_cruiser_shape.py` + `fit_shape.py` → `uns_cruiser_fit.json`: the hand-built parametric
+  shape, fitted to the frames.
+  - Parts: a lofted superellipse hull through 10 stations, two rounded-box pods, the engine block.
+  - Powell's method on soft IoU at 3×3 sub-pixels, with a penalty for spilling out of the frame
+    and a smoothness term.
+  - Starting from the carve's measurements, it reaches 0.90 / 0.87 / 0.48 px in a few minutes.
+- `uns_cruiser_remaster.py` (model script) builds clean meshes from that same shape.
+  - Use `--engine CYCLES --samples 128`; about 60 s for 24 frames × 2 passes.
+  - Blender's frames landed a constant 0.5 px right of the fitter's projection (pixel-centre
+    convention), so the script sets `screen_offset (-0.5, 0)`.
+  - Rendered fit: **IoU 0.91 mean, 0.88 worst, outline 0.38 px, p95 1.41 px**. That beats the
+    numpy fit; the old variants scored 0.79 / 0.73 / 0.92 px.
+- `calibrate_colours.py` back-projects the original and the render onto the same carved points
+  and scales each region's linear base colour by original ÷ render (`uns_cruiser_colours.json`).
+  Two or three rounds converge for hull (152 vs 156 sRGB) and pods (100 vs 100).
+  - The 2–4 px-wide dorsal strip and the engine block stop responding. At 1× their pixels are
+    mostly blended with the hull's, so they stay about 20 levels lighter than the original
+    unless they are made pure black at 4×. They are left at sensible dark values.
+- `remaster_sheet.py` makes the comparison sheet for all frames:
+  - original vs remaster at UI 1×, 2× and 4× (original pixel-doubled);
+  - a silhouette difference view;
+  - per-frame and overall fit numbers.
+
+What the cruiser's original frames show (colours back-projected in 3D):
+- **Hull:** light grey, with a darker strip along the top centre from just behind the cockpit to
+  the engine block. A dark cockpit window sits about 6–10 units behind the nose.
+- **Pods:** mid grey, darker underneath and at the rear. Each pod's sides are bright at the top
+  and bottom, with a dark groove between, so it is **two stacked nacelles**.
+- **Block:** the engine block is dark.
+- **Lights:** four red lights, one on the back of each nacelle (x ±6.1, z ≈ +0.6 and −7.5).
+- **Team colour:** the overlay covers 100 % of the ship, lights included. The remaster keeps
+  that, which differs from `docs/art-direction.md` §3 (glows outside the overlay).
+
+The frames don't contain the following, so the remaster had to invent it:
+- the cross-section's height-to-width ratio and the underside shape;
+- the bevel radii and exact pod corner shape;
+- the panel-line layout (the original has none legible);
+- material roughness and metalness;
+- the cockpit's glass look;
+- the lights' shape and size.
+
 ### 4.4 Effects and other layers
 
 Drawn each frame in this order (`GamePlay::draw`, `src/game/main.cpp` ~399):

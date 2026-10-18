@@ -57,6 +57,16 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - `ASSETS.md` stays unchanged until a real model replaces an original sprite.
 - **Finding: the original sprites use a three-quarter view.** They were rendered with a camera tilted about 44° from vertical, viewing from the bottom of the screen, which shortens ships' length on screen. Each ship's pivot also sits above the hull. New renders have to match both, or ships won't line up with their pivots. The angle was fitted for the Human cruiser; other ships give noisier estimates (8°–52°), so the tilt is a per-sprite setting (`--tilt`). Tools: `tools/sprite-render/`, described in `docs/current-state.md` §4.3.
 
+- **Finding (2026-10-18): remaster ships from the original frames, not by eye.** The three hand-built cruiser variants drifted from the original design. A remaster now:
+  1. measures the shape by carving it out of the 24 frames;
+  2. fits a clean parametric model to the frames;
+  3. renders that model, so the silhouette is checked against a metric;
+  4. takes base colours from the original's colour regions.
+  - Targets: IoU mean ≥ 0.88, worst ≥ 0.85, outline mean ≤ 0.5 px, worst p95 ≤ 1.5 px.
+  - The Human cruiser trial reaches 0.91 / 0.88 / 0.38 px / 1.41 px. The carving ceiling is 0.97 / 0.94 / 0.12 px; the old variants scored 0.79 / 0.73 / 0.92 px.
+  - The frames only show one elevation, so section heights, the underside, panel lines and materials are invented.
+  - The trial is awaiting review; not yet tested in game. Details: `docs/current-state.md` §4.3.1.
+
 ## 7. Out of scope for now
 
 New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gameplay. Revisit after the milestones below.
@@ -76,7 +86,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M1 | UI scales with the window | Menus and HUD scale crisply with the window (automatic integer scale plus Video options override), mouse input stays exact, tested at 1080p, 1440p, ultrawide and small windows, windowed and fullscreen |
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
-| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; real model pending) |
+| M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames, awaiting review) |
 | M5 | All ships replaced | Every ship type uses new sprites |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
@@ -86,8 +96,9 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - ~~How many ship types and frames per ship does the game load?~~ Answered 2026-10-18: 82 objects use rotating sprites; 81 have 24 frames (15° steps) and the Bazidan battleship has 36. Frames range from 12 × 11 to 108 × 78 px (see `docs/current-state.md` §4.3).
 - Where should finished replacement art live: a fork of the data repository, or a separate Star Bound art folder with a loader change?
 - Should every ship be rendered with one shared camera (tilt and perspective distance; simpler, consistent) or with each original's fitted camera (closer match, more fitting work)? The Human cruiser needed 44° tilt and a perspective camera about 200 units away to fit its frames within 1 %.
-- Which modernisation level (A subtle, B balanced, C richest; see `docs/art-direction.md`) becomes the fleet standard?
-- Should new art keep the original ship designs or reinterpret them?
+- ~~Which modernisation level (A subtle, B balanced, C richest; see `docs/art-direction.md`) becomes the fleet standard?~~ None, 2026-10-18: the variants drifted from the original design; replaced by remastering from the original frames (§6).
+- ~~Should new art keep the original ship designs or reinterpret them?~~ Answered 2026-10-18: keep them, the same ship remastered (cleaner and sharper, recognisably the original).
+- Team colour on engine lights: the originals tint the whole ship, lights included, and the cruiser remaster does the same. `docs/art-direction.md` §3 keeps glows out of the overlay. Which should win?
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.
