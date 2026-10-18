@@ -1,7 +1,8 @@
 # Antares: how it works today
 
 A snapshot of the game's controls, command model, UI and rendering as they exist in
-the code at upstream `d8ce5826` (plus the local minimize fix, `651bb17e`). Paths are
+the code at upstream `d8ce5826` plus local changes on `windows-working-build` (minimize fix,
+integer UI scale). Paths are
 relative to the repo root; line numbers are approximate anchors, not contracts.
 
 Two kinds of source define behaviour:
@@ -120,7 +121,9 @@ GLFW (src/glfw/video-driver.cpp)
 | Any click / key | intros, fades, scroll text | Skip |
 
 Double-click window is 30 ticks (0.5 s, `kDoubleClickInterval`). There is no scroll-wheel handling.
-The OS cursor is hidden; the game draws its own (`GLFW_CURSOR_HIDDEN`).
+The OS cursor is hidden; the game draws its own (`GLFW_CURSOR_HIDDEN`). All mouse positions are
+in logical pixels: the driver converts window coordinates through the UI scale and border
+(`GLFWVideoDriver::to_screen`), so clicks stay exact at every scale.
 
 ### 1.4 Gamepad (summary)
 
@@ -203,9 +206,11 @@ strings in `data/strings/minicomputer.pn`). 10 lines × 25 chars at panel offset
 - Most menus are **InterfaceScreens** (`src/ui/screen.cpp`) built from a layout file in
   `data/interfaces/`. Each layout lists widgets (`button`, `checkbox`, `tab-box`, `rect`,
   `picture`, `text`) with pixel `bounds`, a `label`, a keyboard `key` and a `gamepad` button.
-- Layouts are in a **640 × 480 coordinate space, centered** in the window
-  (`InterfaceScreen::offset`, `screen.cpp` ~181). `fullscreen: true` clears the rest of the
-  window to black; `false` overlays the card underneath.
+- Layouts are in a **640 × 480 coordinate space, centered** in the logical screen
+  (`InterfaceScreen::offset`, `screen.cpp` ~181), which the UI scale magnifies (§4.1).
+  `fullscreen: true` clears the rest of the screen to black; `false` overlays the card underneath.
+- Screens can add widgets in code with `InterfaceScreen::add_widget` (used for the UI-scale
+  choices, so the separately licensed `data/` layouts stay unmodified).
 - Widget drawing (bracketed frames, button styles, hues): `src/drawing/interface.cpp`.
 
 ### 3.2 Flow
@@ -242,7 +247,7 @@ MainScreen
 | **Play again** | `ui/screens/play-again.cpp` | `interfaces/play-again/{normal,lose,tutorial}.pn` | Centered dialog: Resume (Esc), Start Chapter Over (Return), Quit to Main Menu (Q); tutorial variant adds Skip Tutorial (S); lose variant has no Resume |
 | **Debriefing** | `ui/screens/debriefing.cpp` | — | Typed-out victory/defeat text plus score table: your time / losses / kills vs par; score = time(50) + losses(30) + kills(20) |
 | **Options › Sound** | `ui/screens/options.cpp` ~137 | `interfaces/options/sound.pn` | Checkboxes: Music During Action, Music During Interlude, Speak Network Messages; Volume Up/Down + volume bar; Key Controls (K), Video (V), Cancel (Esc), Done (Return) |
-| **Options › Video** | `options.cpp` ~231 | `interfaces/options/video.pn` | Fullscreen checkbox; Key Controls, Sound, Cancel, Done |
+| **Options › Video** | `options.cpp` ~231 | `interfaces/options/video.pn` + code | Fullscreen checkbox (applies next launch, or Alt+Enter); a column of **UI Scale** choices — Auto, 1x, 2x, 3x, 4x — that behave as radio buttons and apply immediately (added in code, `kUiScaleChoices`); Key Controls, Sound, Cancel (reverts), Done |
 | **Options › Key Controls** | `options.cpp` ~294 | `interfaces/options/keys.pn` | Tab box with 5 tabs (Ship, Command, Shortcuts, Utility, Hot Keys); each action is a button showing its key — click it, press a key to bind it, and selection advances to the next action (Esc/Return/Caps Lock cancel). Conflicting bindings are flagged in a "conflict" text area and block Done/Options until fixed. Cancel, Options, Done |
 
 ### 3.4 In-game screen layout
@@ -266,8 +271,15 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
 └─┴──────┴─┴─────────────────────────────────────────────┴───┘
 ```
 
-- **Play area** = window width − 128 − 32, full height; it grows with the window, so a bigger
-  window shows more space (`play_screen()`, `viewport()`).
+- **Play area** = logical screen width − 128 − 32, full height (`play_screen()`, `viewport()`).
+  It never stretches: zoom is one scale factor for both axes. A bigger *logical* screen shows
+  more of the battlefield. Fixed zooms show more in both directions; auto zooms (closest foe,
+  closest object, all) fit by height only, so extra width is extra view. The UI scale (§4.1)
+  keeps the logical screen near 640–1080 px tall, but wide windows still see more horizontally.
+  The simulation never depends on the view.
+- The panel artwork is 768 logical px tall, centered vertically. When the logical screen is
+  shorter (for example 540 at 1080p with 2× UI scale), its decorative top and bottom are
+  trimmed. The functional parts sit in the middle 480 px and stay visible.
 - **Left panel** (texture `sys.left_instrument_texture`, centered in a 768-px band):
   radar (110 × 110 at top, green blips), gross/fine **money** bars (yellow/pale-green; orange =
   needed, sky-blue = spent), **minicomputer** at y 320.
@@ -287,10 +299,29 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
 - **Window/context**: GLFW (`src/glfw/video-driver.cpp`). Tries **OpenGL 3.2 core (GLSL 330)**,
   falls back to **OpenGL 2.0 (GLSL 110)** (`hint_opengl32/20`, ~455–470). On MSVC, GL entry points
   are loaded at runtime (`src/video/opengl-dynamic.cpp`).
-- **Resolution**: there is no fixed internal resolution. The logical screen size = window size
-  (default 640 × 480, saved in prefs; fullscreen = monitor mode). Rendering uses an integer
-  **scale** = framebuffer width / window width (`OpenGlVideoDriver::scale`,
-  `src/video/opengl-driver.cpp` ~385) for HiDPI; only fonts ship `@2x` art (`data/fonts`).
+- **Resolution and UI scale** (`GLFWVideoDriver::update_layout`, `src/glfw/video-driver.cpp`):
+  everything is drawn on a **logical screen** = framebuffer ÷ `scale`, where
+  `scale` = UI scale × pixel ratio (pixel ratio is 1 on Windows, 2 on a Mac Retina display).
+  - UI scale: preference `ui_scale` (`video: "ui scale"` in `config.pn`; 0 = Auto). Auto =
+    ⌊window height ÷ 540⌋, minimum 1. Any choice is capped so the logical screen stays at least
+    640 × 480. Recomputed every frame, so window resizes and Options changes apply at once.
+  - The logical screen is magnified with nearest-neighbour filtering into a viewport centered in
+    the framebuffer; leftover pixels (fewer than `scale`) form a black border
+    (`viewport_origin()`, used by `OpenGlVideoDriver::MainLoop::draw`).
+  - Mouse positions are converted from window coordinates to logical pixels in `to_screen()`.
+  - Window size (saved in prefs; fullscreen = monitor mode) is tracked separately from the
+    logical screen size.
+  - Textures with `@Nx` variants are chosen by `load_hidpi_texture` (`src/data/resource.cpp`) at
+    load time, which happens once at startup. Only fonts ship `@2x` art, so a later scale change
+    upscales whatever was loaded. At 3× it falls back to 1× art (it tries `@3x`, then halves).
+- **Known issue (pre-existing)**: windows are created with `GLFW_SCALE_TO_MONITOR`, so with
+  Windows display scaling (e.g. 125 %) the window opens larger than the saved size. Resizing it
+  then saves the larger size, so it grows again on each launch after a resize.
+- **Screenshots**: GDI and Win+PrintScreen capture a black frame in fullscreen (OpenGL surface).
+  Use a window the size of the monitor when screenshots are needed.
+- **Build note**: the Windows toolchain doesn't pass `/showIncludes`, so ninja doesn't track
+  header dependencies. After changing a header, do a clean rebuild (`ninja -t clean`) or
+  stale objects can crash at runtime.
 - **Main loop**: poll events → draw whole card stack → swap → fire timers
   (`GLFWVideoDriver::loop`, ~473). No explicit vsync setting.
 
@@ -328,6 +359,15 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   **BASES → SHIPS → SHOTS**, scaled by zoom. Below 1:4 zoom (`kBlipThreshhold`), sprites are
   replaced by tiny vector **icons** (square, triangle, diamond, plus) in the owner's colour.
 - Hit/cloak state machine: `update_static` (`src/game/motion.cpp` ~352).
+- **Frame geometry is gameplay.** `calc_bounds()` (`src/game/motion.cpp` ~703) builds each
+  object's collision bounds from its current frame's size and centre, so the `.pn` rectangles
+  affect hits, not just drawing. Briefing maps and the minicomputer also size icons from them.
+- **No `@2x` sprites yet.** `Resource::sprite_image`/`sprite_overlay` load only `image.png` and
+  `overlay.png`, and `NatePixTable::Frame` creates its texture at scale 1
+  (`src/drawing/pix-table.cpp` ~109). To support high-resolution sprites: load `image@2x.png` and
+  `overlay@2x.png` when present, cut each frame at 2× the `.pn` rectangle, tint the overlay at that
+  size, and pass scale 2 to `sys.video->texture()`. Keep `width()`/`height()`/`center()` at 1× so
+  collisions and layout don't change. Pictures and fonts already support `@2x` this way.
 
 ### 4.4 Effects and other layers
 

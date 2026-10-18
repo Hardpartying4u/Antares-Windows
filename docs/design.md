@@ -34,6 +34,12 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
 - Resolution-independent layout: scales correctly at any size and aspect ratio, including ultrawide.
 - Menus fully usable with the mouse; keyboard shortcuts kept.
 - First step: fix the widescreen scaling problem, since the redesign depends on it.
+- **Decision (2026-10-18): UI scaling uses a global integer scale** (option A of the scaling review). The whole game is drawn at a logical resolution of window ÷ N and magnified N× with crisp nearest-neighbour pixels, reusing the existing HiDPI mechanism. Details:
+  - N is automatic: ⌊window height ÷ 540⌋, minimum 1 (1080p and 1440p → 2×, 4K → 4×). It is capped so the logical screen never drops below 640 × 480, the size the menus and HUD are laid out for.
+  - Video options has an override: Auto, 1×, 2×, 3×, 4× (still capped as above). It applies immediately; Cancel reverts it.
+  - Mouse coordinates are converted exactly. When the window isn't a multiple of N, the leftover pixels form a thin black border.
+  - This also magnifies the battle view, so it shows less of the battlefield than before at large window sizes. That is closer to the original field of view. Wider windows still show more horizontally; capping that is a separate open question.
+  - A full resolution-independent redesign (anchored layouts, new art) remains M3.
 
 ## 6. Graphics
 
@@ -41,6 +47,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
 - Pipeline: model, consistent lighting and camera, render a full set of rotation frames, export in the format the game already loads.
 - Ships are replaced one type at a time. Anything not yet replaced uses the original sprite.
 - After ships: planets, stations, weapon effects, explosions and thruster effects.
+- High-resolution sprites (finding, 2026-10-18): the game uses each sprite frame's size and centre from the `.pn` table for **collision bounds** (`calc_bounds`, `src/game/motion.cpp`), not just for drawing. New art must therefore keep the original 1× frame rectangles and centres, and supply extra detail as `@2x`/`@4x` images used only as textures. Pictures and fonts already load `@2x` files automatically; sprites do not yet, so the sprite loader needs a small change before M4 (see `docs/current-state.md` §4.3).
 
 ## 7. Out of scope for now
 
@@ -58,7 +65,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | # | Milestone | Done when |
 |---|-----------|-----------|
 | M0 | Stage 1: Antares runs on Windows | Done: builds, plays, packaged, in git |
-| M1 | Widescreen and UI scaling fixed | UI looks right at 16:9 and ultrawide |
+| M1 | UI scales with the window | Menus and HUD scale crisply with the window (automatic integer scale plus Video options override), mouse input stays exact, tested at 1080p, 1440p, ultrawide and small windows, windowed and fullscreen |
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
 | M4 | Blender pipeline | One ship rendered from a script and working in game |
@@ -70,4 +77,6 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - Which parts of the UI need a full redesign and which only need scaling?
 - How many ship types and frames per ship does the game load?
 - Should new art keep the original ship designs or reinterpret them?
-- Minimum supported resolution and graphics hardware?
+- Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
+- Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
+- Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.
