@@ -96,13 +96,13 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
 | M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; Human fighter and carrier remastered with shared shape kits, approved, and all three tested in game at UI 1×, 2×, 4×; full-fleet plan next) |
-| M5 | All ships replaced | Every ship type uses new sprites |
+| M5 | All ships replaced | Every ship type uses new sprites (plan drafted in `docs/fleet-plan.md`, awaiting approval: 67 ships in 7 batches) |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
 ## 10. Open questions
 
 - Which parts of the UI need a full redesign and which only need scaling?
-- ~~How many ship types and frames per ship does the game load?~~ Answered 2026-10-18: 82 objects use rotating sprites; 81 have 24 frames (15° steps) and the Bazidan battleship has 36. Frames range from 12 × 11 to 108 × 78 px (see `docs/current-state.md` §4.3).
+- ~~How many ship types and frames per ship does the game load?~~ Answered 2026-10-18: 78 rotating sprites are in use, by 106 objects (corrected from "82 objects" by `fleet_inventory.py`); all have 24 frames (15° steps) except the Bazidan battleship (36). 70 are ships, 8 are missiles, effects or figures. Frames range from 12 × 11 to 108 × 78 px (see `docs/current-state.md` §4.3).
 - Where should finished replacement art live: a fork of the data repository, or a separate Star Bound art folder with a loader change?
 - Should every ship be rendered with one shared camera (tilt and perspective distance; simpler, consistent) or with each original's fitted camera (closer match, more fitting work)? The Human cruiser needed 44° tilt and a perspective camera about 200 units away to fit its frames within 1 %.
 - ~~Which modernisation level (A subtle, B balanced, C richest; see `docs/art-direction.md`) becomes the fleet standard?~~ None, 2026-10-18: the variants drifted from the original design; replaced by remastering from the original frames (§6).

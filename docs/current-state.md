@@ -360,7 +360,9 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
 - **Rotation sprites in detail:**
   - An object's `rotation: {sprite, frames: {begin, end}}` block picks the sheet. The angle step
     is 360° ÷ frame count (`rotation_resolution`, `src/game/space-object.cpp` ~882).
-  - 82 objects use rotation sprites: 81 have 24 frames (15°) and the Bazidan battleship has 36
+  - 78 distinct rotating sprites are in use, by 106 objects once template chains are resolved
+    (`tools/sprite-render/fleet_inventory.py`, 2026-10-18; an earlier count of 82 objects missed
+    the template chains). All have 24 frames (15°) except the Bazidan battleship, which has 36
     (10°). Frames range from 12 × 11 px (fusion pulse) to 108 × 78 px (Human carrier); the Human
     cruiser's are 20–44 × 21–34 on a 342 × 188 sheet.
   - Frame 0 shows the nose pointing **up**; each next frame turns the ship **clockwise**.
