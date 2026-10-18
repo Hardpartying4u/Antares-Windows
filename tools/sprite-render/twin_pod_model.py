@@ -43,6 +43,27 @@ def load_json(name, default=None):
     return default
 
 
+def render_settings(fit):
+    """Camera and lights for render_sprite.py, shared by the remaster model scripts."""
+    return {
+        "tilt": fit["camera"]["tilt"],
+        "camera_distance": fit["camera"]["distance"],
+        "scale": 1.0,  # shapes are fitted in original-pixel units with this camera
+        # Sub-pixel placement differs per ship (half a pixel either way), so it is measured on a
+        # first render and stored in the fit file: fit_metric.py --set-offset.
+        "screen_offset": tuple(fit["camera"].get("screen_offset", (0.0, 0.0))),
+        "ambient": 0.05,
+        "lights": [
+            {"name": "key", "azimuth": 315, "elevation": 48, "energy": 3.6,
+             "color": (1.0, 0.97, 0.92), "angle": 6.0},
+            {"name": "rim", "azimuth": 135, "elevation": -12, "energy": 1.1,
+             "color": (0.72, 0.84, 1.0), "angle": 3.0},
+            {"name": "fill", "azimuth": 200, "elevation": 70, "energy": 0.5,
+             "color": (0.85, 0.9, 1.0), "angle": 30.0},
+        ],
+    }
+
+
 # ---------------------------------------------------------------------------------------------
 # Materials
 
@@ -134,7 +155,8 @@ def metal(name, colour, size, rough=0.36, rough_var=0.12, plates=0.35, metallic=
         top = _math(nt, "GREATER_THAN", sep.outputs["Z"], markings["top_z"])
         if "strip" in markings:
             st = markings["strip"]
-            strip = _math(nt, "MULTIPLY", _band(nt, ax, -1.0, st["hw"], 0.25 * size),
+            x0, x1 = st.get("x", (-1.0, st.get("hw")))  # a centre band, or a pair at |x| x0..x1
+            strip = _math(nt, "MULTIPLY", _band(nt, ax, x0, x1, 0.25 * size),
                           _band(nt, sep.outputs["Y"], *st["y"], 0.8 * size))
             strip = _math(nt, "MULTIPLY", strip, top)
             # a painted band: less metallic, so its base colour sets its tone
@@ -297,20 +319,4 @@ def build(variant):
                 radius=r, depth=0.12 * size, rotation=(math.pi / 2, 0, 0), vertices=24)
             bpy.context.active_object.data.materials.append(red)
 
-    return {
-        "tilt": fit["camera"]["tilt"],
-        "camera_distance": fit["camera"]["distance"],
-        "scale": 1.0,  # the shape was fitted in original-pixel units with this camera
-        # Blender's frames land a constant ~0.5 px right of the fitter's projection (pixel-centre
-        # convention in the downsample; measured on uns/cruiser with fit_metric.py).
-        "screen_offset": (-0.5, 0.0),
-        "ambient": 0.05,
-        "lights": [
-            {"name": "key", "azimuth": 315, "elevation": 48, "energy": 3.6,
-             "color": (1.0, 0.97, 0.92), "angle": 6.0},
-            {"name": "rim", "azimuth": 135, "elevation": -12, "energy": 1.1,
-             "color": (0.72, 0.84, 1.0), "angle": 3.0},
-            {"name": "fill", "azimuth": 200, "elevation": 70, "energy": 0.5,
-             "color": (0.85, 0.9, 1.0), "angle": 30.0},
-        ],
-    }
+    return render_settings(fit)

@@ -3,7 +3,11 @@
   "shape": "uns_fighter_shape",
   "camera": {
     "tilt": 44.0,
-    "distance": 200.0
+    "distance": 200.0,
+    "screen_offset": [
+      -0.69,
+      -0.01
+    ]
   },
   "score_initial": 0.8303122830417742,
   "score": 0.832342971689776,

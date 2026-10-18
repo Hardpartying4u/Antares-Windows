@@ -41,7 +41,8 @@ def regions(shape, p, pts, normals):
     for key in ("strip", "cockpit"):
         if key in look:
             r = look[key]
-            label[(part == "hull") & up & (x < r["hw"]) & (y > r["y"][0]) & (y < r["y"][1])] = key
+            x0, x1 = r.get("x", (-1.0, r.get("hw")))
+            label[(part == "hull") & up & (x > x0) & (x < x1) & (y > r["y"][0]) & (y < r["y"][1])] = key
     return label
 
 
@@ -86,7 +87,7 @@ def main():
     with open(args.colours, encoding="utf-8") as f:
         colours = json.load(f)
     print(f"{'region':8} {'points':>6}  {'original sRGB':>15}  {'render sRGB':>15}  new linear base")
-    for name in ("hull", "strip", "cockpit", "pods", "block"):
+    for name in ("hull", "strip", "cockpit", "pods", "modules", "block"):
         m = use & (label == name)
         if m.sum() < 20 or name not in colours:
             continue

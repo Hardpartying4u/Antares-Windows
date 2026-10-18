@@ -24,7 +24,8 @@ from scipy.optimize import minimize
 import fit_metric
 from sprite_geometry import Camera, Sprite, project
 
-SUB = 3  # sub-pixels per pixel along each axis
+SUB = 3  # sub-pixels per pixel along each axis (--sub); keep the grid step at most 1 / SUB, or
+# axis-aligned frames get empty sub-pixel stripes
 
 
 class Fitter:
@@ -102,11 +103,16 @@ def main():
     ap.add_argument("--step", type=float, default=0.25)
     ap.add_argument("--bounds", default="-11,11,-28,17,-13,5")
     ap.add_argument("--rounds", type=int, default=3)
+    ap.add_argument("--sub", type=int, default=3, help="sub-pixels per pixel along each axis")
     ap.add_argument("--smooth", type=float, default=0.002, help="weight of the shape's roughness penalty")
     ap.add_argument("--init", help="JSON from an earlier fit to start from")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
 
+    global SUB
+    SUB = a.sub
+    if a.step > 1.0 / SUB + 1e-9:
+        print(f"warning: grid step {a.step} is coarser than a sub-pixel (1/{SUB}); expect stripes")
     shape = importlib.import_module(a.shape)
     sprite = Sprite(a.data, a.sprite)
     cam = Camera(a.tilt, a.distance)

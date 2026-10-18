@@ -20,6 +20,7 @@ IoU, so the edge distances are the more intuitive measure. Needs numpy, scipy an
 """
 
 import argparse
+import json
 import os
 import re
 
@@ -111,6 +112,9 @@ def main():
     p.add_argument("--data", default="data")
     p.add_argument("--render", required=True, help="render output root (contains sprites/<sprite>/)")
     p.add_argument("--out", help="markdown report path (default: <render>/sprites/<sprite>/fit-metric.md)")
+    p.add_argument("--set-offset", metavar="FIT_JSON",
+                   help="correct the screen offset stored in this fit file by the mean shift, so the "
+                        "next render is centred on the original (render with the stored offset first)")
     a = p.parse_args()
     frames = read_frames(a.data, a.sprite)
     orig = mask(os.path.join(a.data, "sprites", a.sprite, "image.png"))
@@ -121,6 +125,17 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         f.write(text)
     print("\n".join(text.splitlines()[:5]))
+    sx = float(np.mean([r["shift"][0] for r in rows]))
+    sy = float(np.mean([r["shift"][1] for r in rows]))
+    print(f"- Mean shift: {sx:+.2f}, {sy:+.2f} px")
+    if a.set_offset:
+        with open(a.set_offset, encoding="utf-8") as f:
+            fit = json.load(f)
+        ox, oy = fit["camera"].get("screen_offset", (0.0, 0.0))
+        fit["camera"]["screen_offset"] = [round(ox - sx, 2), round(oy - sy, 2)]
+        with open(a.set_offset, "w", encoding="utf-8") as f:
+            json.dump(fit, f, indent=2)
+        print(f"- Screen offset in {a.set_offset}: {fit['camera']['screen_offset']}")
 
 
 if __name__ == "__main__":
