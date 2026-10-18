@@ -5,7 +5,8 @@
 Run inside Blender, from the repository root:
 
     blender -b --factory-startup [model.blend] -P tools/sprite-render/render_sprite.py -- \
-        --sprite uns/cruiser [--placeholder cruiser] [--out out/sprite-render]
+        --sprite uns/cruiser [--model tools/sprite-render/uns_cruiser.py --variant B] \
+        [--placeholder cruiser] [--out out/sprite-render]
 
 The original sprite's frame table (data/sprites/<sprite>.pn) is the contract. Every output frame
 uses the original frame's rectangle and pivot, so collision bounds and weapon mounts don't change;
@@ -16,7 +17,16 @@ seen from straight above.
 Model conventions (when not using --placeholder):
   - all visible MESH objects in the scene are the ship;
   - objects whose material name starts with "team" take the owner's colour in game (they go into
-    the overlay); everything else keeps its own colour.
+    the overlay); everything else keeps its own colour;
+  - a material may contain a Value node named "team_white": it's set to 1 for the overlay pass and
+    0 otherwise, so the material can switch its base colour to white while keeping its roughness
+    and normal detail (otherwise the overlay pass uses one flat white material).
+
+A model script (--model) is a Python file with build(variant) that creates the ship in the current
+scene and returns a dict of render settings: tilt, lights, ambient (see setup_scene), and
+scale (pixels per Blender unit at 1x; fitted to frame 0 if absent), and screen_offset (a constant
+(x, y) shift in 1x pixels), and camera_distance (a perspective camera this far from the pivot, in
+model units; orthographic if absent).
 
 Outputs, under <out>/sprites/<sprite>/:
   image.png, overlay.png                 1x sheets, same size and layout as the originals
@@ -52,17 +62,21 @@ def parse_args():
         "--oversample", type=int, default=2,
         help="render pixels per pixel of the largest output scale (default: 2)")
     p.add_argument("--placeholder", choices=["cruiser"], help="build a placeholder model")
-    p.add_argument("--engine", default="BLENDER_EEVEE", help="render engine (default: EEVEE)")
+    p.add_argument("--model", help="model script with build(variant), e.g. tools/sprite-render/uns_cruiser.py")
+    p.add_argument("--variant", default="", help="variant name passed to the model script")
+    p.add_argument("--engine", default="BLENDER_EEVEE", help="BLENDER_EEVEE (default) or CYCLES")
     p.add_argument("--samples", type=int, default=64, help="render samples (default: 64)")
+    p.add_argument("--device", default="GPU", help="Cycles device: GPU (OptiX/CUDA if present) or CPU")
     p.add_argument(
-        "--light", default="135,50",
-        help="sun azimuth,elevation in degrees; azimuth 0 = from screen top, clockwise"
-             " (default: 135,50, i.e. from the upper left)")
+        "--light", default=None,
+        help="key light azimuth,elevation in degrees, relative to the camera: azimuth 0 = from the"
+             " screen top, clockwise (315 = upper left); elevation 90 = from the viewer"
+             " (default: 315,50, or the model's)")
     p.add_argument(
-        "--tilt", type=float, default=0.0,
+        "--tilt", type=float, default=None,
         help="camera tilt from vertical in degrees; positive views the ship from the bottom of"
              " the screen. The original sprites were rendered at a three-quarter view (about 44"
-             " for uns/cruiser), which shortens the ship's length on screen (default: 0)")
+             " for uns/cruiser), which shortens the ship's length on screen (default: 0, or the model's)")
     p.add_argument(
         "--margin", type=float, default=0.5,
         help="extra canvas around each frame, as a fraction of its size, used to measure"
@@ -200,11 +214,44 @@ def is_team(obj):
     return any(s.material and s.material.name.lower().startswith("team") for s in obj.material_slots)
 
 
-def setup_scene(args, objects):
+def use_gpu():
+    """Selects OptiX, CUDA or HIP devices for Cycles if present. Returns the backend, or None."""
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    for backend in ("OPTIX", "CUDA", "HIP"):
+        devices = prefs.get_devices_for_type(backend) or []
+        if any(d.type != "CPU" for d in devices):
+            prefs.compute_device_type = backend
+            for d in devices:
+                d.use = d.type != "CPU"
+            return backend
+    return None
+
+
+def camera_light(name, cam, azimuth, elevation, energy, color=(1, 1, 1), angle=5.0):
+    """A sun whose direction is fixed relative to the camera (see --light for the angles)."""
+    az, el = math.radians(azimuth), math.radians(elevation)
+    toward_light = cam.rotation_euler.to_matrix() @ Vector(
+        (math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el)))
+    sun = bpy.data.objects.new(name, bpy.data.lights.new(name, "SUN"))
+    sun.data.energy = energy
+    sun.data.color = color
+    sun.data.angle = math.radians(angle)  # soft shadows in Cycles
+    sun.rotation_euler = (-toward_light).to_track_quat("-Z", "Y").to_euler()
+    bpy.context.scene.collection.objects.link(sun)
+
+
+def setup_scene(args, objects, cfg):
     scene = bpy.context.scene
     scene.render.engine = args.engine
+    backend = None
     if args.engine == "CYCLES":
         scene.cycles.samples = args.samples
+        scene.cycles.use_denoising = True
+        if args.device == "GPU":
+            backend = use_gpu()
+        scene.cycles.device = "GPU" if backend else "CPU"
+        if backend == "OPTIX":
+            scene.cycles.denoiser = "OPTIX"
     else:
         scene.eevee.taa_render_samples = args.samples
     scene.render.film_transparent = True
@@ -220,7 +267,9 @@ def setup_scene(args, objects):
     world = scene.world or bpy.data.worlds.new("world")
     scene.world = world
     world.use_nodes = True
-    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.04, 0.04, 0.05, 1)
+    ambient = cfg.get("ambient", 0.04)
+    world.node_tree.nodes["Background"].inputs["Color"].default_value = (
+        ambient, ambient, ambient * 1.15, 1)
 
     # Ship root: rotating it turns the whole ship about its pivot (the world origin).
     bpy.context.view_layer.update()  # make matrix_world reflect any pending location changes
@@ -239,17 +288,18 @@ def setup_scene(args, objects):
     scene.collection.objects.link(cam)
     scene.camera = cam
 
-    # Sun fixed relative to the camera, so lighting stays put on screen while the ship turns.
-    azimuth, elevation = (math.radians(float(v)) for v in args.light.split(","))
-    toward_light = Vector((math.sin(azimuth), math.cos(azimuth), 0)) * math.cos(elevation)
-    toward_light.z = math.sin(elevation)
-    sun = bpy.data.objects.new("sun", bpy.data.lights.new("sun", "SUN"))
-    sun.data.energy = 4.0
-    sun.rotation_euler = (-toward_light).to_track_quat("-Z", "Y").to_euler()
-    scene.collection.objects.link(sun)
+    # Lights fixed relative to the camera, so lighting stays put on screen while the ship turns.
+    if args.light:
+        az, el = (float(v) for v in args.light.split(","))
+        lights = [{"name": "key", "azimuth": az, "elevation": el, "energy": 4.0}]
+    else:
+        lights = cfg.get("lights", [{"name": "key", "azimuth": 315, "elevation": 50, "energy": 4.0}])
+    for light in lights:
+        camera_light(light["name"], cam, light["azimuth"], light["elevation"], light["energy"],
+                     light.get("color", (1, 1, 1)), light.get("angle", 5.0))
 
     white = material("overlay_white", (0.8, 0.8, 0.8), roughness=0.5)
-    return root, cam, white
+    return root, cam, white, backend, lights
 
 
 def fit_scale(objects, frame, cam):
@@ -274,17 +324,30 @@ def fit_scale(objects, frame, cam):
 # Rendering
 
 
-def render_frame(args, cam, frame, scale, render_px, tmp):
+cfg_camera_distance = [None]  # set from the model's settings in main()
+
+
+def render_frame(args, cam, frame, scale, render_px, tmp, offset=(0.0, 0.0)):
     """Renders the current scene for one frame, with margin. Returns [h, w, 4] float, top first."""
     scene = bpy.context.scene
     margin = math.ceil(max(frame.w, frame.h) * args.margin)
     w, h = frame.w + 2 * margin, frame.h + 2 * margin  # canvas in 1x pixels
     scene.render.resolution_x, scene.render.resolution_y = w * render_px, h * render_px
-    cam.data.ortho_scale = max(w, h) / scale
+    distance = cfg_camera_distance[0]
+    if distance:
+        # Perspective: at the pivot's distance the canvas spans the same width as in orthographic
+        # mode, so the scale holds at the pivot while nearer parts look bigger, farther smaller.
+        cam.data.type = "PERSP"
+        cam.data.sensor_fit = "AUTO"
+        cam.data.lens = cam.data.sensor_width * distance / (max(w, h) / scale)
+    else:
+        cam.data.ortho_scale = max(w, h) / scale
     # Place the camera so the pivot (world origin) lands on the frame's pivot pixel. In camera
     # space (x right, y up) the origin must sit this far from the canvas centre:
-    origin_cam = Vector(((margin + frame.px - w / 2) / scale, (h / 2 - margin - frame.py) / scale,
-                         -100))
+    # `offset` nudges the whole image by a constant amount in 1x screen pixels (x right, y down),
+    # for originals whose pivots are rounded off-centre.
+    origin_cam = Vector(((margin + frame.px + offset[0] - w / 2) / scale,
+                         (h / 2 - margin - frame.py - offset[1]) / scale, -(distance or 100)))
     cam.location = -(cam.rotation_euler.to_matrix() @ origin_cam)
     scene.render.filepath = tmp
     bpy.ops.render.render(write_still=True)
@@ -314,20 +377,44 @@ def overlay_from(white_pass):
     return out
 
 
+def load_model(path, variant):
+    """Runs a model script's build(variant); returns its settings dict."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ship_model", os.path.abspath(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.build(variant) or {}
+
+
+def team_white_nodes():
+    return [n for m in bpy.data.materials if m.node_tree
+            for n in m.node_tree.nodes if n.name == "team_white"]
+
+
 def main():
+    import time
+    started = time.time()
     args = parse_args()
     frames = read_frames(args.data, args.sprite)
     original = load_rgba(os.path.join(args.data, "sprites", args.sprite, "image.png"))
     sheet_h, sheet_w = original.shape[:2]
 
+    cfg = {}
     if args.placeholder == "cruiser":
         build_placeholder_cruiser()
+    elif args.model:
+        cfg = load_model(args.model, args.variant)
+    if args.tilt is None:
+        args.tilt = cfg.get("tilt", 0.0)
+    cfg_camera_distance[0] = cfg.get("camera_distance")
     objects = ship_objects()
     if not objects:
         raise SystemExit("no mesh objects to render (open a model .blend or use --placeholder)")
     team = [o for o in objects if is_team(o)]
-    root, cam, white = setup_scene(args, objects)
-    scale = fit_scale(objects, frames[0], cam)
+    root, cam, white, backend, lights = setup_scene(args, objects, cfg)
+    switches = team_white_nodes()
+    # Models built in original-pixel units say so; otherwise fit the model into frame 0.
+    scale = cfg.get("scale") or fit_scale(objects, frames[0], cam)
 
     max_scale = args.scales[-1]
     render_px = max_scale * args.oversample  # render pixels per 1x pixel
@@ -341,14 +428,23 @@ def main():
         root.rotation_euler = (0, 0, -2 * math.pi * i / len(frames))  # clockwise from above
 
         view_layer.material_override = None
+        for n in switches:
+            n.outputs[0].default_value = 0.0
         for o in objects:
             o.is_holdout = False
-        color, margin = render_frame(args, cam, frame, scale, render_px, tmp)
+        offset = cfg.get("screen_offset", (0.0, 0.0))
+        color, margin = render_frame(args, cam, frame, scale, render_px, tmp, offset)
 
-        view_layer.material_override = white
+        # Overlay pass: team parts in white (keeping their detail if the materials support it),
+        # non-team parts held out so they hide what's behind them but add no coverage.
+        if switches:
+            for n in switches:
+                n.outputs[0].default_value = 1.0
+        else:
+            view_layer.material_override = white
         for o in objects:
-            o.is_holdout = o not in team  # non-team parts hide team parts but add no coverage
-        team_pass, _ = render_frame(args, cam, frame, scale, render_px, tmp)
+            o.is_holdout = o not in team
+        team_pass, _ = render_frame(args, cam, frame, scale, render_px, tmp, offset)
 
         for s in args.scales:
             c = downsample(color, render_px // s)
@@ -361,14 +457,22 @@ def main():
                 inside = c[m:m + frame.h, m:m + frame.w, 3]
                 total = c[..., 3].sum()
                 clipped = max(0.0, (total - inside.sum()) / total) if total else 0.0
+                alpha = c[..., 3]
+                sides = {  # share of coverage spilling past each edge of the frame
+                    "top": alpha[:m].sum(), "bottom": alpha[m + frame.h:].sum(),
+                    "left": alpha[:, :m].sum(), "right": alpha[:, m + frame.w:].sum()}
+                spill = ", ".join(f"{k} {v / total:.1%}" for k, v in sides.items()
+                                  if total and v / total >= 0.001) or "-"
                 ys, xs = np.nonzero(inside >= 0.5)
                 orig = original[frame.top:frame.bottom, frame.left:frame.right, 3]
+                a, b = orig >= 0.5, inside >= 0.5
+                iou = (a & b).sum() / max(1, (a | b).sum())
                 report.append({
                     "i": i, "deg": i * 360 // len(frames), "w": frame.w, "h": frame.h,
                     "orig_px": int((orig >= 0.5).sum()), "new_px": int((inside >= 0.5).sum()),
                     "bbox": (f"{xs.min()}..{xs.max()} x {ys.min()}..{ys.max()}"
                              if len(xs) else "empty"),
-                    "clipped": clipped,
+                    "clipped": clipped, "iou": iou, "spill": spill,
                 })
         print(f"frame {i:2d}/{len(frames)} done", flush=True)
 
@@ -379,28 +483,42 @@ def main():
             write_png(os.path.join(out_dir, f"{kind}{suffix}.png"), to_bytes(sheets[s][kind]))
 
     worst = max(r["clipped"] for r in report)
+    ious = [r["iou"] for r in report]
+    elapsed = time.time() - started
+    model = ("placeholder " + args.placeholder if args.placeholder else
+             os.path.basename(args.model) + " variant " + args.variant if args.model else
+             bpy.data.filepath)
+    lights_text = "; ".join(f"{l['name']} {l['azimuth']:g},{l['elevation']:g} x{l['energy']:g}"
+                            for l in lights)
+    camera_text = (f"perspective at {cfg['camera_distance']:g} units from the pivot"
+                   if cfg.get("camera_distance") else "orthographic")
     lines = [
         f"# Fit check: {args.sprite}",
         "",
-        f"- Model: {'placeholder ' + args.placeholder if args.placeholder else bpy.data.filepath}",
+        f"- Model: {model}",
         f"- Frames: {len(frames)} ({360 / len(frames):g} degrees each); rectangles and pivots"
         " taken unchanged from the original .pn",
-        f"- Scale: {scale:.3f} px per Blender unit at 1x (fitted to frame 0); scales {args.scales};"
-        f" rendered at {render_px} px per 1x px with {args.engine}",
-        f"- Camera: orthographic, tilted {args.tilt:g} degrees from vertical; light {args.light}",
+        f"- Scale: {scale:.3f} px per Blender unit at 1x ({'set by the model' if cfg.get('scale') else 'fitted to frame 0'}); scales {args.scales};"
+        f" rendered at {render_px} px per 1x px with {args.engine} ({args.samples} samples"
+        f"{', ' + backend if backend else ''})",
+        f"- Camera: {camera_text}, tilted {args.tilt:g} degrees from vertical; lights {lights_text}",
         f"- Team-colour parts: {', '.join(sorted(o.name for o in team)) or 'none'}",
         f"- Worst clipping: {worst:.2%} of the ship's coverage falls outside its frame"
         f" ({'OK' if worst < 0.005 else 'CHECK'}; threshold 0.5%)",
+        f"- Silhouette match with the original (intersection over union at 1x): mean"
+        f" {np.mean(ious):.2f}, worst {min(ious):.2f}",
+        f"- Render time: {elapsed:.0f} s ({len(frames)} frames x 2 passes)",
         "",
-        "| Frame | Angle | Rect | Original px | New px | New bbox (x, y in frame) | Clipped |",
-        "|---:|---:|---|---:|---:|---|---:|",
+        "| Frame | Angle | Rect | Original px | New px | New bbox (x, y in frame) | IoU | Clipped | Spills past |",
+        "|---:|---:|---|---:|---:|---|---:|---:|---|",
     ]
     for r in report:
         lines.append(f"| {r['i']} | {r['deg']} | {r['w']}x{r['h']} | {r['orig_px']} | {r['new_px']}"
-                     f" | {r['bbox']} | {r['clipped']:.2%} |")
+                     f" | {r['bbox']} | {r['iou']:.2f} | {r['clipped']:.2%} | {r['spill']} |")
     with open(os.path.join(out_dir, "fit-report.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
-    print(f"wrote {out_dir} (worst clipping {worst:.2%})")
+    print(f"wrote {out_dir} (worst clipping {worst:.2%}, mean IoU {np.mean(ious):.2f},"
+          f" {elapsed:.0f} s)")
 
 
 main()
