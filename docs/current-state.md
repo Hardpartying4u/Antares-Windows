@@ -374,6 +374,16 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   position shows a camera tilted about 44° from vertical for the Human cruiser, viewing from the
   bottom of the screen; the ship's length appears 0.72× on screen. The pivot also sits above the
   hull (about 3.3 px on screen). Other sprites give noisier estimates (8°–52°).
+  The camera was also a **perspective** camera: parts farther from it, such as the rear of a
+  ship facing down the screen, look slightly smaller. For the Human cruiser a camera about 200
+  units (ship lengths ≈ 44) from the pivot fits best. An orthographic camera can't get every
+  frame within 1 %.
+- **Pivots are rounded per frame.** The originals' `cx, cy` are whole pixels, so the ship sits up
+  to about 1 px off-centre in individual frames. A consistent model needs about 0.5 px of slack
+  to stay inside every frame.
+- **Players see `image.png`.** A side is tinted only if its level sets a `hue`, and almost none do
+  (default grey draws the image as painted). The overlay matters only for hued sides. See
+  `docs/art-direction.md`.
 - **Resource search order:** plugin folder or zip, then the factory scenario folder
   (`Documents/Antares/Scenarios/<id>`), then the app's `data/` (`src/data/resource.cpp` ~89). A
   file in the scenario folder therefore replaces the same-named file in `data/`, which the sprite
@@ -439,6 +449,20 @@ Output goes to `out/sprite-render/` (ignored by git); nothing is written to `dat
 - Placeholder Human cruiser (2026-10-18): fits all 24 frames with at most 4.2 % overflow (the
   placeholder is slimmer than the original, so some down-facing frames overflow at the sides).
   Tested in game in chapter 18 at 2:1 zoom: it draws aligned on its pivot, with team tint.
+- **Model scripts** (`--model <script> --variant <name>`): `build(variant)` creates the ship and
+  returns its settings:
+  - `tilt`, and `scale` (pixels per unit, if the model is built in original-pixel units);
+  - `camera_distance` (perspective camera; orthographic if absent) and `screen_offset`;
+  - `lights` (key/rim/fill, defined relative to the camera) and `ambient`.
+
+  Team materials can carry a `team_white` value node, so the overlay pass keeps their bump and
+  roughness. Use `--engine CYCLES` for ray-traced AO and soft shadows (GPU with OptiX denoising).
+  The fit report adds silhouette IoU against the original, per-edge spill and render time.
+- `uns_cruiser.py` is the Human cruiser in three modernisation levels: `A` subtle, `B` balanced,
+  `C` richest (`docs/art-direction.md`). All three overflow by at most 0.5 % (IoU about 0.79) and
+  render in about 15 s each (24 frames × 2 passes, 1×/2×/4×, 128 samples, RTX 5090).
+- `variant_sheet.py` (Pillow) compares an original with variants: a detail sheet at 2× and 4×,
+  and a readability sheet at real 1× size, 1:2 zoom and team-tinted.
 
 ### 4.4 Effects and other layers
 

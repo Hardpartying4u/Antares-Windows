@@ -85,7 +85,8 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - Which parts of the UI need a full redesign and which only need scaling?
 - ~~How many ship types and frames per ship does the game load?~~ Answered 2026-10-18: 82 objects use rotating sprites; 81 have 24 frames (15° steps) and the Bazidan battleship has 36. Frames range from 12 × 11 to 108 × 78 px (see `docs/current-state.md` §4.3).
 - Where should finished replacement art live: a fork of the data repository, or a separate Star Bound art folder with a loader change?
-- Should every ship be rendered at one shared camera tilt (simpler, consistent) or at each original's fitted tilt (closer match, noisier estimates)?
+- Should every ship be rendered with one shared camera (tilt and perspective distance; simpler, consistent) or with each original's fitted camera (closer match, more fitting work)? The Human cruiser needed 44° tilt and a perspective camera about 200 units away to fit its frames within 1 %.
+- Which modernisation level (A subtle, B balanced, C richest; see `docs/art-direction.md`) becomes the fleet standard?
 - Should new art keep the original ship designs or reinterpret them?
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
