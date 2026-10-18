@@ -10,7 +10,8 @@ the original frames by fit_shape.py:
                     part("pod", mirror=True, x=10.8, hw=4, ...), ...], look={...})
     globals().update(SHAPE.exports())
 
-Per part, parameters <name>_x, _hw, _hh, _z, _front, _rear, _exp and optionally _chamfer (the top
+Per part, parameters <name>_x, _hw, _hh, _z, _front, _rear, _exp and optionally _round (the front
+end rounds off in plan view over this length), _chamfer (the top
 slopes down over this length at the front) and _gap (`repeat` > 1: equal segments separated by
 gaps, such as hangar modules). Each starting value comes with search bounds. `region` names the
 colour region the part belongs to (hull, pods, block, ...), used by box_kit_model.py and
@@ -31,7 +32,7 @@ def part(name, region="hull", mirror=False, repeat=1, spread=None, **values):
                              "rear": 4.0, "exp": None, "chamfer": None, "gap": None}.get(key))
         if key == "exp":
             lo, hi = 2.2, 10.0
-        elif key == "chamfer":
+        elif key in ("chamfer", "round"):
             lo, hi = 0.0, max(1.0, 2.5 * v)
         elif key == "gap":
             lo, hi = 0.0, max(0.5, 3 * v)
@@ -76,10 +77,20 @@ class BoxKit:
             t = t - into * CHAMFER_DROP * 2 * p[f"{n}_hh"]
         return t
 
+    def half_width(self, pt, p, y):
+        """Half-width at y: narrowed towards the front by the plan-view rounding, if any."""
+        n = pt["name"]
+        r = p.get(f"{n}_round", 0.0)
+        if r <= 0:
+            return p[f"{n}_hw"]
+        into = np.clip((y - (p[f"{n}_front"] - r)) / r, 0, 1)
+        return p[f"{n}_hw"] * np.maximum(np.sqrt(1 - into ** 2), 0.15)
+
     def part_mask(self, pt, p, x, y, z):
         n = pt["name"]
         ax = np.abs(x) if pt["mirror"] else x
-        m = _superellipse((ax - p[f"{n}_x"]) / p[f"{n}_hw"], (z - p[f"{n}_z"]) / p[f"{n}_hh"], p[f"{n}_exp"])
+        m = _superellipse((ax - p[f"{n}_x"]) / self.half_width(pt, p, y), (z - p[f"{n}_z"]) / p[f"{n}_hh"],
+                          p[f"{n}_exp"])
         iny = np.zeros(np.broadcast(x, y, z).shape, bool)
         for r, f in self.segments(pt, p):
             iny = iny | ((y >= r) & (y <= f))
@@ -99,8 +110,24 @@ class BoxKit:
 
     def part_of(self, p, pts, tol=0.6):
         """Colour region of each surface point: the region of the nearest part containing it
-        (points are on the surface, so test a slightly grown part)."""
+        (points are on the surface, so test a slightly grown part). With look["label_plan"]
+        (nearly overhead cameras, where the carved hull's heights are meaningless) a point takes
+        the region of the topmost part covering it in plan view."""
         x, y, z = pts[:, 0], pts[:, 1], pts[:, 2]
+        if self.look.get("label_plan"):
+            label = np.full(len(pts), "hull", dtype=object)
+            best = np.full(len(pts), -np.inf)
+            for pt in self.parts:
+                n = pt["name"]
+                ax = np.abs(x) if pt["mirror"] else x
+                inside = np.abs(ax - p[f"{n}_x"]) <= self.half_width(pt, p, y) + tol
+                iny = np.zeros(len(pts), bool)
+                for r, f in self.segments(pt, p):
+                    iny |= (y >= r - tol) & (y <= f + tol)
+                top = np.broadcast_to(self.top(pt, p, y), y.shape)
+                win = inside & iny & (top > best)
+                label[win], best[win] = pt["region"], top[win]
+            return label
         label = np.full(len(pts), self.parts[0]["region"], dtype=object)
         grown = dict(p)
         for pt in self.parts:

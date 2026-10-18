@@ -103,10 +103,15 @@ def _band(nt, value, lo, hi, soft):
     return _math(nt, "MULTIPLY", a, b)
 
 
-def metal(name, colour, size, rough=0.36, rough_var=0.12, plates=0.35, metallic=0.75, markings=None):
+def metal(name, colour, size, rough=0.36, rough_var=0.12, plates=0.35, metallic=0.75, markings=None,
+          tone=0.12, tone_dark=0.9, plate_scale=1.0, tone_mode="panels"):
     """Team-coloured PBR metal: noise-varied roughness, faint plate lines scaled to the ship
     (`size` = 1 at the cruiser's length), optional markings (dorsal strip and cockpit window, in
-    object space), and a team_white switch for the overlay pass (render_sprite.py)."""
+    object space), and a team_white switch for the overlay pass (render_sprite.py). `tone` sets how
+    strongly panels differ in brightness (each panel is randomly 1 or `tone_dark` times the base
+    colour); `plate_scale` > 1 makes the panels smaller. With tone_mode "parts", panel lines stay
+    faint and each object (part) instead takes one random tone between `tone_dark` and 1, so
+    tones follow the ship's parts as in the original rather than running across them."""
     m = bpy.data.materials.new("team_" + name)
     m.use_nodes = True
     nt = m.node_tree
@@ -130,14 +135,14 @@ def metal(name, colour, size, rough=0.36, rough_var=0.12, plates=0.35, metallic=
     col = rgb.outputs[0]
     if plates > 0:
         bricks = nodes.new("ShaderNodeTexBrick")
-        bricks.inputs["Scale"].default_value = 0.1 / size
+        bricks.inputs["Scale"].default_value = 0.1 * plate_scale / size
         bricks.inputs["Mortar Size"].default_value = 0.016
         bricks.inputs["Mortar Smooth"].default_value = 0.4
         bricks.inputs["Brick Width"].default_value = 1.0
         bricks.inputs["Row Height"].default_value = 0.5
         bricks.offset = 0.4
         bricks.inputs["Color1"].default_value = (1, 1, 1, 1)
-        bricks.inputs["Color2"].default_value = (0.9, 0.9, 0.91, 1)
+        bricks.inputs["Color2"].default_value = (tone_dark, tone_dark, tone_dark + 0.01, 1)
         links.new(coords.outputs["Object"], bricks.inputs["Vector"])
         bump = nodes.new("ShaderNodeBump")
         bump.invert = True
@@ -145,7 +150,20 @@ def metal(name, colour, size, rough=0.36, rough_var=0.12, plates=0.35, metallic=
         bump.inputs["Distance"].default_value = 0.08 * size
         links.new(bricks.outputs["Fac"], bump.inputs["Height"])
         links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
-        col = _mix_rgb(nt, "MULTIPLY", 0.12, col, bricks.outputs["Color"])
+        if tone_mode == "parts":
+            col = _mix_rgb(nt, "MULTIPLY", 0.12, col, bricks.outputs["Color"])
+        else:
+            col = _mix_rgb(nt, "MULTIPLY", float(tone), col, bricks.outputs["Color"])
+    if tone_mode == "parts":
+        info = nodes.new("ShaderNodeObjectInfo")
+        tmap = nodes.new("ShaderNodeMapRange")
+        tmap.inputs["To Min"].default_value = tone_dark
+        tmap.inputs["To Max"].default_value = 1.0
+        links.new(info.outputs["Random"], tmap.inputs["Value"])
+        tint = nodes.new("ShaderNodeCombineColor")
+        for k in range(3):
+            links.new(tmap.outputs["Result"], tint.inputs[k])
+        col = _mix_rgb(nt, "MULTIPLY", 1.0, col, tint.outputs[0])
 
     shader_out = bsdf.outputs[0]
     if markings:

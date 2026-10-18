@@ -30,23 +30,30 @@ from twin_pod_model import (CRUISER_LENGTH, DEFAULT_COLOURS, _object,  # noqa: E
 MATERIAL = {  # region: (roughness, roughness variation, plate-line strength, metalness)
     "hull": (0.36, 0.12, 0.35, 0.75), "modules": (0.42, 0.14, 0.3, 0.7),
     "pods": (0.5, 0.15, 0.3, 0.75), "block": (0.5, 0.12, 0.0, 0.35),
+    "gap": (0.65, 0.1, 0.0, 0.2),  # dark recesses between blocks
+    "fitting": (0.18, 0.05, 0.0, 0.5),  # small bright fittings and lamps
 }
 
 
-def box(name, kit, pt, p, cx, y0, y1, mat, bevel):
-    """One rounded box along Y, its top sloped by the part's front chamfer if it has one."""
+def box(name, kit, pt, p, cx, y0, y1, mat, bevel, inset=0.0):
+    """One rounded box along Y: its top sloped by the part's front chamfer and its front rounded
+    in plan view, if it has them. `inset` shrinks it on every side (render only), so the dark core
+    shows between neighbouring blocks as the original's gaps."""
     n = pt["name"]
     bm = bmesh.new()
     seg = 64
-    x, z = _superellipse_ring(p[f"{n}_hw"], p[f"{n}_hh"], p[f"{n}_hh"], p[f"{n}_z"], p[f"{n}_exp"], seg)
-    c = p.get(f"{n}_chamfer", 0.0)
+    hw = p[f"{n}_hw"] - inset
+    x, z = _superellipse_ring(1.0, p[f"{n}_hh"], p[f"{n}_hh"], p[f"{n}_z"], p[f"{n}_exp"], seg)
+    y0, y1 = y0 + inset, y1 - inset
+    zone = max(p.get(f"{n}_chamfer", 0.0), p.get(f"{n}_round", 0.0))
     ys = [y0, y1]
-    if c > 0 and y1 - c > y0:
-        ys = [y0] + list(np.linspace(y1 - c, y1, 6))
+    if zone > 0 and y1 - zone > y0:
+        ys = [y0] + list(np.linspace(y1 - zone, y1, 10 if p.get(f"{n}_round", 0.0) > 0 else 6))
     rings = []
     for y in ys:
         top = kit.top(pt, p, np.array(y))
-        rings.append([bm.verts.new((float(cx + x[j]), float(y), float(min(z[j], top)))) for j in range(seg)])
+        w = float(kit.half_width(pt, p, np.array(y))) * hw / p[f"{n}_hw"]
+        rings.append([bm.verts.new((float(cx + w * x[j]), float(y), float(min(z[j], top)))) for j in range(seg)])
     for a, b in zip(rings, rings[1:]):
         for j in range(seg):
             bm.faces.new((a[j], b[j], b[(j + 1) % seg], a[(j + 1) % seg]))
@@ -76,8 +83,15 @@ def build(variant):
         key = (region, bool(markings))
         if key not in mats:
             r, rv, plates, metallic = MATERIAL.get(region, MATERIAL["hull"])
+            tone = look.get("tone", {})  # per-ship panel tone variation, matched to the original
+            if tone and region not in ("gap", "fitting"):
+                plates = max(plates, 0.15)
+            if region not in ("gap",):  # per-ship metalness: 1.0 keeps highlights in the hull colour
+                metallic = look.get("metallic", metallic)
             mats[key] = metal(region + ("_marked" if markings else ""), colours[region], size,
-                              rough=r, rough_var=rv, plates=plates, metallic=metallic, markings=markings)
+                              rough=r, rough_var=rv, plates=plates, metallic=metallic, markings=markings,
+                              tone=tone.get("strength", 0.12), tone_dark=tone.get("dark", 0.9),
+                              plate_scale=tone.get("scale", 1.0), tone_mode=tone.get("mode", "panels"))
         return mats[key]
 
     red = glow("engine_light", (1.0, 0.04, 0.02), 3.2)
@@ -89,11 +103,13 @@ def build(variant):
                         "strip": {**look["strip"], "colour": colours["strip"]}}
         mat = material(pt["region"], markings)
         bevel = bevels.get(n, bevels.get("default", 0.3 * size))
+        insets = look.get("inset", {})
+        inset = insets.get(n, insets.get("default", 0.0))
         sides = (-1, 1) if pt["mirror"] else (1,)
         for side in sides:
             cx = side * p[f"{n}_x"]
             for k, (y0, y1) in enumerate(kit.segments(pt, p)):
-                box(f"{n}{side:+d}{k}", kit, pt, p, cx, y0, y1, mat, bevel)
+                box(f"{n}{side:+d}{k}", kit, pt, p, cx, y0, y1, mat, bevel, inset)
             if pt["region"] == "pods" and look.get("lights") == "per_pod":
                 r = min(0.35 * p[f"{n}_hw"], 0.35 * p[f"{n}_hh"], 1.6)
                 bpy.ops.mesh.primitive_cylinder_add(
@@ -101,4 +117,6 @@ def build(variant):
                     depth=0.12 * size, rotation=(math.pi / 2, 0, 0), vertices=24)
                 bpy.context.active_object.data.materials.append(red)
 
-    return render_settings(fit)
+    settings = render_settings(fit)
+    settings.update(look.get("render", {}))  # per-ship lighting, matched to the original
+    return settings

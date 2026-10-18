@@ -132,7 +132,7 @@ def main():
     s0 = fitter.score(p0)
 
     def objective(v):
-        return -fitter.score(dict(zip(names, np.clip(v, lo, hi))))
+        return -fitter.score({**p0, **dict(zip(names, np.clip(v, lo, hi)))})
 
     v = to_vec(p0, names)
     for r in range(a.rounds):
@@ -141,7 +141,7 @@ def main():
         v = np.clip(res.x, lo, hi)
         print(f"round {r + 1}: score {-res.fun:.4f} after {fitter.evals} evaluations,"
               f" {time.time() - start:.0f} s", flush=True)
-    p = dict(zip(names, [float(x) for x in v]))
+    p = {**{k: float(x) for k, x in p0.items()}, **dict(zip(names, [float(x) for x in v]))}
     rows = fitter.evaluate(p)
     summary = {
         "iou_mean": float(np.mean([r["iou"] for r in rows])),
