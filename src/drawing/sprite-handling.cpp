@@ -18,6 +18,7 @@
 
 #include "drawing/sprite-handling.hpp"
 
+#include <algorithm>
 #include <numeric>
 #include <sfz/sfz.hpp>
 
@@ -106,13 +107,22 @@ void Pix::reset() {
     _cursor.reset(new NatePixTable("gui/cursor", Hue::GRAY));
 }
 
-NatePixTable* Pix::add(pn::string_view name, Hue hue) {
+NatePixTable* Pix::add(pn::string_view name, Hue hue, Scale object_scale) {
+    // Effective draw scale at 1:1 zoom: UI scale times the object's scale, rounded up.
+    int64_t   product    = int64_t{sys.video->scale()} * object_scale.factor;
+    const int draw_scale = std::max<int64_t>(
+            1, std::min<int64_t>(8, (product + SCALE_SCALE.factor - 1) / SCALE_SCALE.factor));
+
     NatePixTable* result = get(name, hue);
     if (result) {
+        if (result->draw_scale() < draw_scale) {
+            *result = NatePixTable(name, hue, draw_scale);
+        }
         return result;
     }
 
-    auto it = _pix.emplace(std::make_pair(name.copy(), hue), NatePixTable(name, hue)).first;
+    auto it = _pix.emplace(std::make_pair(name.copy(), hue), NatePixTable(name, hue, draw_scale))
+                      .first;
     return &it->second;
 }
 

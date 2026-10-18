@@ -30,7 +30,9 @@ class NatePixTable {
   public:
     class Frame;
 
-    NatePixTable(pn::string_view name, Hue hue);
+    // `draw_scale` is how many screen pixels a 1x sprite pixel covers at 1:1 zoom (UI scale times
+    // the object's own sprite scale, rounded up); it picks the @2x/@4x sheet. 0 means the UI scale.
+    NatePixTable(pn::string_view name, Hue hue, int draw_scale = 0);
     NatePixTable(const NatePixTable&) = delete;
     NatePixTable(NatePixTable&&)      = default;
     NatePixTable& operator=(const NatePixTable&) = delete;
@@ -39,9 +41,11 @@ class NatePixTable {
 
     const Frame& at(size_t index) const;
     size_t       size() const;
+    int          draw_scale() const { return _draw_scale; }
 
   private:
     size_t             _size;
+    int                _draw_scale;
     std::vector<Frame> _frames;
 };
 

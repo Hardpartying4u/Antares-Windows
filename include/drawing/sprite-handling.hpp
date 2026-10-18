@@ -83,7 +83,11 @@ extern Scale gAbsoluteScale;
 class Pix {
   public:
     void                reset();
-    NatePixTable*       add(pn::string_view id, Hue hue);
+    // Loads a sprite for objects drawn at `object_scale` (BaseObject rotation/animation scale;
+    // capital ships use 2x), so the sheet matches the effective draw scale. A sprite already
+    // loaded for a smaller scale is reloaded with the sharper sheet; call only while loading a
+    // level, before sprites refer to the table.
+    NatePixTable*       add(pn::string_view id, Hue hue, Scale object_scale = SCALE_SCALE);
     NatePixTable*       get(pn::string_view id, Hue hue);
     const NatePixTable* cursor();
 

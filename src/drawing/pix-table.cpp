@@ -55,7 +55,8 @@ static vector<int> sheet_scales_to_try(int draw_scale) {
     return order;
 }
 
-NatePixTable::NatePixTable(pn::string_view name, Hue hue) {
+NatePixTable::NatePixTable(pn::string_view name, Hue hue, int draw_scale)
+        : _draw_scale(draw_scale > 0 ? draw_scale : sys.video->scale()) {
     SpriteData  data    = Resource::sprite_data(name);
     ArrayPixMap image   = Resource::sprite_image(name);
     ArrayPixMap overlay = Resource::sprite_overlay(name);
@@ -68,7 +69,7 @@ NatePixTable::NatePixTable(pn::string_view name, Hue hue) {
     // the 1x sheet, because frame rectangles and pivots stay in 1x units: they define collision
     // bounds and weapon mounts, so only the texture changes.
     int scale = 1;
-    for (int s : sheet_scales_to_try(sys.video->scale())) {
+    for (int s : sheet_scales_to_try(_draw_scale)) {
         if (s == 1) {
             break;
         } else if (!Resource::sprite_exists(name, s)) {

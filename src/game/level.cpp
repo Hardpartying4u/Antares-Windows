@@ -93,7 +93,7 @@ void AddBaseObjectMedia(
     }
     for (int i = 0; i < 16; ++i) {
         if (colors[i] && sprite_resource(*base).has_value()) {
-            sys.pix.add(*sprite_resource(*base), Hue(i));
+            sys.pix.add(*sprite_resource(*base), Hue(i), sprite_scale(*base));
         }
     }
 
@@ -269,9 +269,10 @@ static void load_initial(Handle<const Initial> initial, std::bitset<16> all_colo
     // make sure we're not overriding the sprite
     if (initial->override_.sprite.has_value()) {
         if (baseObject->attributes & kCanThink) {
-            sys.pix.add(*initial->override_.sprite, GetAdmiralColor(owner));
+            sys.pix.add(
+                    *initial->override_.sprite, GetAdmiralColor(owner), sprite_scale(*baseObject));
         } else {
-            sys.pix.add(*initial->override_.sprite, Hue::GRAY);
+            sys.pix.add(*initial->override_.sprite, Hue::GRAY, sprite_scale(*baseObject));
         }
     }
 
