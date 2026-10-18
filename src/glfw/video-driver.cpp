@@ -216,6 +216,19 @@ Point GLFWVideoDriver::to_screen(double x, double y) const {
             int(std::floor((py - _viewport_offset.v) / _scale))};
 }
 
+// Window sizes are saved in DPI-independent units, because the window is created with
+// GLFW_SCALE_TO_MONITOR, which multiplies the requested size by the monitor's content scale on
+// Windows (on macOS, window coordinates are already DPI-independent). Saving the scaled size
+// made the window grow on every launch. Returns window size units per saved size unit.
+double GLFWVideoDriver::saved_size_ratio() const {
+    float x_scale = 1, y_scale = 1;
+    glfwGetWindowContentScale(_window, &x_scale, &y_scale);
+    const double pixel_ratio =
+            (_window_size.width > 0) ? double(_framebuffer_size.width) / _window_size.width : 1;
+    const double ratio = x_scale / pixel_ratio;
+    return (ratio > 0) ? ratio : 1;
+}
+
 void GLFWVideoDriver::update_layout() {
     if ((_window_size.width <= 0) || (_window_size.height <= 0) ||
         (_framebuffer_size.width <= 0) || (_framebuffer_size.height <= 0)) {
@@ -444,10 +457,12 @@ void GLFWVideoDriver::window_size(int width, int height) {
         return;
     }
     _window_size = {width, height};
-    if (!_fullscreen) {
-        sys.prefs->set_window_size(_window_size);
-    }
     glfwGetFramebufferSize(_window, &_framebuffer_size.width, &_framebuffer_size.height);
+    if (!_fullscreen) {
+        const double ratio = saved_size_ratio();
+        sys.prefs->set_window_size(
+                {int(std::lround(width / ratio)), int(std::lround(height / ratio))});
+    }
     update_layout();
 }
 
@@ -466,8 +481,11 @@ void GLFWVideoDriver::window_maximize(bool maximized) {
         mode         = glfwGetVideoMode(monitor);
         _window_size = {mode->width, mode->height};
     } else {
-        mode         = glfwGetVideoMode(glfwGetWindowMonitor(_window));
-        _window_size = sys.prefs->window_size();
+        mode               = glfwGetVideoMode(glfwGetWindowMonitor(_window));
+        const Size   saved = sys.prefs->window_size();
+        const double ratio = saved_size_ratio();
+        _window_size       = {int(std::lround(saved.width * ratio)),
+                              int(std::lround(saved.height * ratio))};
     }
 
     Rect screen_rect{Point{0, 0}, Size{mode->width, mode->height}};

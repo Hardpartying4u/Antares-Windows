@@ -314,9 +314,12 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   - Textures with `@Nx` variants are chosen by `load_hidpi_texture` (`src/data/resource.cpp`) at
     load time, which happens once at startup. Only fonts ship `@2x` art, so a later scale change
     upscales whatever was loaded. At 3× it falls back to 1× art (it tries `@3x`, then halves).
-- **Known issue (pre-existing)**: windows are created with `GLFW_SCALE_TO_MONITOR`, so with
-  Windows display scaling (e.g. 125 %) the window opens larger than the saved size. Resizing it
-  then saves the larger size, so it grows again on each launch after a resize.
+- **Saved window size** is DPI-independent: the window is created with `GLFW_SCALE_TO_MONITOR`,
+  which multiplies the requested size by the monitor's content scale on Windows, so the driver
+  saves window size ÷ that scale (`saved_size_ratio()`). At 125 % a 1920 × 1080 window is saved
+  as 1536 × 864 and reopens at 1920 × 1080. (Before this, the saved size grew 25 % per launch
+  after any resize.) Configs saved by older builds hold the physical size, so they open
+  25 % larger once.
 - **Screenshots**: GDI and Win+PrintScreen capture a black frame in fullscreen (OpenGL surface).
   Use a window the size of the monitor when screenshots are needed.
 - **Build note**: the Windows toolchain doesn't pass `/showIncludes`, so ninja doesn't track
