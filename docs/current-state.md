@@ -356,6 +356,27 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   each **frame** rectangle and its centre (`cx`, `cy`). 382 PNGs in total.
 - Frames are usually **rotation steps** (ships, turrets) or animation frames (explosions,
   shots). Facing → frame index is computed from the object's direction.
+- **Rotation sprites in detail:**
+  - An object's `rotation: {sprite, frames: {begin, end}}` block picks the sheet. The angle step
+    is 360° ÷ frame count (`rotation_resolution`, `src/game/space-object.cpp` ~882).
+  - 82 objects use rotation sprites: 81 have 24 frames (15°) and the Bazidan battleship has 36
+    (10°). Frames range from 12 × 11 px (fusion pulse) to 108 × 78 px (Human carrier); the Human
+    cruiser's are 20–44 × 21–34 on a 342 × 188 sheet.
+  - Frame 0 shows the nose pointing **up**; each next frame turns the ship **clockwise**.
+  - `cx, cy` are absolute sheet coordinates of the **pivot**, i.e. the object's position, which
+    weapon mounts are measured from. It sits near the nose, not at the frame's middle.
+  - Frames are packed about six per row with irregular spacing; only the `.pn` rectangles matter.
+  - The originals are palette PNGs, but the loader accepts any PNG, including 8-bit RGBA.
+  - `overlay.png` has the same layout: red = brightness for the team tint, alpha = coverage. On
+    the originals it covers the whole hull.
+- **The originals use a three-quarter view.** Fitting each frame's pivot against the ship's
+  position shows a camera tilted about 44° from vertical for the Human cruiser, viewing from the
+  bottom of the screen; the ship's length appears 0.72× on screen. The pivot also sits above the
+  hull (about 3.3 px on screen). Other sprites give noisier estimates (8°–52°).
+- **Resource search order:** plugin folder or zip, then the factory scenario folder
+  (`Documents/Antares/Scenarios/<id>`), then the app's `data/` (`src/data/resource.cpp` ~89). A
+  file in the scenario folder therefore replaces the same-named file in `data/`, which the sprite
+  tools use for in-game tests.
 - **Team colour**: `NatePixTable(name, hue)` (`src/drawing/pix-table.cpp` ~38) tints the
   overlay layer with the owner's hue and composites it onto the image; gray = untinted.
 - Drawing: `draw_sprites()` (`src/drawing/sprite-handling.cpp` ~168) draws three layers in order
@@ -371,6 +392,34 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   `overlay@2x.png` when present, cut each frame at 2× the `.pn` rectangle, tint the overlay at that
   size, and pass scale 2 to `sys.video->texture()`. Keep `width()`/`height()`/`center()` at 1× so
   collisions and layout don't change. Pictures and fonts already support `@2x` this way.
+
+### 4.3.1 Sprite render tools (`tools/sprite-render/`)
+
+Not part of the game build. They need Blender 5.2 (tested with 5.2.2 at
+`C:\Program Files\Blender Foundation\Blender 5.2\blender.exe`) and Python 3 with Pillow.
+Output goes to `out/sprite-render/` (ignored by git); nothing is written to `data/`.
+
+- `render_sprite.py` runs inside Blender and renders a model into a sprite's frame layout:
+
+  ```bat
+  blender -b --factory-startup [model.blend] -P tools/sprite-render/render_sprite.py -- --sprite uns/cruiser --placeholder cruiser --tilt 44
+  ```
+
+  - Reads the original `.pn` and keeps every frame's rectangle and pivot.
+  - The model's origin must be at the pivot, with the nose along +Y. Materials named `team…`
+    take the owner's colour.
+  - Orthographic camera, tilted by `--tilt`; the sun is fixed relative to the camera.
+  - Renders at 8 px per 1× px with EEVEE and box-filters down (premultiplied alpha). Writes
+    `image`/`overlay` sheets at 1×, `@2x` and `@4x`, plus `fit-report.md`: per frame, how much of
+    the ship falls outside the original rectangle (threshold 0.5 %).
+  - About 17 s for the cruiser's 24 frames.
+- `compare_sheet.py` (Pillow) makes `compare.png`: original vs new 1× vs overlay vs new 4×, with pivots marked.
+- `override.py install --sprite <name>` / `remove` / `status` copies the 1× sheets into the
+  factory scenario folder for an in-game test. A manifest records exactly which files and folders
+  it created, and `remove` deletes only those. It refuses to overwrite files it didn't install.
+- Placeholder Human cruiser (2026-10-18): fits all 24 frames with at most 4.2 % overflow (the
+  placeholder is slimmer than the original, so some down-facing frames overflow at the sides).
+  Tested in game in chapter 18 at 2:1 zoom: it draws aligned on its pivot, with team tint.
 
 ### 4.4 Effects and other layers
 
