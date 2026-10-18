@@ -58,6 +58,8 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - `ASSETS.md` stays unchanged until a real model replaces an original sprite.
 - **Finding: the original sprites use a three-quarter view.** They were rendered with a camera tilted about 44° from vertical, viewing from the bottom of the screen, which shortens ships' length on screen. Each ship's pivot also sits above the hull. New renders have to match both, or ships won't line up with their pivots. The angle was fitted for the Human cruiser; other ships give noisier estimates (8°–52°), so the tilt is a per-sprite setting (`--tilt`). Tools: `tools/sprite-render/`, described in `docs/current-state.md` §4.3.
 
+- **Decision (2026-10-19): acceptance gate for remastered ships.** A remaster goes into `art/` only if, in game at UI 2×, it looks better than the original and keeps its features; otherwise the ship stays original. Appearance (per-region colour and brightness spread, SSIM) is measured alongside the outline.
+  - The Ishiman ships stay original. Their originals were rendered nearly overhead, so fitted shapes come out plainer than the hand-detailed originals (`docs/fleet-plan.md`, batch 1 outcome).
 - **Finding (2026-10-18): remaster ships from the original frames, not by eye.** The three hand-built cruiser variants drifted from the original design. A remaster now:
   1. measures the shape by carving it out of the 24 frames;
   2. fits a clean parametric model to the frames;
@@ -96,7 +98,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 | M2 | Controls | Classic and Modern presets plus a rebinding screen |
 | M3 | UI redesign | New HUD and menus replace the old ones |
 | M4 | Blender pipeline | One ship rendered from a script and working in game (in progress: script done; game loads @2x/@4x sprite sheets; placeholder Human cruiser rendered and tested in game at UI 1×–4× via the override folder; Human cruiser remaster fitted to the original frames and tested in game at UI 1×, 2×, 4× beside original ships; Human fighter and carrier remastered with shared shape kits, approved, and all three tested in game at UI 1×, 2×, 4×; full-fleet plan next) |
-| M5 | All ships replaced | Every ship type uses new sprites (`docs/fleet-plan.md`, approved 2026-10-18: 67 ships in 7 batches; art in `art/`; batch 1 Ishiman core in progress) |
+| M5 | All ships replaced | Every ship type uses new sprites (`docs/fleet-plan.md`, approved 2026-10-18; art in `art/`. Batch 1, Ishiman: stopped, ships stay original (they failed the acceptance gate). Batch 2, Gaitori: next) |
 | M6 | Effects | New explosions, weapons, thrusters, lighting |
 
 ## 10. Open questions

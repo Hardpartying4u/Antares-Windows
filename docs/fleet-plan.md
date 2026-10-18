@@ -76,7 +76,7 @@ work each batch also gets a remaster review sheet (section 4).
 
 | Batch | Ships | Kits | Before it starts | Estimate (agent time) |
 |---|---:|---|---|---|
-| 1 Ishiman core | 7 | B, S | build the smooth kit S and X-axis boxes in B | 3–4 h (about 1.5–2 h of it the kit) |
+| ~~1 Ishiman core~~ | 7 | B, S | — | **Stopped 2026-10-19: Ishiman ships stay original for now** (see "Batch 1 outcome") |
 | 2 Gaitori core | 6 | T, Q, B | extra pods (Q) | 1.5 h |
 | 3 Cantharan core | 8 | B, S | — | 2 h |
 | 4 Early support craft | 8 | S, B | — | 2 h |
@@ -220,12 +220,42 @@ done yet. I'll re-estimate after batch 1.
 4. **Stop for your approval.** Then commit: tool changes, each faction's ship files, and docs as
    separate commits. The art moves into the art folder (section 5) once that exists.
 
+5. **Acceptance gate** (added 2026-10-19). A ship goes into `art/` only if, in game at UI 2×, it
+   looks better than the original and keeps the original's features. Otherwise it stays
+   original, and the report says so.
+6. **Appearance is measured as well as the outline** (`appearance_metric.py`):
+   - each colour region's mean colour and brightness spread (10th/50th/90th percentiles);
+   - per frame at 1×: structural similarity (SSIM), luminance difference and contrast.
+   - A flat mid-tone can't pass for the original's dark gaps and bright highlights.
+
 Fit targets stay as set:
 - IoU mean ≥ 0.88 and worst ≥ 0.85;
 - outline mean ≤ 0.5 px and worst p95 ≤ 1.5 px.
 
 For ships of 16 px or less, the outline targets are the ones that matter. Misses get reported per
 frame, like the carrier's 1 px antenna, for you to accept or reject.
+
+### Batch 1 outcome (2026-10-18/19)
+
+Two attempts, both measured.
+
+**Smooth kit, all seven ships.** The outlines fitted well (IoU 0.89–0.94), but the ships read as
+soft pillows. They lost the originals' crisp structure, contrast and fittings.
+
+**Box kit, the gunship only, as a trial.** It had bevelled blocks, rounded pod fronts, dark gaps,
+tones per part and lights matched to the original.
+- Fit: IoU 0.92 / 0.91, outline 0.59 px.
+- Appearance: region colours within 8–11 levels; SSIM 0.43 against 0.42 for the pillow version;
+  contrast 0.60 of the original's.
+- In game at UI 2× it was cleaner but plainer than the original. It lost the lit-to-shadow
+  gradient, the crown of nose fins, the lamp glints and most tier detail, so it failed the gate.
+
+Why it fails: most Ishiman ships were rendered nearly overhead (camera tilt 12–22°). Their frames
+can't measure heights, so tiers, fins and steps would be invented. A fitted shape then comes out
+flatter and plainer than the hand-detailed original.
+
+**Decision (2026-10-19): Ishiman ships stay original.** Only the reusable tools were committed. The
+trial files are kept, uncommitted, in `out/sprite-render/trials/ish/`.
 
 ## 5. Where finished art lives (proposal)
 

@@ -586,7 +586,24 @@ Two reusable shape kits cover the ships so far:
   `--model tools/sprite-render/twin_pod_model.py --variant <ship>`.
 - `box_kit.py` + `box_kit_model.py`: any list of fitted rounded boxes, which can be mirrored,
   repeated as segments (hangar modules) or chamfered at the front. Use it for layouts that aren't
-  twin-pod.
+  twin-pod. Added 2026-10-19:
+  - parts can round their front in plan view (`round`);
+  - per-ship `look` settings:
+    - `inset` (render-only shrink, so a dark `gap` core shows between blocks);
+    - `tone` (panel or per-part brightness variation);
+    - `metallic`;
+    - `render` (per-ship lights);
+    - `label_plan` (colour regions by plan view, for overhead cameras);
+  - `gap` and `fitting` materials.
+- `smooth_kit.py` + `smooth_kit_model.py` (2026-10-19): superellipsoid parts at any yaw (hubs,
+  pods on angled struts). It fitted the Ishiman outlines well but looked soft. Use it only for
+  genuinely round parts.
+- `appearance_metric.py` (2026-10-19): the counterpart of `fit_metric.py` for looks.
+  - Per region: mean colour and brightness spread, back-projected onto the carve.
+  - Per frame at 1×: SSIM, luminance difference and contrast.
+  - Screen-space brightness can differ from the region averages: the remastered Human cruiser
+    averages 106 on screen against the original's 78, because the original has more dark pixels
+    (shadowed sides and fine detail).
 
 Each ship's `<ship>_fit.json` stores its camera, including the measured screen offset. The offset
 differs per ship (cruiser −0.5, fighter −0.69, carrier +0.04 px), so it is measured, not fixed.
