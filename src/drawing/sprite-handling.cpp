@@ -136,6 +136,8 @@ NatePixTable* Pix::get(pn::string_view id, Hue hue) {
 
 const NatePixTable* Pix::cursor() { return _cursor.get(); }
 
+void Pix::reload_cursor() { _cursor.reset(new NatePixTable("gui/cursor", Hue::GRAY)); }
+
 Handle<Sprite> AddSprite(
         Point where, NatePixTable* table, pn::string_view name, Hue hue, int16_t whichShape,
         Scale scale, sfz::optional<BaseObject::Icon> icon, BaseObject::Layer layer, Hue tiny_hue,

@@ -109,9 +109,11 @@ class PictureRect : public Widget {
     Rect outer_bounds() const override;
 
   private:
-    Rect       _inner_bounds;
-    pn::string _id;
-    Texture    _texture;
+    Rect            _inner_bounds;
+    pn::string      _id;
+    pn::string      _picture;
+    mutable Texture _texture;
+    mutable int     _generation;  // sys.texture_generation when _texture was loaded
 };
 
 class Button : public Widget {

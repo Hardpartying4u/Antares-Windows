@@ -90,6 +90,7 @@ class Pix {
     NatePixTable*       add(pn::string_view id, Hue hue, Scale object_scale = SCALE_SCALE);
     NatePixTable*       get(pn::string_view id, Hue hue);
     const NatePixTable* cursor();
+    void                reload_cursor();  // for a new screen scale or Graphics setting
 
   private:
     std::map<std::pair<pn::string, Hue>, NatePixTable> _pix;

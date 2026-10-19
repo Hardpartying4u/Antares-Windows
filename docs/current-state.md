@@ -411,6 +411,22 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78â
     no config: it starts, and Video options shows Graphics: Enhanced by default.
   - Each file is looked up on its own, so a sprite takes its sheets from `art/` and its frame table
     from `data/`.
+  - **Pictures and fonts** (`load_hidpi_texture`, `src/data/resource.cpp`) look for 1x, `@2x` and
+    `@4x` files in the same search order (2026-10-19). Pictures take the smallest one at least as
+    detailed as the screen, then larger, then smaller (UI 3x -> `@4x`, `@2x`, 1x), like sprite
+    sheets. Fonts are pixel art and take one that divides the screen scale (UI 3x -> 1x drawn
+    three times). A `@2x`/`@4x` file that isn't exactly 2x/4x its 1x size is skipped with a
+    warning. A texture is laid out at its 1x size whatever its resolution
+    (`OpenGlTextureImpl::size`).
+  - **Filtering** (`TextureFilter`, `include/video/driver.hpp`): 1x textures and fonts are drawn
+    nearest-neighbour, as always. Hi-res pictures are smoothed when drawn at another scale (a
+    `@4x` picture at UI 3x); hi-res sprite sheets are smoothed when shrunk, with colour bled into
+    clear texels so edges don't darken.
+  - **Reloading:** fonts, HUD panels, the cursor and the splash and starmap pictures are loaded at
+    start-up; `refresh_scaled_textures()` (`src/game/sys.cpp`, called every frame) reloads them
+    when the UI scale or Graphics setting changes, and interface pictures reload on their next draw.
+  - `art-test` also checks the picture and font choice at each scale, a wrong-size `@4x`, and that
+    Graphics: Original loads only `data/` pictures.
   - Tested in game: by default the Human fighter, cruiser and carrier draw from `art/`; with
     `--no-art` they show the originals.
 - **Team colour**: `NatePixTable(name, hue)` (`src/drawing/pix-table.cpp` ~38) tints the

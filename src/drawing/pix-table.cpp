@@ -162,7 +162,9 @@ const Texture& NatePixTable::Frame::texture() const { return _texture; }
 
 void NatePixTable::Frame::build(pn::string_view name, int frame) {
     // The texture is drawn at the frame's 1x size; a larger pixmap just gives it more detail.
-    _texture = sys.video->texture(pn::format("/sprites/{0}%{1}", name, frame), _pix_map, _scale);
+    _texture = sys.video->texture(
+            pn::format("/sprites/{0}%{1}", name, frame), _pix_map, _scale,
+            (_scale > 1) ? TextureFilter::SMOOTH_MINIFY : TextureFilter::PIXELS);
 }
 
 }  // namespace antares

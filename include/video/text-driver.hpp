@@ -42,7 +42,9 @@ class TextVideoDriver : public VideoDriver {
 
     virtual wall_time now() const { return _scheduler->now(); }
 
-    virtual Texture texture(pn::string_view name, const PixMap& content, int scale);
+    virtual Texture texture(
+            pn::string_view name, const PixMap& content, int scale,
+            TextureFilter filter = TextureFilter::PIXELS);
     virtual void    dither_rect(const Rect& rect, const RgbColor& color);
     virtual void    draw_triangle(const Rect& rect, const RgbColor& color);
     virtual void    draw_diamond(const Rect& rect, const RgbColor& color);

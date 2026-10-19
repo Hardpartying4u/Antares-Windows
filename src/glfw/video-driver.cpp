@@ -595,6 +595,7 @@ void GLFWVideoDriver::loop(Card* initial) {
     while (!main_loop.done() && !glfwWindowShouldClose(_window)) {
         glfwPollEvents();
         update_layout();  // picks up UI scale changes made in the options screen
+        refresh_scaled_textures();  // and reloads start-up textures for a new scale or Graphics
         _loop->draw();
         glfwSwapBuffers(_window);
         wall_time at;

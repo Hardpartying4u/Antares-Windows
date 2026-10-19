@@ -35,6 +35,12 @@ class PixMap;
 class Texture;
 class TextReceiver;
 
+// How a texture is sampled when drawn at a different size from its pixels (a @4x picture at UI 3x,
+// a @4x sprite sheet at UI 3x or zoomed out). PIXELS: nearest neighbour, for pixel art and every 1x
+// texture, so the original look is unchanged. SMOOTH_MINIFY: linear when shrunk, nearest when
+// enlarged, for hi-res sprite sheets. SMOOTH: linear both ways, for hi-res pictures.
+enum class TextureFilter { PIXELS, SMOOTH_MINIFY, SMOOTH };
+
 class VideoDriver {
   public:
     VideoDriver();
@@ -52,7 +58,9 @@ class VideoDriver {
 
     virtual wall_time now() const = 0;
 
-    virtual Texture texture(pn::string_view name, const PixMap& content, int scale) = 0;
+    virtual Texture texture(
+            pn::string_view name, const PixMap& content, int scale,
+            TextureFilter filter = TextureFilter::PIXELS) = 0;
     virtual void    dither_rect(const Rect& rect, const RgbColor& color)            = 0;
     virtual void    draw_triangle(const Rect& rect, const RgbColor& color)          = 0;
     virtual void    draw_diamond(const Rect& rect, const RgbColor& color)           = 0;

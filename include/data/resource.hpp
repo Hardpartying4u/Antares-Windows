@@ -62,6 +62,9 @@ class Resource {
     static std::vector<pn::string> strings(pn::string_view name);
     static pn::string              text(pn::string_view name);
     static Texture                 texture(pn::string_view name);
+    // Path of the picture or font image ("pictures/x", "fonts/x") the game would load at a screen
+    // scale, such as "pictures/x@2x.png" (for tests). Fonts are pixel art (`pixel_art`).
+    static pn::string hidpi_path(pn::string_view name, int screen_scale, bool pixel_art = false);
 
     Resource() = delete;
 };

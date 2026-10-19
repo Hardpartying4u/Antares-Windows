@@ -193,19 +193,65 @@ void gl_log(GLint object) {
     pn::err.format("object {0} log: {1}\n", object, (const char*)log.get());
 }
 
+// Linear filtering blends a texel with its neighbours, and blending isn't premultiplied, so a
+// fully clear neighbour would pull its (black) colour into the edge. Give each clear texel next to
+// a visible one that one's colour (alpha stays 0), a few texels deep, so filtered edges keep their
+// colour.
+static void bleed_into_clear(ArrayPixMap& pix) {
+    const int w = pix.size().width, h = pix.size().height;
+    for (int pass = 0; pass < 2; ++pass) {
+        std::vector<RgbColor> next(w * h);
+        std::vector<bool>     set(w * h, false);
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                if (pix.get(x, y).alpha != 0) {
+                    continue;
+                }
+                int r = 0, g = 0, b = 0, n = 0;
+                for (int dy = -1; dy <= 1; ++dy) {
+                    for (int dx = -1; dx <= 1; ++dx) {
+                        const int nx = x + dx, ny = y + dy;
+                        if ((nx < 0) || (ny < 0) || (nx >= w) || (ny >= h)) {
+                            continue;
+                        }
+                        const RgbColor c = pix.get(nx, ny);
+                        if ((c.alpha != 0) || ((pass > 0) && (c.red | c.green | c.blue))) {
+                            r += c.red, g += c.green, b += c.blue, ++n;
+                        }
+                    }
+                }
+                if (n) {
+                    next[y * w + x] = rgba(r / n, g / n, b / n, 0);
+                    set[y * w + x]  = true;
+                }
+            }
+        }
+        for (int i = 0; i < w * h; ++i) {
+            if (set[i]) {
+                pix.set(i % w, i / w, next[i]);
+            }
+        }
+    }
+}
+
 class OpenGlTextureImpl : public Texture::Impl {
   public:
     OpenGlTextureImpl(
-            pn::string_view name, const PixMap& image, int scale,
+            pn::string_view name, const PixMap& image, int scale, TextureFilter filter,
             const OpenGlVideoDriver::Uniforms& uniforms, GLuint vbuf[3])
             : _name(name.copy()),
               _size(image.size()),
               _scale(scale),
+              _layout_size{image.size().width / scale, image.size().height / scale},
               _uniforms(uniforms),
               _vbuf(vbuf) {
         glBindTexture(GL_TEXTURE_RECTANGLE, _texture.id);
-        glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(
+                GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER,
+                (filter == TextureFilter::PIXELS) ? GL_NEAREST : GL_LINEAR);
+        glTexParameteri(
+                GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER,
+                (filter == TextureFilter::SMOOTH) ? GL_LINEAR : GL_NEAREST);
         glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 #if defined(__LITTLE_ENDIAN__)
@@ -223,6 +269,9 @@ class OpenGlTextureImpl : public Texture::Impl {
         ArrayPixMap copy(size);
         copy.fill(RgbColor::clear());
         copy.view(Rect(1, 1, size.width - 1, size.height - 1)).copy(image);
+        if (filter != TextureFilter::PIXELS) {
+            bleed_into_clear(copy);
+        }
         glTexImage2D(
                 GL_TEXTURE_RECTANGLE, 0, GL_RGBA8, size.width, size.height, 0, GL_BGRA, type,
                 copy.bytes());
@@ -263,7 +312,9 @@ class OpenGlTextureImpl : public Texture::Impl {
         draw_internal(draw_rect, fill_color);
     }
 
-    virtual const Size& size() const { return _size; }
+    // The size the texture is laid out at, in 1x units: a @2x or @4x image covers the same area
+    // as its 1x version. (_size is the pixel size, used for texture coordinates.)
+    virtual const Size& size() const { return _layout_size; }
 
   private:
     virtual void draw_internal(const Rect& draw_rect, const RgbColor& tint) const {
@@ -377,6 +428,7 @@ class OpenGlTextureImpl : public Texture::Impl {
     Texture                            _texture;
     Size                               _size;
     int                                _scale;
+    Size                               _layout_size;
     const OpenGlVideoDriver::Uniforms& _uniforms;
     GLuint*                            _vbuf;
 };
@@ -387,9 +439,10 @@ OpenGlVideoDriver::OpenGlVideoDriver() : _static_seed{0} {}
 
 int OpenGlVideoDriver::scale() const { return viewport_size().width / screen_size().width; }
 
-Texture OpenGlVideoDriver::texture(pn::string_view name, const PixMap& content, int scale) {
+Texture OpenGlVideoDriver::texture(
+        pn::string_view name, const PixMap& content, int scale, TextureFilter filter) {
     return unique_ptr<Texture::Impl>(
-            new OpenGlTextureImpl(name, content, scale, _uniforms, _vbuf));
+            new OpenGlTextureImpl(name, content, scale, filter, _uniforms, _vbuf));
 }
 
 void OpenGlVideoDriver::begin_rects() { _uniforms.color_mode.set(FILL_MODE); }

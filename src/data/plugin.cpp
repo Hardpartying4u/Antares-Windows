@@ -93,6 +93,15 @@ void PluginInit(sfz::optional<pn::string_view> path) {
     read_all_levels();
 }
 
+void PluginReloadTextures() {
+    if (plug.splash) {
+        plug.splash = Resource::texture(kSplashPicture);
+    }
+    if (plug.starmap) {
+        plug.starmap = Resource::texture(kStarmapPicture);
+    }
+}
+
 void load_race(const NamedHandle<const Race>& r) {
     if (plug.races.find(r.name().copy()) != plug.races.end()) {
         return;  // already loaded.

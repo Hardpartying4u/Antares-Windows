@@ -20,8 +20,10 @@
 
 #include <stdio.h>
 
+#include <algorithm>
 #include <array>
 #include <pn/input>
+#include <pn/output>
 #include <sfz/sfz.hpp>
 #include <zipxx/zipxx.hpp>
 
@@ -289,28 +291,89 @@ static pn::value info_procyon() {
     return x;
 }
 
-static Texture load_hidpi_texture(pn::string_view name) {
-    int scale = sys.video->scale();
-    while (scale) {
-        pn::string path;
-        if (scale > 1) {
-            path = pn::format("{0}@{1}x.png", name, scale);
-        } else {
-            path = pn::format("{0}.png", name);
+// A picture or font image comes at 1x and optionally at @2x and @4x. For a screen scale, try first
+// the smallest one at least as detailed as the screen, then larger ones, then smaller ones (the
+// same order as sprite sheets): 1 -> 1, 2, 4; 2 -> 2, 4, 1; 3 -> 4, 2, 1; 4 -> 4, 2, 1; the picture
+// is then drawn with smooth filtering if its scale differs from the screen's. Pixel art (the fonts)
+// instead prefers a scale that divides the screen scale, so every pixel stays the same size: 3 -> 1x
+// drawn 3 times, not @2x drawn 1.5 times. A @2x or @4x image must be exactly 2 or 4 times the 1x
+// one, because the picture is laid out at its 1x size; one that isn't is skipped with a warning.
+struct HidpiImage {
+    pn::string  path;
+    int         scale = 0;
+    ArrayPixMap pix{0, 0};
+};
+
+static HidpiImage find_hidpi_image(pn::string_view name, int screen_scale, bool pixel_art) {
+    static const int kScales[] = {1, 2, 4};
+    std::vector<int> order;
+    if (pixel_art) {
+        for (int i = 2; i >= 0; --i) {
+            if ((screen_scale % kScales[i]) == 0) {
+                order.push_back(kScales[i]);
+            }
         }
-        if (!resource_exists(path)) {
-            scale >>= 1;
+    }
+    for (int s : kScales) {
+        if ((s >= screen_scale) && (std::find(order.begin(), order.end(), s) == order.end())) {
+            order.push_back(s);
+        }
+    }
+    for (int i = 2; i >= 0; --i) {
+        if ((kScales[i] < screen_scale) &&
+            (std::find(order.begin(), order.end(), kScales[i]) == order.end())) {
+            order.push_back(kScales[i]);
+        }
+    }
+
+    const pn::string     base_path = pn::format("{0}.png", name);
+    sfz::optional<Size>  base_size;
+    bool                 base_read = false;
+    auto                 one_x     = [&]() -> sfz::optional<Size> {
+        if (!base_read) {
+            base_read = true;
+            if (resource_exists(base_path)) {
+                base_size.emplace(read_png(BinaryResourceData::load(base_path).input()).size());
+            }
+        }
+        return base_size;
+    };
+    for (int s : order) {
+        HidpiImage image;
+        image.path  = (s == 1) ? base_path.copy() : pn::format("{0}@{1}x.png", name, s);
+        image.scale = s;
+        if (!resource_exists(image.path)) {
             continue;
         }
         try {
-            ArrayPixMap pix = read_png(BinaryResourceData::load(path).input());
-            return sys.video->texture(pn::format("/{0}", path), pix, scale);
+            image.pix = read_png(BinaryResourceData::load(image.path).input());
         } catch (...) {
-            std::throw_with_nested(std::runtime_error(path.c_str()));
+            std::throw_with_nested(std::runtime_error(image.path.c_str()));
         }
+        if (s > 1) {
+            auto base = one_x();
+            if (base.has_value() &&
+                (image.pix.size() != Size{base->width * s, base->height * s})) {
+                pn::err.format("{0}: ignored: not exactly {1} times the 1x size\n", image.path, s);
+                continue;
+            }
+        }
+        return image;
     }
     throw std::runtime_error(
             pn::format("couldn't find picture {0}", pn::dump(name, pn::dump_short)).c_str());
+}
+
+static Texture load_hidpi_texture(pn::string_view name, bool pixel_art) {
+    const int  screen = sys.video->scale();
+    HidpiImage image  = find_hidpi_image(name, screen, pixel_art);
+    const auto filter = (pixel_art || (image.scale == 1)) ? TextureFilter::PIXELS
+                                                          : TextureFilter::SMOOTH;
+    return sys.video->texture(pn::format("/{0}", image.path), image.pix, image.scale, filter);
+}
+
+pn::string Resource::hidpi_path(pn::string_view name, int screen_scale, bool pixel_art) {
+    return find_hidpi_image(name, screen_scale, pixel_art).path;
 }
 
 static SoundData load_audio(pn::string_view name) {
@@ -352,7 +415,7 @@ FontData Resource::font(pn::string_view name) {
 }
 
 Texture Resource::font_image(pn::string_view name) {
-    return load_hidpi_texture(pn::format("fonts/{0}", name));
+    return load_hidpi_texture(pn::format("fonts/{0}", name), true);
 }
 
 Info Resource::info() { return ::antares::info(path_value{info_procyon()}); }
@@ -538,7 +601,7 @@ pn::string Resource::text(pn::string_view name) {
 }
 
 Texture Resource::texture(pn::string_view name) {
-    return load_hidpi_texture(pn::format("pictures/{0}", name));
+    return load_hidpi_texture(pn::format("pictures/{0}", name), false);
 }
 
 }  // namespace antares

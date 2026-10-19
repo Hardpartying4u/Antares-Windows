@@ -54,6 +54,8 @@ struct ScenarioGlobals {
 extern ScenarioGlobals plug;
 
 void PluginInit(sfz::optional<pn::string_view> path);
+// Reloads the splash and starmap pictures, if loaded, for the current screen scale and art.
+void PluginReloadTextures();
 
 void load_race(const NamedHandle<const Race>& r);
 void load_object(const NamedHandle<const BaseObject>& o);

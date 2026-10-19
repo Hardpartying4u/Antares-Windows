@@ -72,12 +72,21 @@ struct SystemGlobals {
 
     Texture left_instrument_texture;
     Texture right_instrument_texture;
+
+    // Incremented whenever refresh_scaled_textures() reloads; widgets holding pictures compare it
+    // to know when to reload theirs.
+    int texture_generation = 0;
 };
 
 extern SystemGlobals sys;
 
 void sys_init();
 void sys_shutdown();
+
+// Fonts, HUD panels, the cursor and the plugin's splash and starmap are loaded once, for the
+// screen scale and Graphics setting of that moment. Call every frame: when either has changed, they
+// are reloaded in place (and sys.texture_generation is incremented).
+void refresh_scaled_textures();
 
 }  // namespace antares
 

@@ -20,8 +20,10 @@
 
 #include <sfz/sfz.hpp>
 
+#include "config/dirs.hpp"
 #include "config/gamepad.hpp"
 #include "config/keys.hpp"
+#include "data/plugin.hpp"
 #include "data/resource.hpp"
 #include "drawing/text.hpp"
 #include "lang/defines.hpp"
@@ -41,12 +43,25 @@ constexpr char kInstRightPictID[] = "gui/instruments/right";
 
 ANTARES_GLOBAL SystemGlobals sys;
 
-void sys_init() {
+// Screen scale and art folder the scaled textures were last loaded for (0: not loaded yet).
+static int        loaded_scale = 0;
+static pn::string loaded_art;
+
+static void load_fonts() {
     sys.fonts.tactical     = font("tactical");
     sys.fonts.computer     = font("computer");
     sys.fonts.button       = font("button");
     sys.fonts.title        = font("title");
     sys.fonts.small_button = font("button-small");
+}
+
+static void load_instruments() {
+    sys.left_instrument_texture  = Resource::texture(kInstLeftPictID);
+    sys.right_instrument_texture = Resource::texture(kInstRightPictID);
+}
+
+void sys_init() {
+    load_fonts();
 
     sys.key_names          = Resource::strings(kKeyNameStrings);
     sys.key_long_names     = Resource::strings(kKeyLongNameStrings);
@@ -68,8 +83,23 @@ void sys_init() {
 
     sys.pix.reset();
 
-    sys.left_instrument_texture  = Resource::texture(kInstLeftPictID);
-    sys.right_instrument_texture = Resource::texture(kInstRightPictID);
+    load_instruments();
+    loaded_scale = sys.video ? sys.video->scale() : 0;
+    loaded_art   = art_path().copy();
+}
+
+void refresh_scaled_textures() {
+    if (!sys.video || (loaded_scale == 0) ||
+        ((sys.video->scale() == loaded_scale) && (art_path() == loaded_art))) {
+        return;
+    }
+    loaded_scale = sys.video->scale();
+    loaded_art   = art_path().copy();
+    load_fonts();
+    load_instruments();
+    sys.pix.reload_cursor();
+    PluginReloadTextures();
+    ++sys.texture_generation;
 }
 
 void sys_shutdown() {

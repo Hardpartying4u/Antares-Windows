@@ -21,6 +21,7 @@
 #include "config/gamepad.hpp"
 #include "config/keys.hpp"
 #include "data/resource.hpp"
+#include "game/sys.hpp"
 #include "drawing/interface.hpp"
 #include "drawing/text.hpp"
 
@@ -433,9 +434,15 @@ Rect TextRect::outer_bounds() const {
 PictureRect::PictureRect(const PictureRectData& data)
         : _inner_bounds(data.bounds),
           _id{data.id.copy()},
-          _texture{Resource::texture(data.picture)} {}
+          _picture{data.picture.copy()},
+          _texture{Resource::texture(data.picture)},
+          _generation{sys.texture_generation} {}
 
 void PictureRect::draw(Point offset, InputMode) const {
+    if (_generation != sys.texture_generation) {  // screen scale or Graphics changed
+        _texture    = Resource::texture(_picture);
+        _generation = sys.texture_generation;
+    }
     Rect bounds = _inner_bounds;
     bounds.offset(offset.h, offset.v);
     _texture.draw(bounds.left, bounds.top);

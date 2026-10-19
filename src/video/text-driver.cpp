@@ -172,8 +172,10 @@ bool TextVideoDriver::start_editing(TextReceiver* text) { return false; }
 
 void TextVideoDriver::stop_editing(TextReceiver* text) {}
 
-Texture TextVideoDriver::texture(pn::string_view name, const PixMap& content, int scale) {
+Texture TextVideoDriver::texture(
+        pn::string_view name, const PixMap& content, int scale, TextureFilter filter) {
     static_cast<void>(scale);  // TODO(sfiera): test HiDPI?
+    static_cast<void>(filter);
     return std::unique_ptr<Texture::Impl>(new TextureImpl(name, *this, content.size()));
 }
 
