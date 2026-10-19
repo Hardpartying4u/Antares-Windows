@@ -1,0 +1,411 @@
+{
+ "_legend": "image/overlay: ai = Real-ESRGAN realesr-animevideov3 inside the tolerant outline; tolerant = Scale2x within 24 RGB levels; original = no @2x/@4x sheet (game pixel-doubles the 1x); art = the approved 3D remaster already in art/. unsure = needs your call.",
+ "aud/aslttran": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, keeps fins"
+ },
+ "aud/carrier": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean hull, tanks and fins kept"
+ },
+ "aud/cruiser": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, shape kept"
+ },
+ "aud/evat": {
+  "image": "original",
+  "overlay": "original",
+  "note": "EVA trooper: stays original (decision 2026-10-18); AI turns it into a white blob"
+ },
+ "aud/fighter": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "16 px: AI is a soft blob, no clear features either way"
+ },
+ "aud/gunship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, spherical tanks kept"
+ },
+ "aud/hvd": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, keeps blocks and tanks"
+ },
+ "aud/transport": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, fins kept"
+ },
+ "baz/bttlship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "excellent: smooth organic hull, horns and blue undersides kept"
+ },
+ "can/aslttran": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, keeps fins"
+ },
+ "can/carrier": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean organic hull"
+ },
+ "can/cruiser": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "note": "AI loses the one-pixel ladder of stripes"
+ },
+ "can/defdrone": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "tiny; AI tinted version messy"
+ },
+ "can/engineer": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, light kept"
+ },
+ "can/evat": {
+  "image": "original",
+  "overlay": "original",
+  "note": "EVA trooper: stays original"
+ },
+ "can/fighter": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "tiny; AI slightly cleaner, little to gain; partial overlay coverage"
+ },
+ "can/gateship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "excellent: blades and green glow clean (drawn at 4x)"
+ },
+ "can/gunship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI merges the plate pattern into smooth blocks"
+ },
+ "can/hvc": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, smoother"
+ },
+ "can/hvd": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, keeps fins"
+ },
+ "can/schooner": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "note": "AI fades the red light dots and loses plate lines"
+ },
+ "can/transport": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, slight softening only"
+ },
+ "dev/amissile": {
+  "image": "original",
+  "overlay": "original",
+  "note": "weapon, not a ship: later effects pass"
+ },
+ "dev/cm": {
+  "image": "original",
+  "overlay": "original",
+  "note": "weapon, not a ship: later effects pass"
+ },
+ "dev/fusion": {
+  "image": "original",
+  "overlay": "original",
+  "note": "weapon, not a ship: later effects pass"
+ },
+ "ele/cruiser": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, grooves kept; tolerant stays noisy"
+ },
+ "ele/etc/liner": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean ribbed hull, speckle dither gone"
+ },
+ "gai/aslttran": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, drums and guns kept"
+ },
+ "gai/carrier": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "panel detail kept; 'softened' flag was dither"
+ },
+ "gai/cruiser": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "note": "AI loses the blue accent lights and thickens the barrels"
+ },
+ "gai/engineer": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean"
+ },
+ "gai/evat": {
+  "image": "original",
+  "overlay": "original",
+  "note": "EVA trooper: stays original"
+ },
+ "gai/fighter": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "note": "AI loses the blue accent lights"
+ },
+ "gai/gunship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI keeps barrels but smooths the ribbed drum pods"
+ },
+ "gai/hvd": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI smooths the ribbed drum pods"
+ },
+ "gai/transport": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "container segments and antenna kept"
+ },
+ "gro/cruiser": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, barrels kept"
+ },
+ "gro/ctf/cruiser": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean"
+ },
+ "gro/ctf/flag": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean"
+ },
+ "ish/aslttran": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean"
+ },
+ "ish/carrier": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, detail lines kept"
+ },
+ "ish/cruiser": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "hub and arms clean, dither gone; overlay covers only part of the ship, so under tint the AI image shows through",
+  "unsure": true
+ },
+ "ish/defdrone": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "tiny; AI tinted version messy"
+ },
+ "ish/engineer": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, light kept"
+ },
+ "ish/etc/astrominer": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, white stripe kept"
+ },
+ "ish/etc/cargo": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, light kept"
+ },
+ "ish/etc/research": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean cylinders, lights kept"
+ },
+ "ish/evat": {
+  "image": "original",
+  "overlay": "original",
+  "note": "EVA trooper: stays original"
+ },
+ "ish/fighter": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "tiny; AI slightly softer"
+ },
+ "ish/gunship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, tiers and pods kept"
+ },
+ "ish/hvc": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "overlay covers only part of the ship (dithered), so under tint the AI image shows through as cyan streaks"
+ },
+ "ish/hvd": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, lights kept"
+ },
+ "ish/schooner": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "thin spine kept; overlay covers only part of the ship, so under tint the AI image shows through",
+  "unsure": true
+ },
+ "ish/transport": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "partial overlay coverage: AI image shows through under tint as streaks"
+ },
+ "loc/flak": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean panelled sphere"
+ },
+ "obi/escort": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "note": "AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature"
+ },
+ "obi/etc/liner": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI keeps the comb of fins but smooths the ribbed hull"
+ },
+ "obi/etc/obiard/turning": {
+  "image": "original",
+  "overlay": "original",
+  "note": "tiny figure, not a ship"
+ },
+ "obi/transport": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "note": "AI melts the ribbed fan disc"
+ },
+ "sal/aslttran": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "pods and spikes kept, slightly blurred"
+ },
+ "sal/carrier": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clearly better: clean gloss; 'softened' flag was dither speckle"
+ },
+ "sal/cruiser": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "special case: AI image cleans the speckle untinted; the tolerant overlay (fidelity 0.976) keeps the tinted look like the original's dark speckle"
+ },
+ "sal/evat": {
+  "image": "original",
+  "overlay": "original",
+  "note": "EVA trooper: stays original"
+ },
+ "sal/fighter": {
+  "image": "tolerant",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI invents a bright white streak on a near-invisible dark sliver"
+ },
+ "sal/gunship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI loses the faint plating pattern"
+ },
+ "sal/hvd": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean gloss, lights kept; overlay covers only part of the ship, so under tint the AI image shows through",
+  "unsure": true
+ },
+ "sal/transport": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "unsure": true,
+  "note": "AI smooths small details"
+ },
+ "sfx/crew": {
+  "image": "original",
+  "overlay": "original",
+  "note": "effect, not a ship: later effects pass"
+ },
+ "sfx/gunsmoke": {
+  "image": "original",
+  "overlay": "original",
+  "note": "semi-transparent smoke effect: later effects pass"
+ },
+ "uns/aslttran": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, red lights kept"
+ },
+ "uns/carrier": {
+  "image": "art",
+  "overlay": "art",
+  "note": "approved 3D remaster in art/; AI loses the red engine lights and smears the deck"
+ },
+ "uns/cruiser": {
+  "image": "art",
+  "overlay": "art",
+  "note": "approved 3D remaster in art/; AI dulls the red lights"
+ },
+ "uns/etc/bttlship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, two-tone kept"
+ },
+ "uns/etc/human/turning": {
+  "image": "original",
+  "overlay": "original",
+  "note": "tiny figure, not a ship"
+ },
+ "uns/fighter": {
+  "image": "art",
+  "overlay": "art",
+  "note": "approved 3D remaster in art/"
+ },
+ "uns/gunship": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean"
+ },
+ "uns/hvd": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, red lights kept (dimmer)"
+ },
+ "uns/transport": {
+  "image": "ai",
+  "overlay": "tolerant",
+  "note": "clean, red lights kept"
+ }
+}
