@@ -1,5 +1,5 @@
 {
- "_legend": "image/overlay: ai = Real-ESRGAN realesr-animevideov3 inside the tolerant outline; tolerant = Scale2x within 24 RGB levels; original = no @2x/@4x sheet (game pixel-doubles the 1x); art = the approved 3D remaster already in art/. unsure = needs your call.",
+ "_legend": "image/overlay: ai = Real-ESRGAN realesr-animevideov3 inside the tolerant outline; tolerant = Scale2x within 24 RGB levels; original = no @2x/@4x sheet (game pixel-doubles the 1x); art = the approved 3D remaster already in art/. unsure = needs your call. image_1x (AI sprites only): ai = the AI @2x image shrunk to 1x (premultiplied 2x2 average, original outline), used by Graphics: Enhanced at UI 1x; original = the 1x image stays the original.",
  "aud/aslttran": {
   "image": "tolerant",
   "overlay": "tolerant",
@@ -8,12 +8,14 @@
  "aud/carrier": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean hull, tanks and fins kept"
+  "note": "clean hull, tanks and fins kept",
+  "image_1x": "ai"
  },
  "aud/cruiser": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, shape kept"
+  "note": "clean, shape kept",
+  "image_1x": "ai"
  },
  "aud/evat": {
   "image": "original",
@@ -24,37 +26,45 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "16 px: AI is a soft blob, no clear features either way"
+  "note": "16 px: AI is a soft blob, no clear features either way",
+  "image_1x": "ai"
  },
  "aud/gunship": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, spherical tanks kept"
+  "note": "clean, spherical tanks kept",
+  "image_1x": "ai"
  },
  "aud/hvd": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, keeps blocks and tanks"
+  "note": "clean, keeps blocks and tanks",
+  "image_1x": "ai"
  },
  "aud/transport": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, fins kept"
+  "note": "clean, fins kept",
+  "image_1x": "ai"
  },
  "baz/bttlship": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "excellent: smooth organic hull, horns and blue undersides kept"
+  "note": "excellent: smooth organic hull, horns and blue undersides kept",
+  "image_1x": "ai"
  },
  "can/aslttran": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, keeps fins"
+  "note": "clean, keeps fins",
+  "image_1x": "ai"
  },
  "can/carrier": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean organic hull"
+  "note": "clean organic hull",
+  "image_1x": "original",
+  "note_1x": "shrunk AI image loses the small green hull lights and goes soft"
  },
  "can/cruiser": {
   "image": "tolerant",
@@ -70,7 +80,8 @@
  "can/engineer": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, light kept"
+  "note": "clean, light kept",
+  "image_1x": "ai"
  },
  "can/evat": {
   "image": "original",
@@ -81,7 +92,8 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "tiny; AI slightly cleaner, little to gain; partial overlay coverage"
+  "note": "tiny; AI slightly cleaner, little to gain; partial overlay coverage",
+  "image_1x": "ai"
  },
  "can/gateship": {
   "image": "tolerant",
@@ -92,17 +104,21 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI merges the plate pattern into smooth blocks"
+  "note": "AI merges the plate pattern into smooth blocks",
+  "image_1x": "original",
+  "note_1x": "shrunk AI image loses the plate pattern and its small green lights"
  },
  "can/hvc": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, smoother"
+  "note": "clean, smoother",
+  "image_1x": "ai"
  },
  "can/hvd": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, keeps fins"
+  "note": "clean, keeps fins",
+  "image_1x": "ai"
  },
  "can/schooner": {
   "image": "tolerant",
@@ -112,7 +128,8 @@
  "can/transport": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, slight softening only"
+  "note": "clean, slight softening only",
+  "image_1x": "ai"
  },
  "dev/amissile": {
   "image": "original",
@@ -132,22 +149,26 @@
  "ele/cruiser": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, grooves kept; tolerant stays noisy"
+  "note": "clean, grooves kept; tolerant stays noisy",
+  "image_1x": "ai"
  },
  "ele/etc/liner": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean ribbed hull, speckle dither gone"
+  "note": "clean ribbed hull, speckle dither gone",
+  "image_1x": "ai"
  },
  "gai/aslttran": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, drums and guns kept"
+  "note": "clean, drums and guns kept",
+  "image_1x": "ai"
  },
  "gai/carrier": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "panel detail kept; 'softened' flag was dither"
+  "note": "panel detail kept; 'softened' flag was dither",
+  "image_1x": "ai"
  },
  "gai/cruiser": {
   "image": "tolerant",
@@ -157,7 +178,9 @@
  "gai/engineer": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean"
+  "note": "clean",
+  "image_1x": "original",
+  "note_1x": "shrunk AI image loses the red light at the tip"
  },
  "gai/evat": {
   "image": "original",
@@ -173,49 +196,61 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI keeps barrels but smooths the ribbed drum pods"
+  "note": "AI keeps barrels but smooths the ribbed drum pods",
+  "image_1x": "original",
+  "note_1x": "shrunk AI image smooths away the ribbed drum pods"
  },
  "gai/hvd": {
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI smooths the ribbed drum pods"
+  "note": "AI smooths the ribbed drum pods",
+  "image_1x": "original",
+  "note_1x": "shrunk AI image smooths away the ribbed drum pods"
  },
  "gai/transport": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "container segments and antenna kept"
+  "note": "container segments and antenna kept",
+  "image_1x": "ai"
  },
  "gro/cruiser": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, barrels kept"
+  "note": "clean, barrels kept",
+  "image_1x": "ai"
  },
  "gro/ctf/cruiser": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean"
+  "note": "clean",
+  "image_1x": "ai"
  },
  "gro/ctf/flag": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean"
+  "note": "clean",
+  "image_1x": "ai"
  },
  "ish/aslttran": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean"
+  "note": "clean",
+  "image_1x": "ai"
  },
  "ish/carrier": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, detail lines kept"
+  "note": "clean, detail lines kept",
+  "image_1x": "ai"
  },
  "ish/cruiser": {
   "image": "ai",
   "overlay": "tolerant",
   "note": "hub and arms clean, dither gone; overlay covers only part of the ship, so under tint the AI image shows through",
-  "unsure": true
+  "unsure": true,
+  "image_1x": "original",
+  "note_1x": "shrunk AI image turns the multicoloured hub into a pastel blur"
  },
  "ish/defdrone": {
   "image": "tolerant",
@@ -226,22 +261,27 @@
  "ish/engineer": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, light kept"
+  "note": "clean, light kept",
+  "image_1x": "ai"
  },
  "ish/etc/astrominer": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, white stripe kept"
+  "note": "clean, white stripe kept",
+  "image_1x": "original",
+  "note_1x": "shrunk AI image loses the small red light by the white stripe"
  },
  "ish/etc/cargo": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, light kept"
+  "note": "clean, light kept",
+  "image_1x": "ai"
  },
  "ish/etc/research": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean cylinders, lights kept"
+  "note": "clean cylinders, lights kept",
+  "image_1x": "ai"
  },
  "ish/evat": {
   "image": "original",
@@ -252,12 +292,14 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "tiny; AI slightly softer"
+  "note": "tiny; AI slightly softer",
+  "image_1x": "ai"
  },
  "ish/gunship": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, tiers and pods kept"
+  "note": "clean, tiers and pods kept",
+  "image_1x": "ai"
  },
  "ish/hvc": {
   "image": "tolerant",
@@ -267,13 +309,16 @@
  "ish/hvd": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, lights kept"
+  "note": "clean, lights kept",
+  "image_1x": "ai"
  },
  "ish/schooner": {
   "image": "ai",
   "overlay": "tolerant",
   "note": "thin spine kept; overlay covers only part of the ship, so under tint the AI image shows through",
-  "unsure": true
+  "unsure": true,
+  "image_1x": "original",
+  "note_1x": "shrunk AI image loses the coloured lights along the spine"
  },
  "ish/transport": {
   "image": "tolerant",
@@ -283,7 +328,8 @@
  "loc/flak": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean panelled sphere"
+  "note": "clean panelled sphere",
+  "image_1x": "ai"
  },
  "obi/escort": {
   "image": "tolerant",
@@ -294,7 +340,8 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI keeps the comb of fins but smooths the ribbed hull"
+  "note": "AI keeps the comb of fins but smooths the ribbed hull",
+  "image_1x": "ai"
  },
  "obi/etc/obiard/turning": {
   "image": "original",
@@ -309,18 +356,21 @@
  "sal/aslttran": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "pods and spikes kept, slightly blurred"
+  "note": "pods and spikes kept, slightly blurred",
+  "image_1x": "ai"
  },
  "sal/carrier": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clearly better: clean gloss; 'softened' flag was dither speckle"
+  "note": "clearly better: clean gloss; 'softened' flag was dither speckle",
+  "image_1x": "ai"
  },
  "sal/cruiser": {
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "special case: AI image cleans the speckle untinted; the tolerant overlay (fidelity 0.976) keeps the tinted look like the original's dark speckle"
+  "note": "special case: AI image cleans the speckle untinted; the tolerant overlay (fidelity 0.976) keeps the tinted look like the original's dark speckle",
+  "image_1x": "ai"
  },
  "sal/evat": {
   "image": "original",
@@ -337,19 +387,22 @@
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI loses the faint plating pattern"
+  "note": "AI loses the faint plating pattern",
+  "image_1x": "ai"
  },
  "sal/hvd": {
   "image": "ai",
   "overlay": "tolerant",
   "note": "clean gloss, lights kept; overlay covers only part of the ship, so under tint the AI image shows through",
-  "unsure": true
+  "unsure": true,
+  "image_1x": "ai"
  },
  "sal/transport": {
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI smooths small details"
+  "note": "AI smooths small details",
+  "image_1x": "ai"
  },
  "sfx/crew": {
   "image": "original",
@@ -364,7 +417,8 @@
  "uns/aslttran": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, red lights kept"
+  "note": "clean, red lights kept",
+  "image_1x": "ai"
  },
  "uns/carrier": {
   "image": "art",
@@ -379,7 +433,8 @@
  "uns/etc/bttlship": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, two-tone kept"
+  "note": "clean, two-tone kept",
+  "image_1x": "ai"
  },
  "uns/etc/human/turning": {
   "image": "original",
@@ -394,16 +449,19 @@
  "uns/gunship": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean"
+  "note": "clean",
+  "image_1x": "ai"
  },
  "uns/hvd": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, red lights kept (dimmer)"
+  "note": "clean, red lights kept (dimmer)",
+  "image_1x": "ai"
  },
  "uns/transport": {
   "image": "ai",
   "overlay": "tolerant",
-  "note": "clean, red lights kept"
+  "note": "clean, red lights kept",
+  "image_1x": "ai"
  }
 }

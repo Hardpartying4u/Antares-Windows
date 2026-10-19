@@ -661,8 +661,20 @@ following `docs/upscale-decisions.md`:
   in-game check: the Audemedon assault transport and the Cantharan gateship (streaks and
   squiggles), and the Ishiman heavy cruiser and transport (cyan streaks under a team tint).
 
-Of the other sprites, 12 stay original and 3 are the Human 3D remasters. 1x sheets, frame tables and
-pivots come from `data/`. `art/` is 77 MB (61 MB @4x, 18 MB @2x), stored with Git LFS.
+Of the other sprites, 12 stay original and 3 are the Human 3D remasters. Frame tables, pivots and
+1x overlays come from `data/`.
+
+**Enhanced at UI 1x (2026-10-19).** At UI 1x a normal ship draws its 1x sheet, so before this only
+capital ships (drawn at 2x) and the Human 3D ships (which have their own 1x sheets) changed.
+42 AI-image sprites now also have a 1x `image.png` in `art/`, shrunk from the AI @2x sheet
+(`tools/sprite-render/shrink_ai_1x.py`; premultiplied 2x2 average with the original outline); the
+overlay stays the original 1x. 8 keep the original 1x image because the shrunk one lost
+small lights or structure (can/carrier, can/gunship, gai/engineer, gai/gunship, gai/hvd, ish/cruiser, ish/etc/astrominer, ish/schooner). Scale2x-only and original sprites are unchanged at
+1x. Checked in `ch15` at UI 1x with a test config: with Enhanced the player's Ishiman heavy
+destroyer matches the new 1x sheet (rms 11.9 against 20.8 for the original), with Original the
+`data/` sheet. In `ch15` this changes nine sprites at UI 1x: `aud/fighter`, `ish/aslttran`,
+`ish/fighter`, `ish/gunship`, `ish/hvd`, `sal/aslttran`, `sal/cruiser`, `sal/gunship`,
+`sal/transport`. `art/` is about 75 MB on disk (mostly @4x; the 1x images add 3 MB), stored with Git LFS.
 
 In-game check (save-free test scenario, every ship of each faction parked, UI 1x-4x, 1:1 and 1:2
 zoom, with and without `--no-art`):

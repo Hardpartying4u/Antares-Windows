@@ -84,3 +84,64 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `uns/transport` | Transport | ai | tolerant | — | 0.98→0.92 | clean, red lights kept |
 
 Totals: 50 image ai / overlay tolerant, 12 image original / overlay original, 13 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 16.
+
+## 1× images for Graphics: Enhanced (2026-10-19)
+
+So Enhanced also shows at UI 1×, each AI image's `@2x` sheet was shrunk to the 1× size (`tools/sprite-render/shrink_ai_1x.py`: premultiplied 2×2 average, outline kept exactly the original's) and installed as `art/sprites/<sprite>/image.png`. The 1× overlay stays the original, so team tints are unchanged. Scale2x-only, original and 3D sprites are unaffected (the Human 3D ships have their own 1× sheets).
+
+Installed for 42 sprites; 8 keep the original 1× image after the visual review:
+
+| Sprite | 1× image | Agreement orig→shrunk | Reason |
+|---|---|---|---|
+| `aud/carrier` | shrunk AI | 1.00→0.99 | as good or cleaner at 1×; lights and outline kept |
+| `aud/cruiser` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `aud/fighter` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `aud/gunship` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
+| `aud/hvd` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
+| `aud/transport` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
+| `baz/bttlship` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `can/aslttran` | shrunk AI | 1.00→0.96 | as good or cleaner at 1×; lights and outline kept |
+| `can/carrier` | **original** | 1.00→0.97 | shrunk AI image loses the small green hull lights and goes soft |
+| `can/engineer` | shrunk AI | 0.93→0.90 | as good or cleaner at 1×; lights and outline kept |
+| `can/fighter` | shrunk AI | 0.49→0.51 | as good or cleaner at 1×; lights and outline kept |
+| `can/gunship` | **original** | 1.00→0.97 | shrunk AI image loses the plate pattern and its small green lights |
+| `can/hvc` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `can/hvd` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `can/transport` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
+| `ele/cruiser` | shrunk AI | 0.98→0.96 | as good or cleaner at 1×; lights and outline kept |
+| `ele/etc/liner` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `gai/aslttran` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `gai/carrier` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `gai/engineer` | **original** | 0.99→0.97 | shrunk AI image loses the red light at the tip |
+| `gai/gunship` | **original** | 1.00→0.96 | shrunk AI image smooths away the ribbed drum pods |
+| `gai/hvd` | **original** | 0.99→0.98 | shrunk AI image smooths away the ribbed drum pods |
+| `gai/transport` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `gro/cruiser` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `gro/ctf/cruiser` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `gro/ctf/flag` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `ish/aslttran` | shrunk AI | 0.60→0.61 | as good or cleaner at 1×; lights and outline kept |
+| `ish/carrier` | shrunk AI | 0.93→0.91 | as good or cleaner at 1×; lights and outline kept |
+| `ish/cruiser` | **original** | 0.55→0.64 | shrunk AI image turns the multicoloured hub into a pastel blur |
+| `ish/engineer` | shrunk AI | 0.65→0.67 | as good or cleaner at 1×; lights and outline kept |
+| `ish/etc/astrominer` | **original** | 0.87→0.86 | shrunk AI image loses the small red light by the white stripe |
+| `ish/etc/cargo` | shrunk AI | 0.84→0.83 | as good or cleaner at 1×; lights and outline kept |
+| `ish/etc/research` | shrunk AI | 0.84→0.85 | as good or cleaner at 1×; lights and outline kept |
+| `ish/fighter` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `ish/gunship` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
+| `ish/hvd` | shrunk AI | 0.95→0.95 | as good or cleaner at 1×; lights and outline kept |
+| `ish/schooner` | **original** | 0.64→0.70 | shrunk AI image loses the coloured lights along the spine |
+| `loc/flak` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `obi/etc/liner` | shrunk AI | 0.99→0.95 | as good or cleaner at 1×; lights and outline kept |
+| `sal/aslttran` | shrunk AI | 0.94→0.94 | as good or cleaner at 1×; lights and outline kept |
+| `sal/carrier` | shrunk AI | 0.92→0.92 | as good or cleaner at 1×; lights and outline kept |
+| `sal/cruiser` | shrunk AI | 0.01→0.03 | as good or cleaner at 1×; lights and outline kept |
+| `sal/gunship` | shrunk AI | 0.98→0.95 | as good or cleaner at 1×; lights and outline kept |
+| `sal/hvd` | shrunk AI | 0.49→0.51 | as good or cleaner at 1×; lights and outline kept |
+| `sal/transport` | shrunk AI | 0.67→0.66 | as good or cleaner at 1×; lights and outline kept |
+| `uns/aslttran` | shrunk AI | 0.98→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `uns/etc/bttlship` | shrunk AI | 0.84→0.81 | as good or cleaner at 1×; lights and outline kept |
+| `uns/gunship` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
+| `uns/hvd` | shrunk AI | 0.97→0.96 | as good or cleaner at 1×; lights and outline kept |
+| `uns/transport` | shrunk AI | 0.98→0.97 | as good or cleaner at 1×; lights and outline kept |
+
+Automatic flags (darker rim, light recall) over-flagged: the rim darkening is the AI image's own shading, not a fringe, and most "lost lights" were dither speckle. The decision is from the visual review (`out/sprite-render/upscale/ai1x/review/`).

@@ -40,8 +40,10 @@ Notes:
   (2026-10-18); their frame tables stay original.
 - **Adapted (63):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
   `art/` (2026-10-19, `docs/upscale-decisions.md`): Real-ESRGAN for the image where it looked
-  better, tolerant Scale2x otherwise and for every overlay. Their 1x sheets and frame tables are the
-  originals, read from `data/`.
+  better, tolerant Scale2x otherwise and for every overlay. Their frame tables and 1x overlays are
+  the originals, read from `data/`. 42 of the AI-image sprites also have a 1x image in `art/`,
+  shrunk from the AI @2x image, so Graphics: Enhanced applies at UI 1x; the rest keep the original
+  1x image.
 
 Both kinds are derived from the originals: the remasters are fitted to and coloured from them, and
 the upscales are made from their pixels. So they are most likely *adaptations* of the CC BY-NC-SA
@@ -61,29 +63,29 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/ast/regular/medium.pn` | image.png, overlay.png | original |
 | `data/sprites/ast/regular/small.pn` | image.png, overlay.png | original |
 | `data/sprites/aud/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/aslttran/`; 1x and frame table original |
-| `data/sprites/aud/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/carrier/`; 1x and frame table original |
-| `data/sprites/aud/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/cruiser/`; 1x and frame table original |
+| `data/sprites/aud/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/carrier/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/aud/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/cruiser/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/aud/etc/device.pn` | image.png, overlay.png | original |
 | `data/sprites/aud/evat.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/fighter/`; 1x and frame table original |
-| `data/sprites/aud/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/gunship/`; 1x and frame table original |
-| `data/sprites/aud/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/hvd/`; 1x and frame table original |
-| `data/sprites/aud/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/transport/`; 1x and frame table original |
-| `data/sprites/baz/bttlship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/baz/bttlship/`; 1x and frame table original |
-| `data/sprites/can/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/aslttran/`; 1x and frame table original |
+| `data/sprites/aud/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/fighter/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/aud/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/gunship/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/aud/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/hvd/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/aud/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/transport/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/baz/bttlship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/baz/bttlship/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/can/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/aslttran/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/can/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/carrier/`; 1x and frame table original |
 | `data/sprites/can/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/cruiser/`; 1x and frame table original |
 | `data/sprites/can/defdrone.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/defdrone/`; 1x and frame table original |
-| `data/sprites/can/engineer.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/engineer/`; 1x and frame table original |
+| `data/sprites/can/engineer.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/engineer/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/can/etc/cantharan.pn` | image.png, overlay.png | original |
 | `data/sprites/can/evat.pn` | image.png, overlay.png | original |
-| `data/sprites/can/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/fighter/`; 1x and frame table original |
+| `data/sprites/can/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/fighter/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/can/gateship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/gateship/`; 1x and frame table original |
 | `data/sprites/can/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/gunship/`; 1x and frame table original |
-| `data/sprites/can/hvc.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/hvc/`; 1x and frame table original |
-| `data/sprites/can/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/hvd/`; 1x and frame table original |
+| `data/sprites/can/hvc.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/hvc/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/can/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/hvd/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/can/schooner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/schooner/`; 1x and frame table original |
-| `data/sprites/can/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/transport/`; 1x and frame table original |
+| `data/sprites/can/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/transport/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/dev/amissile.pn` | image.png, overlay.png | original |
 | `data/sprites/dev/anti.pn` | image.png, overlay.png | original |
 | `data/sprites/dev/atomic.pn` | image.png, overlay.png | original |
@@ -103,11 +105,11 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/dev/pp.pn` | image.png, overlay.png | original |
 | `data/sprites/dev/quasi.pn` | image.png, overlay.png | original |
 | `data/sprites/dev/rplasma.pn` | image.png, overlay.png | original |
-| `data/sprites/ele/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ele/cruiser/`; 1x and frame table original |
+| `data/sprites/ele/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ele/cruiser/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ele/etc/escape-pod.pn` | image.png, overlay.png | original |
-| `data/sprites/ele/etc/liner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ele/etc/liner/`; 1x and frame table original |
-| `data/sprites/gai/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/aslttran/`; 1x and frame table original |
-| `data/sprites/gai/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/carrier/`; 1x and frame table original |
+| `data/sprites/ele/etc/liner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ele/etc/liner/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/gai/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/aslttran/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/gai/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/carrier/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/gai/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/cruiser/`; 1x and frame table original |
 | `data/sprites/gai/engineer.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/engineer/`; 1x and frame table original |
 | `data/sprites/gai/etc/lab.pn` | image.png, overlay.png | original |
@@ -115,31 +117,31 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/gai/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/fighter/`; 1x and frame table original |
 | `data/sprites/gai/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/gunship/`; 1x and frame table original |
 | `data/sprites/gai/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/hvd/`; 1x and frame table original |
-| `data/sprites/gai/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/transport/`; 1x and frame table original |
-| `data/sprites/gro/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gro/cruiser/`; 1x and frame table original |
-| `data/sprites/gro/ctf/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gro/ctf/cruiser/`; 1x and frame table original |
-| `data/sprites/gro/ctf/flag.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gro/ctf/flag/`; 1x and frame table original |
+| `data/sprites/gai/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gai/transport/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/gro/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gro/cruiser/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/gro/ctf/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gro/ctf/cruiser/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/gro/ctf/flag.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/gro/ctf/flag/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/gro/ctf/moor.pn` | image.png, overlay.png | original |
 | `data/sprites/gui/cursor.pn` | image.png, overlay.png | original |
-| `data/sprites/ish/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/aslttran/`; 1x and frame table original |
-| `data/sprites/ish/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/carrier/`; 1x and frame table original |
+| `data/sprites/ish/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/aslttran/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/ish/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/carrier/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ish/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/cruiser/`; 1x and frame table original |
 | `data/sprites/ish/defdrone.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/defdrone/`; 1x and frame table original |
-| `data/sprites/ish/engineer.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/engineer/`; 1x and frame table original |
+| `data/sprites/ish/engineer.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/engineer/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ish/etc/astrominer.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/etc/astrominer/`; 1x and frame table original |
-| `data/sprites/ish/etc/cargo.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/etc/cargo/`; 1x and frame table original |
-| `data/sprites/ish/etc/research.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/etc/research/`; 1x and frame table original |
+| `data/sprites/ish/etc/cargo.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/etc/cargo/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/ish/etc/research.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/etc/research/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ish/etc/trgtdrne.pn` | image.png, overlay.png | original |
 | `data/sprites/ish/evat.pn` | image.png, overlay.png | original |
-| `data/sprites/ish/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/fighter/`; 1x and frame table original |
+| `data/sprites/ish/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/fighter/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ish/gateship.pn` | image.png, overlay.png | original |
-| `data/sprites/ish/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/gunship/`; 1x and frame table original |
+| `data/sprites/ish/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/gunship/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ish/hvc.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/hvc/`; 1x and frame table original |
-| `data/sprites/ish/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/hvd/`; 1x and frame table original |
+| `data/sprites/ish/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/hvd/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/ish/schooner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/schooner/`; 1x and frame table original |
 | `data/sprites/ish/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/transport/`; 1x and frame table original |
 | `data/sprites/loc/bunker.pn` | image.png, overlay.png | original |
-| `data/sprites/loc/flak.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/loc/flak/`; 1x and frame table original |
+| `data/sprites/loc/flak.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/loc/flak/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/loc/habitat.pn` | image.png, overlay.png | original |
 | `data/sprites/loc/jump/node.pn` | image.png, overlay.png | original |
 | `data/sprites/loc/moor.pn` | image.png, overlay.png | original |
@@ -185,20 +187,20 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/loc/shipyard.pn` | image.png, overlay.png | original |
 | `data/sprites/loc/sun.pn` | image.png, overlay.png | original |
 | `data/sprites/obi/escort.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/escort/`; 1x and frame table original |
-| `data/sprites/obi/etc/liner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/etc/liner/`; 1x and frame table original |
+| `data/sprites/obi/etc/liner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/etc/liner/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/obi/etc/obiard/turning.pn` | image.png, overlay.png | original |
 | `data/sprites/obi/etc/obiard/waving.pn` | image.png, overlay.png | original |
 | `data/sprites/obi/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/transport/`; 1x and frame table original |
-| `data/sprites/sal/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/aslttran/`; 1x and frame table original |
-| `data/sprites/sal/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/carrier/`; 1x and frame table original |
-| `data/sprites/sal/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/cruiser/`; 1x and frame table original |
+| `data/sprites/sal/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/aslttran/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/sal/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/carrier/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/sal/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/cruiser/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/sal/etc/battlestation.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/etc/lab.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/evat.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/fighter/`; 1x and frame table original |
-| `data/sprites/sal/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/gunship/`; 1x and frame table original |
-| `data/sprites/sal/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/hvd/`; 1x and frame table original |
-| `data/sprites/sal/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/transport/`; 1x and frame table original |
+| `data/sprites/sal/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/gunship/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/sal/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/hvd/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/sal/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/transport/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/sfx/crew.pn` | image.png, overlay.png | original |
 | `data/sprites/sfx/debris.pn` | image.png, overlay.png | original |
 | `data/sprites/sfx/energy.pn` | image.png, overlay.png | original |
@@ -221,16 +223,16 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/tmp/friend/fighter.pn` | image.png, overlay.png | original |
 | `data/sprites/tmp/friend/transport.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/ares.pn` | image.png, overlay.png | original |
-| `data/sprites/uns/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/aslttran/`; 1x and frame table original |
+| `data/sprites/uns/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/aslttran/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/uns/carrier.pn` | image.png, overlay.png | replaced (images, remastered: `art/sprites/uns/carrier/`, adaptation); frame table original |
 | `data/sprites/uns/cruiser.pn` | image.png, overlay.png | replaced (images, remastered: `art/sprites/uns/cruiser/`, adaptation); frame table original |
-| `data/sprites/uns/etc/bttlship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/etc/bttlship/`; 1x and frame table original |
+| `data/sprites/uns/etc/bttlship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/etc/bttlship/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/uns/etc/human/turning.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/etc/human/waving.pn` | image.png, overlay.png | original |
 | `data/sprites/uns/fighter.pn` | image.png, overlay.png | replaced (images, remastered: `art/sprites/uns/fighter/`, adaptation); frame table original |
-| `data/sprites/uns/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/gunship/`; 1x and frame table original |
-| `data/sprites/uns/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/hvd/`; 1x and frame table original |
-| `data/sprites/uns/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/transport/`; 1x and frame table original |
+| `data/sprites/uns/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/gunship/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/uns/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/hvd/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
+| `data/sprites/uns/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/uns/transport/`; 1x image shrunk from the AI @2x image; 1x overlay and frame table original |
 | `data/sprites/zrb/base.pn` | image.png, overlay.png | original |
 | `data/sprites/zzz/ast/meteor.pn` | image.png, overlay.png | original |
 | `data/sprites/zzz/aud/carrier.pn` | image.png, overlay.png | original |
