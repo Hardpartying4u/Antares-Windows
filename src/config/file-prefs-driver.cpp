@@ -110,6 +110,7 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
     if ((_current.ui_scale < 0) || (_current.ui_scale > 4)) {
         _current.ui_scale = 0;
     }
+    set(_current.enhanced_graphics, video.get("enhanced graphics"));
 }
 
 void FilePrefsDriver::set(const Preferences& p) {
@@ -140,6 +141,7 @@ void FilePrefsDriver::set(const Preferences& p) {
                               {"height", p.window_size.height},
                       }},
                      {"ui scale", p.ui_scale},
+                     {"enhanced graphics", p.enhanced_graphics},
              }},
     });
 }

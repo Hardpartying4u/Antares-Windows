@@ -101,6 +101,8 @@ Preferences::Preferences() {
     fullscreen  = false;
     window_size = {640, 480};
     ui_scale    = 0;
+
+    enhanced_graphics = true;
 }
 
 Preferences Preferences::copy() const {
@@ -113,6 +115,7 @@ Preferences Preferences::copy() const {
     copy.fullscreen         = fullscreen;
     copy.window_size        = window_size;
     copy.ui_scale           = ui_scale;
+    copy.enhanced_graphics  = enhanced_graphics;
     return copy;
 }
 
@@ -170,6 +173,12 @@ void PrefsDriver::set_window_size(Size size) {
 void PrefsDriver::set_ui_scale(int scale) {
     Preferences p(get().copy());
     p.ui_scale = clamp(scale, 0, 4);
+    set(p);
+}
+
+void PrefsDriver::set_enhanced_graphics(bool on) {
+    Preferences p(get().copy());
+    p.enhanced_graphics = on;
     set(p);
 }
 

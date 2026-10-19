@@ -48,6 +48,7 @@ pn::string_view factory_scenario_path() {
 void set_factory_scenario_path(pn::string_view path) { factory_scenario.emplace(path.copy()); }
 
 static pn::string art;
+static bool       art_forced = false;
 
 pn::string default_art_path() {
     pn::string_view app = application_path();
@@ -60,8 +61,16 @@ pn::string default_art_path() {
     return (cut < 0) ? pn::string{"art"} : pn::format("{0}/art", app.substr(0, cut));
 }
 
-pn::string_view art_path() { return art; }
+pn::string_view art_path() {
+    if (!art_forced && sys.prefs && !sys.prefs->enhanced_graphics()) {
+        return "";  // Graphics: Original
+    }
+    return art;
+}
 
-void set_art_path(pn::string_view path) { art = path.copy(); }
+void set_art_path(pn::string_view path, bool forced) {
+    art        = path.copy();
+    art_forced = forced;
+}
 
 }  // namespace antares

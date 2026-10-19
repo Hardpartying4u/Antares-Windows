@@ -38,6 +38,7 @@ struct Preferences {
     bool    fullscreen;
     Size    window_size;
     int16_t ui_scale;  // 0: automatic; 1-4: fixed integer UI scale.
+    bool    enhanced_graphics;  // true: use the art folder (Enhanced); false: Original.
 };
 
 class PrefsDriver {
@@ -56,6 +57,7 @@ class PrefsDriver {
     int  fullscreen() const { return get().fullscreen; }
     Size window_size() const { return get().window_size; }
     int  ui_scale() const { return get().ui_scale; }
+    bool enhanced_graphics() const { return get().enhanced_graphics; }
 
     void set_key(size_t index, Key key);
     void set_play_idle_music(bool on);
@@ -65,6 +67,7 @@ class PrefsDriver {
     void set_fullscreen(bool on);
     void set_window_size(Size size);
     void set_ui_scale(int scale);
+    void set_enhanced_graphics(bool on);
 
     static PrefsDriver* driver();
 };

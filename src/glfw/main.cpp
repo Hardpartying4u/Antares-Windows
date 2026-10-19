@@ -137,7 +137,7 @@ void main(int argc, char* const* argv) {
     if (!no_art) {
         pn::string dir = art.has_value() ? art->copy() : default_art_path();
         if (sfz::path::isdir(dir)) {
-            set_art_path(dir);
+            set_art_path(dir, art.has_value());
         } else if (art.has_value()) {
             throw std::runtime_error(pn::format("{0}: art folder not found", dir).c_str());
         }

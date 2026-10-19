@@ -240,6 +240,18 @@ static const struct {
         {"ui-scale-4", "UI Scale: 4x", 4},
 };
 
+// Graphics choices: Enhanced uses the art folder (upscaled and remastered sprites), Original uses
+// only the original art. Sprites are loaded when a level starts, so the change shows from the next
+// level on. Shown below Fullscreen, like the UI scale choices.
+static const struct {
+    const char* id;
+    const char* label;
+    bool        enhanced;
+} kGraphicsChoices[] = {
+        {"graphics-enhanced", "Graphics: Enhanced", true},
+        {"graphics-original", "Graphics: Original", false},
+};
+
 VideoControlScreen::VideoControlScreen(OptionsScreen::State* state)
         : InterfaceScreen("options/video", {0, 0, 640, 480}), _state(state) {
     checkbox(kFullscreenButton)
@@ -266,6 +278,29 @@ VideoControlScreen::VideoControlScreen(OptionsScreen::State* state)
                         [scale](bool on) {
                             if (on) {
                                 sys.prefs->set_ui_scale(scale);
+                            }
+                        },
+                });
+    }
+
+    top = 144;  // below the Fullscreen checkbox
+    for (const auto& choice : kGraphicsChoices) {
+        CheckboxButtonData data;
+        data.id     = choice.id;
+        data.type   = WidgetDataBase::CHECKBOX;
+        data.bounds = {100, top, 300, top + 10};
+        data.label  = choice.label;
+        data.hue    = Hue::PALE_PURPLE;
+        data.style  = InterfaceStyle::LARGE;
+        top += 33;
+
+        const bool enhanced = choice.enhanced;
+        dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
+                ->bind({
+                        [enhanced] { return sys.prefs->enhanced_graphics() == enhanced; },
+                        [enhanced](bool on) {
+                            if (on) {
+                                sys.prefs->set_enhanced_graphics(enhanced);
                             }
                         },
                 });
