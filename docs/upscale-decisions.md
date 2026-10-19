@@ -15,8 +15,8 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `baz/bttlship` | Battleship | ai | tolerant | — | 0.99→0.92 | excellent: smooth organic hull, horns and blue undersides kept |
 | `can/aslttran` | Assault Transport | ai | tolerant | overlay | 1.00→0.88 | clean, keeps fins |
 | `can/carrier` | Carrier | ai | tolerant | — | 1.00→0.90 | clean organic hull |
-| `can/cruiser` | Cruiser | tolerant | tolerant | overlay | 0.99→0.99 | AI loses the one-pixel ladder of stripes |
-| ⚠ `can/defdrone` | Defense Drone | tolerant | tolerant | overlay | 0.64→0.62 | tiny; AI tinted version messy |
+| `can/cruiser` | Cruiser | ai | tolerant | overlay | 0.99→0.92 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI loses the one-pixel ladder of stripes. ⚠ AI loses the one-pixel ladder of stripes (2x and 1x) |
+| ⚠ `can/defdrone` | Defense Drone | ai | tolerant | overlay | 0.64→0.53 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: tiny; AI tinted version messy. |
 | `can/engineer` | Engineer Pod | ai | tolerant | overlay | 0.93→0.81 | clean, light kept |
 | `can/evat` | EVA Trooper | original | original | overlay | — | EVA trooper: stays original |
 | ⚠ `can/fighter` | Fighter | ai | tolerant | overlay | 0.49→0.43 | tiny; AI slightly cleaner, little to gain; partial overlay coverage |
@@ -24,7 +24,7 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | ⚠ `can/gunship` | Gunship | ai | tolerant | softened | 1.00→0.90 | AI merges the plate pattern into smooth blocks |
 | `can/hvc` | Heavy Cruiser | ai | tolerant | overlay | 1.00→0.90 | clean, smoother |
 | `can/hvd` | Heavy Destroyer | ai | tolerant | — | 0.99→0.92 | clean, keeps fins |
-| `can/schooner` | Schooner | tolerant | tolerant | overlay, softened | 0.99→0.99 | AI fades the red light dots and loses plate lines |
+| `can/schooner` | Schooner | ai | tolerant | overlay, softened | 0.99→0.91 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI fades the red light dots and loses plate lines. ⚠ AI fades the red light dots (2x and 1x) |
 | `can/transport` | Transport | ai | tolerant | softened | 1.00→0.92 | clean, slight softening only |
 | `dev/amissile` | Missile | original | original | overlay | — | weapon, not a ship: later effects pass |
 | `dev/cm` | C Missile | original | original | overlay | — | weapon, not a ship: later effects pass |
@@ -33,10 +33,10 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `ele/etc/liner` | Luxury Liner | ai | tolerant | — | 0.99→0.95 | clean ribbed hull, speckle dither gone |
 | `gai/aslttran` | Gaitori Assault Transport | ai | tolerant | overlay | 0.99→0.89 | clean, drums and guns kept |
 | `gai/carrier` | Carrier | ai | tolerant | softened | 1.00→0.91 | panel detail kept; 'softened' flag was dither |
-| `gai/cruiser` | Cruiser | tolerant | tolerant | overlay, softened | 0.98→0.98 | AI loses the blue accent lights and thickens the barrels |
+| `gai/cruiser` | Cruiser | ai | tolerant | overlay, softened | 0.98→0.91 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI loses the blue accent lights and thickens the barrels. ⚠ AI loses the blue accent lights (2x and 1x) |
 | `gai/engineer` | Engineer Pod | ai | tolerant | overlay | 0.99→0.88 | clean |
 | `gai/evat` | Gaitori Extra-vehicular Assa | original | original | overlay | — | EVA trooper: stays original |
-| `gai/fighter` | Fighter | tolerant | tolerant | overlay | 0.98→0.98 | AI loses the blue accent lights |
+| `gai/fighter` | Fighter | ai | tolerant | overlay | 0.98→0.85 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI loses the blue accent lights. ⚠ AI loses the blue accent lights (2x and 1x) |
 | ⚠ `gai/gunship` | Gunship | ai | tolerant | overlay | 1.00→0.87 | AI keeps barrels but smooths the ribbed drum pods |
 | ⚠ `gai/hvd` | Gaitori Heavy Destroyer | ai | tolerant | — | 0.99→0.93 | AI smooths the ribbed drum pods |
 | `gai/transport` | Transport | ai | tolerant | overlay | 0.99→0.90 | container segments and antenna kept |
@@ -46,7 +46,7 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `ish/aslttran` | Assault Transport | ai | tolerant | — | 0.60→0.56 | clean |
 | `ish/carrier` | Carrier | ai | tolerant | overlay | 0.93→0.85 | clean, detail lines kept |
 | ⚠ `ish/cruiser` | Development Notes | ai | tolerant | overlay | 0.55→0.58 | hub and arms clean, dither gone; overlay covers only part of the ship, so under tint the AI image shows through |
-| ⚠ `ish/defdrone` | Defense Drone | tolerant | tolerant | overlay | 0.46→0.45 | tiny; AI tinted version messy |
+| ⚠ `ish/defdrone` | Defense Drone | ai | tolerant | overlay | 0.46→0.48 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: tiny; AI tinted version messy. |
 | `ish/engineer` | Engineer Pod | ai | tolerant | overlay | 0.65→0.63 | clean, light kept |
 | `ish/etc/astrominer` | Astrominer | ai | tolerant | — | 0.87→0.83 | clean, white stripe kept |
 | `ish/etc/cargo` | Cargo Ship | ai | tolerant | — | 0.84→0.78 | clean, light kept |
@@ -54,20 +54,20 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `ish/evat` | EVA Trooper | original | original | overlay | — | EVA trooper: stays original |
 | ⚠ `ish/fighter` | Fighter | ai | tolerant | overlay, softened | 1.00→0.88 | tiny; AI slightly softer |
 | `ish/gunship` | Gunship | ai | tolerant | — | 1.00→0.93 | clean, tiers and pods kept |
-| `ish/hvc` | Heavy Cruiser | tolerant | tolerant | overlay | 0.20→0.17 | changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks |
+| `ish/hvc` | Heavy Cruiser | ai | tolerant | overlay | 0.20→0.21 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks. ⚠ under a team tint the AI image shows through the partial overlay as cyan streaks; untinted it is cleaner |
 | `ish/hvd` | Heavy Destroyer | ai | tolerant | — | 0.95→0.92 | clean, lights kept |
 | ⚠ `ish/schooner` | Schooner | ai | tolerant | overlay | 0.64→0.63 | thin spine kept; overlay covers only part of the ship, so under tint the AI image shows through |
-| `ish/transport` | Transport | tolerant | tolerant | overlay | 0.11→0.10 | changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks |
+| `ish/transport` | Transport | ai | tolerant | overlay | 0.11→0.15 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks. ⚠ under a team tint the AI image shows through the partial overlay as cyan streaks; untinted it is cleaner |
 | `loc/flak` | Border Drone | ai | tolerant | overlay | 1.00→0.89 | clean panelled sphere |
-| `obi/escort` | Escort | tolerant | tolerant | overlay | 0.93→0.93 | AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature |
+| `obi/escort` | Escort | ai | tolerant | overlay | 0.93→0.85 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature. ⚠ AI melts the ribbed fan disc (2x and 1x) |
 | ⚠ `obi/etc/liner` | Battlecruiser | ai | tolerant | overlay | 0.99→0.85 | AI keeps the comb of fins but smooths the ribbed hull |
 | `obi/etc/obiard/turning` | Returning to Base | original | original | — | — | tiny figure, not a ship |
-| `obi/transport` | Transport | tolerant | tolerant | overlay | 1.00→1.00 | AI melts the ribbed fan disc |
+| `obi/transport` | Transport | ai | tolerant | overlay | 1.00→0.91 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI melts the ribbed fan disc. ⚠ AI melts the ribbed fan disc (2x and 1x) |
 | `sal/aslttran` | Assault Transport | ai | tolerant | softened | 0.94→0.88 | pods and spikes kept, slightly blurred |
 | `sal/carrier` | Carrier | ai | tolerant | softened | 0.92→0.90 | clearly better: clean gloss; 'softened' flag was dither speckle |
 | ⚠ `sal/cruiser` | Cruiser | ai | tolerant | overlay, softened | 0.03→0.02 (never followed) | special case: AI image cleans the speckle untinted; the tolerant overlay (fidelity 0.976) keeps the tinted look like the original's dark speckle |
 | `sal/evat` | Salrilian Extra-vehicular As | original | original | overlay | — | EVA trooper: stays original |
-| ⚠ `sal/fighter` | Fighter | tolerant | tolerant | overlay | 0.17→0.15 | AI invents a bright white streak on a near-invisible dark sliver |
+| ⚠ `sal/fighter` | Fighter | ai | tolerant | overlay | 0.17→0.31 | AI at every scale since 2026-10-19 (every ship enhanced); was Scale2x: AI invents a bright white streak on a near-invisible dark sliver. ⚠ AI invents a bright white streak (2x and 1x) |
 | ⚠ `sal/gunship` | Gunship | ai | tolerant | — | 0.98→0.91 | AI loses the faint plating pattern |
 | ⚠ `sal/hvd` | Salrilian Heavy Destroyer | ai | tolerant | overlay | 0.49→0.49 | clean gloss, lights kept; overlay covers only part of the ship, so under tint the AI image shows through |
 | ⚠ `sal/transport` | Transport | ai | tolerant | overlay, softened | 0.67→0.57 | AI smooths small details |
@@ -83,65 +83,76 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `uns/hvd` | Human Heavy Destroyer | ai | tolerant | — | 0.97→0.91 | clean, red lights kept (dimmer) |
 | `uns/transport` | Transport | ai | tolerant | — | 0.98→0.92 | clean, red lights kept |
 
-Totals: 50 image ai / overlay tolerant, 12 image original / overlay original, 13 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 16.
+Totals: 61 image ai / overlay tolerant, 12 image original / overlay original, 2 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 16. ⚠ in the reason: the AI image looks clearly worse in the way described (for your decision).
 
 ## 1× images for Graphics: Enhanced (2026-10-19)
 
-So Enhanced also shows at UI 1×, each AI image's `@2x` sheet was shrunk to the 1× size (`tools/sprite-render/shrink_ai_1x.py`: premultiplied 2×2 average, outline kept exactly the original's) and installed as `art/sprites/<sprite>/image.png`. The 1× overlay stays the original, so team tints are unchanged. Scale2x-only, original and 3D sprites are unaffected (the Human 3D ships have their own 1× sheets).
+So Enhanced also shows at UI 1×, each AI image's `@2x` sheet is shrunk to the 1× size (`tools/sprite-render/shrink_ai_1x.py`: premultiplied 2×2 average, outline kept exactly the original's) and installed as `art/sprites/<sprite>/image.png`. The 1× overlay stays the original, so team tints are unchanged. The two Scale2x sprites and the original ones are unaffected (the Human 3D ships have their own 1× sheets).
 
-Installed for 42 sprites; 8 keep the original 1× image after the visual review:
+All 61 AI-image sprites have a 1× image (since 2026-10-19 every ship is enhanced; ⚠ marks where it looks clearly worse than the original):
 
-| Sprite | 1× image | Agreement orig→shrunk | Reason |
-|---|---|---|---|
-| `aud/carrier` | shrunk AI | 1.00→0.99 | as good or cleaner at 1×; lights and outline kept |
-| `aud/cruiser` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `aud/fighter` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `aud/gunship` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
-| `aud/hvd` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
-| `aud/transport` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
-| `baz/bttlship` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `can/aslttran` | shrunk AI | 1.00→0.96 | as good or cleaner at 1×; lights and outline kept |
-| `can/carrier` | **original** | 1.00→0.97 | shrunk AI image loses the small green hull lights and goes soft |
-| `can/engineer` | shrunk AI | 0.93→0.90 | as good or cleaner at 1×; lights and outline kept |
-| `can/fighter` | shrunk AI | 0.49→0.51 | as good or cleaner at 1×; lights and outline kept |
-| `can/gunship` | **original** | 1.00→0.97 | shrunk AI image loses the plate pattern and its small green lights |
-| `can/hvc` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `can/hvd` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `can/transport` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
-| `ele/cruiser` | shrunk AI | 0.98→0.96 | as good or cleaner at 1×; lights and outline kept |
-| `ele/etc/liner` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `gai/aslttran` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `gai/carrier` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `gai/engineer` | **original** | 0.99→0.97 | shrunk AI image loses the red light at the tip |
-| `gai/gunship` | **original** | 1.00→0.96 | shrunk AI image smooths away the ribbed drum pods |
-| `gai/hvd` | **original** | 0.99→0.98 | shrunk AI image smooths away the ribbed drum pods |
-| `gai/transport` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `gro/cruiser` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `gro/ctf/cruiser` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `gro/ctf/flag` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `ish/aslttran` | shrunk AI | 0.60→0.61 | as good or cleaner at 1×; lights and outline kept |
-| `ish/carrier` | shrunk AI | 0.93→0.91 | as good or cleaner at 1×; lights and outline kept |
-| `ish/cruiser` | **original** | 0.55→0.64 | shrunk AI image turns the multicoloured hub into a pastel blur |
-| `ish/engineer` | shrunk AI | 0.65→0.67 | as good or cleaner at 1×; lights and outline kept |
-| `ish/etc/astrominer` | **original** | 0.87→0.86 | shrunk AI image loses the small red light by the white stripe |
-| `ish/etc/cargo` | shrunk AI | 0.84→0.83 | as good or cleaner at 1×; lights and outline kept |
-| `ish/etc/research` | shrunk AI | 0.84→0.85 | as good or cleaner at 1×; lights and outline kept |
-| `ish/fighter` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `ish/gunship` | shrunk AI | 1.00→0.98 | as good or cleaner at 1×; lights and outline kept |
-| `ish/hvd` | shrunk AI | 0.95→0.95 | as good or cleaner at 1×; lights and outline kept |
-| `ish/schooner` | **original** | 0.64→0.70 | shrunk AI image loses the coloured lights along the spine |
-| `loc/flak` | shrunk AI | 1.00→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `obi/etc/liner` | shrunk AI | 0.99→0.95 | as good or cleaner at 1×; lights and outline kept |
-| `sal/aslttran` | shrunk AI | 0.94→0.94 | as good or cleaner at 1×; lights and outline kept |
-| `sal/carrier` | shrunk AI | 0.92→0.92 | as good or cleaner at 1×; lights and outline kept |
-| `sal/cruiser` | shrunk AI | 0.01→0.03 | as good or cleaner at 1×; lights and outline kept |
-| `sal/gunship` | shrunk AI | 0.98→0.95 | as good or cleaner at 1×; lights and outline kept |
-| `sal/hvd` | shrunk AI | 0.49→0.51 | as good or cleaner at 1×; lights and outline kept |
-| `sal/transport` | shrunk AI | 0.67→0.66 | as good or cleaner at 1×; lights and outline kept |
-| `uns/aslttran` | shrunk AI | 0.98→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `uns/etc/bttlship` | shrunk AI | 0.84→0.81 | as good or cleaner at 1×; lights and outline kept |
-| `uns/gunship` | shrunk AI | 0.99→0.97 | as good or cleaner at 1×; lights and outline kept |
-| `uns/hvd` | shrunk AI | 0.97→0.96 | as good or cleaner at 1×; lights and outline kept |
-| `uns/transport` | shrunk AI | 0.98→0.97 | as good or cleaner at 1×; lights and outline kept |
+| Sprite | Agreement orig→shrunk | Review |
+|---|---|---|
+| `aud/carrier` | 1.00→0.99 | as good or cleaner at 1× |
+| `aud/cruiser` | 1.00→0.97 | as good or cleaner at 1× |
+| `aud/fighter` | 1.00→0.97 | as good or cleaner at 1× |
+| `aud/gunship` | 1.00→0.98 | as good or cleaner at 1× |
+| `aud/hvd` | 1.00→0.98 | as good or cleaner at 1× |
+| `aud/transport` | 1.00→0.98 | as good or cleaner at 1× |
+| `baz/bttlship` | 0.99→0.97 | as good or cleaner at 1× |
+| `can/aslttran` | 1.00→0.96 | as good or cleaner at 1× |
+| `can/carrier` | 1.00→0.97 | ⚠ at 1x the shrunk image loses the small green hull lights and goes soft |
+| `can/cruiser` | 0.99→0.96 | ⚠ AI loses the one-pixel ladder of stripes (2x and 1x) |
+| `can/defdrone` | 0.64→0.59 | as good or cleaner at 1× |
+| `can/engineer` | 0.93→0.90 | as good or cleaner at 1× |
+| `can/fighter` | 0.49→0.51 | as good or cleaner at 1× |
+| `can/gunship` | 1.00→0.97 | ⚠ at 1x the shrunk image loses the plate pattern and its small green lights |
+| `can/hvc` | 1.00→0.97 | as good or cleaner at 1× |
+| `can/hvd` | 0.99→0.97 | as good or cleaner at 1× |
+| `can/schooner` | 0.99→0.95 | ⚠ AI fades the red light dots (2x and 1x) |
+| `can/transport` | 1.00→0.98 | as good or cleaner at 1× |
+| `ele/cruiser` | 0.98→0.96 | as good or cleaner at 1× |
+| `ele/etc/liner` | 0.99→0.97 | as good or cleaner at 1× |
+| `gai/aslttran` | 0.99→0.97 | as good or cleaner at 1× |
+| `gai/carrier` | 1.00→0.97 | as good or cleaner at 1× |
+| `gai/cruiser` | 0.98→0.96 | ⚠ AI loses the blue accent lights (2x and 1x) |
+| `gai/engineer` | 0.99→0.97 | ⚠ at 1x the shrunk image loses the red light at the tip |
+| `gai/fighter` | 0.98→0.93 | ⚠ AI loses the blue accent lights (2x and 1x) |
+| `gai/gunship` | 1.00→0.96 | ⚠ at 1x the shrunk image smooths away the ribbed drum pods |
+| `gai/hvd` | 0.99→0.98 | ⚠ at 1x the shrunk image smooths away the ribbed drum pods |
+| `gai/transport` | 0.99→0.97 | as good or cleaner at 1× |
+| `gro/cruiser` | 1.00→0.97 | as good or cleaner at 1× |
+| `gro/ctf/cruiser` | 1.00→0.97 | as good or cleaner at 1× |
+| `gro/ctf/flag` | 1.00→0.97 | as good or cleaner at 1× |
+| `ish/aslttran` | 0.60→0.61 | as good or cleaner at 1× |
+| `ish/carrier` | 0.93→0.91 | as good or cleaner at 1× |
+| `ish/cruiser` | 0.55→0.64 | ⚠ at 1x the shrunk image turns the multicoloured hub into a pastel blur |
+| `ish/defdrone` | 0.46→0.57 | as good or cleaner at 1× |
+| `ish/engineer` | 0.65→0.67 | as good or cleaner at 1× |
+| `ish/etc/astrominer` | 0.87→0.86 | ⚠ at 1x the shrunk image loses the small red light by the white stripe |
+| `ish/etc/cargo` | 0.84→0.83 | as good or cleaner at 1× |
+| `ish/etc/research` | 0.84→0.85 | as good or cleaner at 1× |
+| `ish/fighter` | 1.00→0.97 | as good or cleaner at 1× |
+| `ish/gunship` | 1.00→0.98 | as good or cleaner at 1× |
+| `ish/hvc` | 0.20→0.34 | ⚠ under a team tint the AI image shows through the partial overlay as cyan streaks; untinted it is cleaner |
+| `ish/hvd` | 0.95→0.95 | as good or cleaner at 1× |
+| `ish/schooner` | 0.64→0.70 | ⚠ at 1x the shrunk image loses the coloured lights along the spine |
+| `ish/transport` | 0.11→0.27 | ⚠ under a team tint the AI image shows through the partial overlay as cyan streaks; untinted it is cleaner |
+| `loc/flak` | 1.00→0.97 | as good or cleaner at 1× |
+| `obi/escort` | 0.93→0.91 | ⚠ AI melts the ribbed fan disc (2x and 1x) |
+| `obi/etc/liner` | 0.99→0.95 | as good or cleaner at 1× |
+| `obi/transport` | 1.00→0.96 | ⚠ AI melts the ribbed fan disc (2x and 1x) |
+| `sal/aslttran` | 0.94→0.94 | as good or cleaner at 1× |
+| `sal/carrier` | 0.92→0.92 | as good or cleaner at 1× |
+| `sal/cruiser` | 0.01→0.03 | as good or cleaner at 1× |
+| `sal/fighter` | 0.17→0.19 | ⚠ AI invents a bright white streak (2x and 1x) |
+| `sal/gunship` | 0.98→0.95 | as good or cleaner at 1× |
+| `sal/hvd` | 0.49→0.51 | as good or cleaner at 1× |
+| `sal/transport` | 0.67→0.66 | as good or cleaner at 1× |
+| `uns/aslttran` | 0.98→0.97 | as good or cleaner at 1× |
+| `uns/etc/bttlship` | 0.84→0.81 | as good or cleaner at 1× |
+| `uns/gunship` | 0.99→0.97 | as good or cleaner at 1× |
+| `uns/hvd` | 0.97→0.96 | as good or cleaner at 1× |
+| `uns/transport` | 0.98→0.97 | as good or cleaner at 1× |
 
-Automatic flags (darker rim, light recall) over-flagged: the rim darkening is the AI image's own shading, not a fringe, and most "lost lights" were dither speckle. The decision is from the visual review (`out/sprite-render/upscale/ai1x/review/`).
+Automatic flags (darker rim, light recall) over-flag: the rim darkening is the AI image's own shading, not a fringe, and most "lost lights" are dither speckle. The review is visual (`out/sprite-render/upscale/ai1x/review/`, `out/sprite-render/upscale/switch-review/`).

@@ -63,19 +63,25 @@
   "image": "ai",
   "overlay": "tolerant",
   "note": "clean organic hull",
-  "image_1x": "original",
-  "note_1x": "shrunk AI image loses the small green hull lights and goes soft"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image loses the small green hull lights and goes soft",
+  "worse": "at 1x the shrunk image loses the small green hull lights and goes soft"
  },
  "can/cruiser": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "AI loses the one-pixel ladder of stripes"
+  "note_scale2x": "AI loses the one-pixel ladder of stripes",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI loses the one-pixel ladder of stripes",
+  "image_1x": "ai",
+  "worse": "AI loses the one-pixel ladder of stripes (2x and 1x)"
  },
  "can/defdrone": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "tiny; AI tinted version messy"
+  "note_scale2x": "tiny; AI tinted version messy",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: tiny; AI tinted version messy",
+  "image_1x": "ai"
  },
  "can/engineer": {
   "image": "ai",
@@ -105,8 +111,9 @@
   "overlay": "tolerant",
   "unsure": true,
   "note": "AI merges the plate pattern into smooth blocks",
-  "image_1x": "original",
-  "note_1x": "shrunk AI image loses the plate pattern and its small green lights"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image loses the plate pattern and its small green lights",
+  "worse": "at 1x the shrunk image loses the plate pattern and its small green lights"
  },
  "can/hvc": {
   "image": "ai",
@@ -121,9 +128,12 @@
   "image_1x": "ai"
  },
  "can/schooner": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "AI fades the red light dots and loses plate lines"
+  "note_scale2x": "AI fades the red light dots and loses plate lines",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI fades the red light dots and loses plate lines",
+  "image_1x": "ai",
+  "worse": "AI fades the red light dots (2x and 1x)"
  },
  "can/transport": {
   "image": "ai",
@@ -171,16 +181,20 @@
   "image_1x": "ai"
  },
  "gai/cruiser": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "AI loses the blue accent lights and thickens the barrels"
+  "note_scale2x": "AI loses the blue accent lights and thickens the barrels",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI loses the blue accent lights and thickens the barrels",
+  "image_1x": "ai",
+  "worse": "AI loses the blue accent lights (2x and 1x)"
  },
  "gai/engineer": {
   "image": "ai",
   "overlay": "tolerant",
   "note": "clean",
-  "image_1x": "original",
-  "note_1x": "shrunk AI image loses the red light at the tip"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image loses the red light at the tip",
+  "worse": "at 1x the shrunk image loses the red light at the tip"
  },
  "gai/evat": {
   "image": "original",
@@ -188,25 +202,30 @@
   "note": "EVA trooper: stays original"
  },
  "gai/fighter": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "AI loses the blue accent lights"
+  "note_scale2x": "AI loses the blue accent lights",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI loses the blue accent lights",
+  "image_1x": "ai",
+  "worse": "AI loses the blue accent lights (2x and 1x)"
  },
  "gai/gunship": {
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
   "note": "AI keeps barrels but smooths the ribbed drum pods",
-  "image_1x": "original",
-  "note_1x": "shrunk AI image smooths away the ribbed drum pods"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image smooths away the ribbed drum pods",
+  "worse": "at 1x the shrunk image smooths away the ribbed drum pods"
  },
  "gai/hvd": {
   "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
   "note": "AI smooths the ribbed drum pods",
-  "image_1x": "original",
-  "note_1x": "shrunk AI image smooths away the ribbed drum pods"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image smooths away the ribbed drum pods",
+  "worse": "at 1x the shrunk image smooths away the ribbed drum pods"
  },
  "gai/transport": {
   "image": "ai",
@@ -249,14 +268,17 @@
   "overlay": "tolerant",
   "note": "hub and arms clean, dither gone; overlay covers only part of the ship, so under tint the AI image shows through",
   "unsure": true,
-  "image_1x": "original",
-  "note_1x": "shrunk AI image turns the multicoloured hub into a pastel blur"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image turns the multicoloured hub into a pastel blur",
+  "worse": "at 1x the shrunk image turns the multicoloured hub into a pastel blur"
  },
  "ish/defdrone": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "tiny; AI tinted version messy"
+  "note_scale2x": "tiny; AI tinted version messy",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: tiny; AI tinted version messy",
+  "image_1x": "ai"
  },
  "ish/engineer": {
   "image": "ai",
@@ -268,8 +290,9 @@
   "image": "ai",
   "overlay": "tolerant",
   "note": "clean, white stripe kept",
-  "image_1x": "original",
-  "note_1x": "shrunk AI image loses the small red light by the white stripe"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image loses the small red light by the white stripe",
+  "worse": "at 1x the shrunk image loses the small red light by the white stripe"
  },
  "ish/etc/cargo": {
   "image": "ai",
@@ -302,9 +325,12 @@
   "image_1x": "ai"
  },
  "ish/hvc": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks"
+  "note_scale2x": "changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks",
+  "image_1x": "ai",
+  "worse": "under a team tint the AI image shows through the partial overlay as cyan streaks; untinted it is cleaner"
  },
  "ish/hvd": {
   "image": "ai",
@@ -317,13 +343,17 @@
   "overlay": "tolerant",
   "note": "thin spine kept; overlay covers only part of the ship, so under tint the AI image shows through",
   "unsure": true,
-  "image_1x": "original",
-  "note_1x": "shrunk AI image loses the coloured lights along the spine"
+  "image_1x": "ai",
+  "note_1x": "2026-10-19: installed anyway (every ship enhanced); at first review the shrunk image loses the coloured lights along the spine",
+  "worse": "at 1x the shrunk image loses the coloured lights along the spine"
  },
  "ish/transport": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks"
+  "note_scale2x": "changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks",
+  "image_1x": "ai",
+  "worse": "under a team tint the AI image shows through the partial overlay as cyan streaks; untinted it is cleaner"
  },
  "loc/flak": {
   "image": "ai",
@@ -332,9 +362,12 @@
   "image_1x": "ai"
  },
  "obi/escort": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature"
+  "note_scale2x": "AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature",
+  "image_1x": "ai",
+  "worse": "AI melts the ribbed fan disc (2x and 1x)"
  },
  "obi/etc/liner": {
   "image": "ai",
@@ -349,9 +382,12 @@
   "note": "tiny figure, not a ship"
  },
  "obi/transport": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
-  "note": "AI melts the ribbed fan disc"
+  "note_scale2x": "AI melts the ribbed fan disc",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI melts the ribbed fan disc",
+  "image_1x": "ai",
+  "worse": "AI melts the ribbed fan disc (2x and 1x)"
  },
  "sal/aslttran": {
   "image": "ai",
@@ -378,10 +414,13 @@
   "note": "EVA trooper: stays original"
  },
  "sal/fighter": {
-  "image": "tolerant",
+  "image": "ai",
   "overlay": "tolerant",
   "unsure": true,
-  "note": "AI invents a bright white streak on a near-invisible dark sliver"
+  "note_scale2x": "AI invents a bright white streak on a near-invisible dark sliver",
+  "note": "2026-10-19: AI image at every scale (every ship enhanced); was Scale2x because: AI invents a bright white streak on a near-invisible dark sliver",
+  "image_1x": "ai",
+  "worse": "AI invents a bright white streak (2x and 1x)"
  },
  "sal/gunship": {
   "image": "ai",

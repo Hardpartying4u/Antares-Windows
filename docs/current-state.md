@@ -656,21 +656,24 @@ Results:
 
 63 ship sprites have @2x/@4x sheets in `art/`. They were upscaled from the original pixels
 following `docs/upscale-decisions.md`:
-- 50 use a Real-ESRGAN image with a tolerant-Scale2x overlay;
-- 13 use tolerant Scale2x for both. Four were switched from the AI image on 2026-10-19 after the
-  in-game check: the Audemedon assault transport and the Cantharan gateship (streaks and
-  squiggles), and the Ishiman heavy cruiser and transport (cyan streaks under a team tint).
+- 61 use a Real-ESRGAN image with a tolerant-Scale2x overlay. On 2026-10-19 every ship was made
+  enhanced, so the 11 that used Scale2x for the image switched to the AI image (including the
+  Ishiman heavy cruiser and transport, which show cyan streaks under a team tint); the review
+  marks 9 of them as clearly worse in some way (`docs/upscale-decisions.md`, ⚠).
+- 2 use tolerant Scale2x for both: the Audemedon assault transport and the Cantharan gateship
+  (the AI image showed streaks and squiggles).
 
 Of the other sprites, 12 stay original and 3 are the Human 3D remasters. Frame tables, pivots and
 1x overlays come from `data/`.
 
 **Enhanced at UI 1x (2026-10-19).** At UI 1x a normal ship draws its 1x sheet, so before this only
 capital ships (drawn at 2x) and the Human 3D ships (which have their own 1x sheets) changed.
-42 AI-image sprites now also have a 1x `image.png` in `art/`, shrunk from the AI @2x sheet
+All 61 AI-image sprites now also have a 1x `image.png` in `art/`, shrunk from the AI @2x sheet
 (`tools/sprite-render/shrink_ai_1x.py`; premultiplied 2x2 average with the original outline); the
-overlay stays the original 1x. 8 keep the original 1x image because the shrunk one lost
-small lights or structure (can/carrier, can/gunship, gai/engineer, gai/gunship, gai/hvd, ish/cruiser, ish/etc/astrominer, ish/schooner). Scale2x-only and original sprites are unchanged at
-1x. Checked in `ch15` at UI 1x with a test config: with Enhanced the player's Ishiman heavy
+overlay stays the original 1x. Eight of them were first kept original at 1x because the shrunk
+image lost small lights or structure; they were installed anyway so that every ship is enhanced
+(listed with ⚠ in `docs/upscale-decisions.md`). The two Scale2x sprites and the original ones are
+unchanged at 1x. Checked in `ch15` at UI 1x with a test config: with Enhanced the player's Ishiman heavy
 destroyer matches the new 1x sheet (rms 11.9 against 20.8 for the original), with Original the
 `data/` sheet. In `ch15` this changes nine sprites at UI 1x: `aud/fighter`, `ish/aslttran`,
 `ish/fighter`, `ish/gunship`, `ish/hvd`, `sal/aslttran`, `sal/cruiser`, `sal/gunship`,
