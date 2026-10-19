@@ -679,6 +679,11 @@ following `docs/upscale-decisions.md`:
 - 2 use tolerant Scale2x for both: the Audemedon assault transport and the Cantharan gateship
   (the AI image showed streaks and squiggles).
 
+**Non-ship graphics (2026-10-19):** 13 pictures (intro stills `log/ares-departs` and
+`log/ish-encounter`, six race pictures, five briefing pictures) and 36 sprites (asteroids,
+stations and level objects, 15 planets) also have Real-ESRGAN `@2x`/`@4x` files in `art/`; the
+review and the exclusions are in `docs/ui-graphics-upscale.md`.
+
 Of the other sprites, 12 stay original and 3 are the Human 3D remasters. Frame tables, pivots and
 1x overlays come from `data/`.
 
