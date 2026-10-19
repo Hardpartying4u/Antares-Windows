@@ -76,6 +76,10 @@ def add_files(archive_content, archive_root, add):
         for real_path, archive_path in walk("Antares/art", "art"):
             add(real_path, archive_path)
         add("out/win/opt/antares.exe", "Antares/Antares.exe")
+        # Licences and credits: code (LGPL), the per-file asset record and third-party credits.
+        # data/COPYING and data/AUTHORS come with data/ above.
+        for name in ["COPYING", "COPYING.LESSER", "ASSETS.md", "CREDITS.md"]:
+            add(name, "Antares/" + name)
     else:
         raise RuntimeError(archive_content)
 
