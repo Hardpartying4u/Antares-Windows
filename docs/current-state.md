@@ -641,6 +641,31 @@ Results:
   it, although its average tone matches its own original.
 - The carrier's frame-0 miss (p95 2.0 px, from the original's 1 px bow antenna) is accepted.
 
+#### Upscaled sprite sheets in `art/` (2026-10-19)
+
+63 ship sprites have @2x/@4x sheets in `art/`. They were upscaled from the original pixels
+following `docs/upscale-decisions.md`:
+- 54 use a Real-ESRGAN image with a tolerant-Scale2x overlay;
+- 9 use tolerant Scale2x for both.
+
+Of the other sprites, 12 stay original and 3 are the Human 3D remasters. 1x sheets, frame tables and
+pivots come from `data/`. `art/` is 77 MB (61 MB @4x, 18 MB @2x), stored with Git LFS.
+
+In-game check (save-free test scenario, every ship of each faction parked, UI 1x-4x, 1:1 and 1:2
+zoom, with and without `--no-art`):
+- **Placement:** no ship is misplaced (largest shift under 1 logical px where the automatic
+  comparison is reliable) and none is clipped.
+- **Unreliable comparisons, checked by eye:** the comparison misreads the overlapping Cantharan
+  gateship and the near-black Salrilian ships; both were checked visually.
+- **One-ship levels:** a test level with a single ship ends straight away, so the Bazidan
+  battleship and the border drone were tested together.
+- **Largest campaign level** (`ch15`, UI 4x):
+  - private memory 273 MB with `art/` against 215 MB without;
+  - load (Begin to briefing) about 2.1 s against 1.9 s.
+- **Tinted level** (`dev1`, salmon side, UI 2x):
+  - private memory 279 MB against 223 MB;
+  - load about 2.0 s against 1.7 s.
+
 ### 4.4 Effects and other layers
 
 Drawn each frame in this order (`GamePlay::draw`, `src/game/main.cpp` ~399):
