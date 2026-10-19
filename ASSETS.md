@@ -2,7 +2,9 @@
 
 This file lists every game asset and whether it is **original** (inherited from Ares via the
 Antares data, not yet replaced by Star Bound), **replaced** (an original we have swapped for our
-own work), or **new** (added by Star Bound with no original counterpart). It exists because the
+own work), **adapted** (an original we have reworked, such as upscaled @2x/@4x sheets, so it is
+still derived from the original and keeps its licence), or **new** (added by Star Bound with no
+original counterpart). It exists because the
 original Ares media is licensed CC BY-NC-SA 3.0 (`data/COPYING`): free, non-commercial use only.
 Selling the game requires every entry to be *replaced* or *new*. When you replace or add an asset,
 update its row in the same commit. See `docs/design.md` §6 and §8.
@@ -33,14 +35,18 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-836 entries are **original**. The 3 Human ship sprites (fighter, cruiser, carrier) have **replaced** images
-(2026-10-18), rendered into `art/` (read before `data/`); their frame tables stay original.
+186 entries are **original**, 7 are **adapted** and 3 are **replaced** (of 196).
+- **Replaced (3):** the Human fighter, cruiser and carrier images, 3D remasters rendered into `art/`
+  (2026-10-18); their frame tables stay original.
+- **Adapted (7):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
+  `art/` (2026-10-19, `docs/upscale-decisions.md`): Real-ESRGAN for the image where it looked
+  better, tolerant Scale2x otherwise and for every overlay. Their 1x sheets and frame tables are the
+  originals, read from `data/`.
 
-Remastered sprites are fitted to, and coloured from, the original sprites (`docs/fleet-plan.md`),
-so they are most likely *adaptations* of the CC BY-NC-SA 3.0 originals and still carry that
-licence. They are marked "replaced (…, adaptation)" so they are not mistaken for assets that free
-the game from the original licence; whether they count for selling the game is an open question
-(`docs/design.md` §10).
+Both kinds are derived from the originals: the remasters are fitted to and coloured from them, and
+the upscales are made from their pixels. So they are most likely *adaptations* of the CC BY-NC-SA
+3.0 originals and keep that licence; they don't free the game from it. Whether the remasters
+count for selling the game is an open question (`docs/design.md` §10).
 
 ## Sprites, sounds, music, text and interface art
 
@@ -54,15 +60,15 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/ast/regular/big.pn` | image.png, overlay.png | original |
 | `data/sprites/ast/regular/medium.pn` | image.png, overlay.png | original |
 | `data/sprites/ast/regular/small.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/aslttran.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/carrier.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/cruiser.pn` | image.png, overlay.png | original |
+| `data/sprites/aud/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/aslttran/`; 1x and frame table original |
+| `data/sprites/aud/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/carrier/`; 1x and frame table original |
+| `data/sprites/aud/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/cruiser/`; 1x and frame table original |
 | `data/sprites/aud/etc/device.pn` | image.png, overlay.png | original |
 | `data/sprites/aud/evat.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/fighter.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/gunship.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/hvd.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/transport.pn` | image.png, overlay.png | original |
+| `data/sprites/aud/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/fighter/`; 1x and frame table original |
+| `data/sprites/aud/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/gunship/`; 1x and frame table original |
+| `data/sprites/aud/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/hvd/`; 1x and frame table original |
+| `data/sprites/aud/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/transport/`; 1x and frame table original |
 | `data/sprites/baz/bttlship.pn` | image.png, overlay.png | original |
 | `data/sprites/can/aslttran.pn` | image.png, overlay.png | original |
 | `data/sprites/can/carrier.pn` | image.png, overlay.png | original |
