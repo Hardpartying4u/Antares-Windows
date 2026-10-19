@@ -20,6 +20,8 @@
 
 #include <fcntl.h>
 
+#include <algorithm>
+
 #include <pn/input>
 #include <pn/map>
 #include <pn/output>
@@ -27,6 +29,7 @@
 
 #include "config/dirs.hpp"
 #include "config/keys.hpp"
+#include "sound/fx.hpp"
 
 using sfz::makedirs;
 using sfz::range;
@@ -94,6 +97,9 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
 
     pn::map_cref sound = m.get("sound").as_map();
     set(_current.volume, sound.get("volume"));
+    // Volume is 0..8 (the sound drivers play at volume / 8). Earlier builds let F3 go past 8, so a
+    // saved config can hold more; bring it back into range instead of amplifying.
+    _current.volume = std::max<int16_t>(0, std::min<int16_t>(kMaxVolumePreference, _current.volume));
     set(_current.speech_on, sound.get("speech"));
     set(_current.play_idle_music, sound.get("idle music"));
     set(_current.play_music_in_game, sound.get("game music"));

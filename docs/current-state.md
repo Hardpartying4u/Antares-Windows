@@ -85,7 +85,7 @@ GLFW (src/glfw/video-driver.cpp)
 |---|---|---|
 | Help | F1 | Opens the in-game Help screen (pauses) |
 | Lower volume | F2 | Volume −1 (down to 0; fixed 2026-10-20, it used to do nothing) |
-| Raise volume | F3 | Volume +1 |
+| Raise volume | F3 | Volume +1, up to 8 (capped 2026-10-20; earlier builds let it pass 8, and a saved volume outside 0–8 is now brought back into range on load, `file-prefs-driver.cpp`) |
 | Mute music | F4 | Toggle in-game music (only if "Music During Action" is on) |
 | Expert net settings | F5 | No effect (network play not implemented) |
 | Fast motion | F6 | While held, game runs 12× speed (`src/game/main.cpp` ~440) |

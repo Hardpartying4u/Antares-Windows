@@ -2,7 +2,7 @@
 // This file is part of Star Bound, based on Antares. Distributed under the LGPL+. See COPYING.
 //
 // Classic key defaults: every action reachable on a PC keyboard, and saved configs from before
-// the change keep working.
+// the change keep working. A saved volume outside 0..8 is brought back into range on load.
 
 #include <gmock/gmock.h>
 #include <pn/output>
@@ -84,6 +84,49 @@ TEST_F(PrefsTest, OldConfigFileLoads) {
     EXPECT_EQ(prefs.key(kSelectFoeKeyNum), Key::N_TIMES);
     EXPECT_EQ(prefs.key(kScaleHostileKeyNum), Key::END);
     EXPECT_EQ(prefs.key(kOneKeyNum).value(), 20);  // the player's own binding is kept
+}
+
+// Writes a config whose sound section has the given volume, with other settings that must survive.
+static void write_config_with_volume(int volume) {
+    sfz::makedirs("out/test", 0755);
+    pn::output out{kConfig, pn::text};
+    out.format(
+            "sound: {{volume: {0}, speech: false, \"idle music\": false, \"game music\": true}}\n"
+            "keys: {{\"fire 1\": 20, \"volume down\": 59}}\n"
+            "video: {{fullscreen: true, window: {{width: 5120, height: 1351}}, \"ui scale\": 3, "
+            "\"enhanced graphics\": false}}\n",
+            volume);
+}
+
+TEST_F(PrefsTest, VolumeAboveRangeIsClamped) {
+    write_config_with_volume(23);  // as an earlier build's uncapped F3 could save
+    FilePrefsDriver prefs(kConfig);
+    EXPECT_EQ(prefs.volume(), 8);
+    // The rest of the config is kept as saved.
+    EXPECT_FALSE(prefs.speech_on());
+    EXPECT_FALSE(prefs.play_idle_music());
+    EXPECT_TRUE(prefs.play_music_in_game());
+    EXPECT_EQ(prefs.key(kOneKeyNum).value(), 20);
+    EXPECT_EQ(prefs.key(kVolumeDownKeyNum).value(), 59);
+    EXPECT_TRUE(prefs.fullscreen());
+    EXPECT_EQ(prefs.window_size().width, 5120);
+    EXPECT_EQ(prefs.window_size().height, 1351);
+    EXPECT_EQ(prefs.ui_scale(), 3);
+    EXPECT_FALSE(prefs.enhanced_graphics());
+}
+
+TEST_F(PrefsTest, VolumeBelowRangeIsClamped) {
+    write_config_with_volume(-3);
+    FilePrefsDriver prefs(kConfig);
+    EXPECT_EQ(prefs.volume(), 0);
+}
+
+TEST_F(PrefsTest, VolumeInRangeIsKept) {
+    for (int v : {0, 5, 8}) {
+        write_config_with_volume(v);
+        FilePrefsDriver prefs(kConfig);
+        EXPECT_EQ(prefs.volume(), v);
+    }
 }
 
 }  // namespace
