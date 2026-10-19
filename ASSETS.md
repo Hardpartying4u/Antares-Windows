@@ -35,10 +35,10 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-186 entries are **original**, 7 are **adapted** and 3 are **replaced** (of 196).
+185 entries are **original**, 8 are **adapted** and 3 are **replaced** (of 196).
 - **Replaced (3):** the Human fighter, cruiser and carrier images, 3D remasters rendered into `art/`
   (2026-10-18); their frame tables stay original.
-- **Adapted (7):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
+- **Adapted (8):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
   `art/` (2026-10-19, `docs/upscale-decisions.md`): Real-ESRGAN for the image where it looked
   better, tolerant Scale2x otherwise and for every overlay. Their 1x sheets and frame tables are the
   originals, read from `data/`.
@@ -69,7 +69,7 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/aud/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/gunship/`; 1x and frame table original |
 | `data/sprites/aud/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/hvd/`; 1x and frame table original |
 | `data/sprites/aud/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/transport/`; 1x and frame table original |
-| `data/sprites/baz/bttlship.pn` | image.png, overlay.png | original |
+| `data/sprites/baz/bttlship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/baz/bttlship/`; 1x and frame table original |
 | `data/sprites/can/aslttran.pn` | image.png, overlay.png | original |
 | `data/sprites/can/carrier.pn` | image.png, overlay.png | original |
 | `data/sprites/can/cruiser.pn` | image.png, overlay.png | original |
