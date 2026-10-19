@@ -24,9 +24,13 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - **Modern:** WASD flight, mouse aim and fire, click to select ships and give fleet orders, mouse wheel zoom.
 - A rebinding screen so every action can be reassigned to keyboard keys or mouse buttons.
 - Bindings are saved in the player's config and survive updates.
-- Gamepad support already exists (see `docs/current-state.md` §1.4). Both presets and the rebinding screen must cover gamepad as well as keyboard and mouse.
+- Gamepad: the game logic and a fixed mapping exist (see `docs/current-state.md` §1.4), but **only the macOS driver reads gamepads; on Windows no gamepad input arrives** (finding, 2026-10-19). Both presets and the rebinding screen must cover gamepad as well as keyboard and mouse.
 - Mouse-wheel zoom needs new input handling: the game currently ignores the scroll wheel. M2 includes adding it.
 - Exact action list to be taken from `docs/current-state.md`.
+- **Investigation (2026-10-19):** `docs/controls-investigation.md` maps every input, the binding storage and the replay and tutorial constraints, and proposes the presets and an 8-stage plan (smallest first: PC-reachable defaults, wheel zoom, gamepad on Windows, then the binding model, rebinding screen, Modern mouse orders and camera). Constraints found:
+  - anything that changes game state (orders, selection, zoom) must go through the per-tick input queue to stay deterministic;
+  - replay files store action numbers 0–43, so they can't be renumbered;
+  - tutorials disable inputs through `g.key_mask`, so new actions need masks.
 
 ## 5. User interface
 
@@ -121,4 +125,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
 - ~~Should capital ships pick their sprite sheet from UI scale × object scale?~~ Decided 2026-10-18: yes (see §6, sprite sheet decision).
+- M2: may Modern add multi-ship selection (control groups, box select, select all of type)? The game has one control object per side, so this changes how orders and the minicomputer work (`docs/controls-investigation.md` §5).
+- M2: may Modern move the camera away from the flagship (edge or drag scrolling)? The original always centres on it.
+- M2: in Modern, do the mouse buttons fire weapons or select and give orders? They can't do both without a modifier.
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.
