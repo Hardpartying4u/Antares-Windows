@@ -21,7 +21,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
 
 - Two built-in presets:
   - **Classic:** the original scheme, unchanged.
-  - **Modern:** WASD flight, mouse aim and fire, click to select ships and give fleet orders, mouse wheel zoom.
+  - **Modern:** C&C-style fleet control with the mouse: select several ships (box, shift-click, Ctrl+number groups), right-click to move or attack, patrol and attack-move commands; flight and firing stay on keys. Mouse-wheel zoom works in both presets.
 - A rebinding screen so every action can be reassigned to keyboard keys or mouse buttons.
 - Bindings are saved in the player's config and survive updates.
 - Gamepad: the game logic and a fixed mapping exist (see `docs/current-state.md` §1.4), but **only the macOS driver reads gamepads; on Windows no gamepad input arrives** (finding, 2026-10-19). Both presets and the rebinding screen must cover gamepad as well as keyboard and mouse.
@@ -31,6 +31,22 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - anything that changes game state (orders, selection, zoom) must go through the per-tick input queue to stay deterministic;
   - replay files store action numbers 0–43, so they can't be renumbered;
   - tutorials disable inputs through `g.key_mask`, so new actions need masks.
+- **Goal (2026-10-20): a Classic / Modern control toggle in Options, Classic by default.** Modern adds:
+  - multi-ship selection: drag a box, shift-click to add, Ctrl+number control groups;
+  - right-click orders;
+  - a patrol command;
+  - an attack-move command.
+- **Investigation (2026-10-20):** `docs/modern-controls.md` covers how orders and ship behaviour work and the proposed build order (toggle, right-click orders, attack-move, multi-select, groups, patrol). Findings:
+  - Ctrl orders to an object fly straight there; a ship only fights after being hit or on arrival.
+  - Point orders (Hold Position, Go To My Position) engage enemies met on the way, giving up after 15 s of fighting a target that doesn't fire back.
+  - So move reuses existing behaviour, attack-move is that point order without the 15 s limit, and patrol is new.
+  - Nothing in `data/` needs to change, provided the admiral keeps a single primary control object (tutorials test it) and scripted orders cancel Modern orders.
+  - Replays, the demo and tutorials should always run Classic.
+  - Antares doesn't enforce the tutorials' masks for the select, target, order and minicomputer-navigation keys (an existing gap).
+  - Proposed for review, not yet decided:
+    - tutorials always run Classic;
+    - attack-move is Ctrl+right-click and patrol is P then right-click, until rebinding exists;
+    - formations, patrol routes of more than two points, and mouse control of the flagship are left out.
 
 ## 5. User interface
 
@@ -125,7 +141,8 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - Minimum supported resolution and graphics hardware? (The logical screen is at least 640 × 480; physical minimum not yet decided.)
 - Should the battle view's field of view be capped (for example to a fixed world height and maximum width) so ultrawide windows don't see more of the battlefield than the scenarios were balanced for?
 - ~~Should capital ships pick their sprite sheet from UI scale × object scale?~~ Decided 2026-10-18: yes (see §6, sprite sheet decision).
-- M2: may Modern add multi-ship selection (control groups, box select, select all of type)? The game has one control object per side, so this changes how orders and the minicomputer work (`docs/controls-investigation.md` §5).
+- ~~M2: may Modern add multi-ship selection?~~ Answered 2026-10-20: yes (the Modern goal in §4). It is built as a selection list whose first ship stays the single control object (`docs/modern-controls.md` §2).
 - M2: may Modern move the camera away from the flagship (edge or drag scrolling)? The original always centres on it.
-- M2: in Modern, do the mouse buttons fire weapons or select and give orders? They can't do both without a modifier.
+- ~~M2: in Modern, do the mouse buttons fire weapons or select and give orders?~~ Answered 2026-10-20 by the Modern goal: they select and give orders; firing stays on keys.
+- M2 Modern: should tutorials always run Classic, since their text and checks teach the Classic keys? (Proposed: yes; `docs/modern-controls.md` §2.4.)
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.
