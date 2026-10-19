@@ -247,7 +247,7 @@ MainScreen
 | **Play again** | `ui/screens/play-again.cpp` | `interfaces/play-again/{normal,lose,tutorial}.pn` | Centered dialog: Resume (Esc), Start Chapter Over (Return), Quit to Main Menu (Q); tutorial variant adds Skip Tutorial (S); lose variant has no Resume |
 | **Debriefing** | `ui/screens/debriefing.cpp` | — | Typed-out victory/defeat text plus score table: your time / losses / kills vs par; score = time(50) + losses(30) + kills(20) |
 | **Options › Sound** | `ui/screens/options.cpp` ~137 | `interfaces/options/sound.pn` | Checkboxes: Music During Action, Music During Interlude, Speak Network Messages; Volume Up/Down + volume bar; Key Controls (K), Video (V), Cancel (Esc), Done (Return) |
-| **Options › Video** | `options.cpp` ~231 | `interfaces/options/video.pn` + code | Fullscreen checkbox (applies next launch, or Alt+Enter); a column of **UI Scale** choices — Auto, 1x, 2x, 3x, 4x — that behave as radio buttons and apply immediately (added in code, `kUiScaleChoices`); Key Controls, Sound, Cancel (reverts), Done |
+| **Options › Video** | `options.cpp` ~231 | `interfaces/options/video.pn` + code | Fullscreen checkbox (applies next launch, or Alt+Enter); a column of **UI Scale** choices — Auto, 1x, 2x, 3x, 4x — that behave as radio buttons and apply immediately (added in code, `kUiScaleChoices`); below Fullscreen, **Graphics: Enhanced / Original** radio choices (`kGraphicsChoices`, saved as `enhanced graphics` in `config.pn`, default Enhanced; takes effect from the next level); Key Controls, Sound, Cancel (reverts), Done |
 | **Options › Key Controls** | `options.cpp` ~294 | `interfaces/options/keys.pn` | Tab box with 5 tabs (Ship, Command, Shortcuts, Utility, Hot Keys); each action is a button showing its key — click it, press a key to bind it, and selection advances to the next action (Esc/Return/Caps Lock cancel). Conflicting bindings are flagged in a "conflict" text area and block Done/Options until fixed. Cancel, Options, Done |
 
 ### 3.4 In-game screen layout
@@ -394,8 +394,17 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
 
   A file in the scenario folder therefore replaces the same-named file everywhere else, which the
   sprite tools use for in-game tests. The art folder holds finished replacement art (`art/`).
-  - The game uses `art/` next to the data folder when it exists. `--art DIR` points elsewhere;
-    `--no-art` shows the originals (`src/win/main.cpp`).
+  - The game uses `art/` next to the data folder when it exists and **Graphics** in Video
+    options is Enhanced (the default). Graphics: Original hides the folder (`art_path()` returns
+    empty, `src/config/dirs.cpp`). Sprites load when a level starts, so a change shows from the
+    next level; Options opens only from the main menu.
+  - `--art DIR` points elsewhere and overrides Graphics: Original; `--no-art` always shows the
+    originals (`configure_art()`, called from `src/win/main.cpp`).
+  - `art-test` (unit test) checks where a sheet resolves (`resource_source()`) in each mode:
+    Enhanced, Original, `--no-art`, `--art DIR`, and `--art` with Original.
+  - Tested in game (2026-10-19, UI 2x, parked Human cruiser and Ishiman heavy destroyer):
+    Original draws the original sprites and Enhanced the `art/` sheets. Clicking Graphics:
+    Original then Done saves `false`; clicking Enhanced then Cancel puts `false` back.
   - Tests and tools never set it, so they always see the original art.
   - `scripts/dist.py` packages `art/` next to `data/`.
   - Each file is looked up on its own, so a sprite takes its sheets from `art/` and its frame table

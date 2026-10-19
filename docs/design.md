@@ -62,7 +62,8 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Real-ESRGAN `realesr-animevideov3` for the image where it looks better, tolerant Scale2x otherwise;
   - tolerant Scale2x for every overlay, so team colour stays faithful.
 
-  Per-sprite choices are in `docs/upscale-decisions.md`, and 18 of them are marked unsure for review. `ASSETS.md` records the upscales as adaptations (CC BY-NC-SA); `CREDITS.md` credits Real-ESRGAN.
+  Per-sprite choices are in `docs/upscale-decisions.md` (16 still marked unsure for review; four were switched to tolerant Scale2x after the in-game check). `ASSETS.md` records the upscales as adaptations (CC BY-NC-SA); `CREDITS.md` credits Real-ESRGAN.
+- **Decision (2026-10-19): players choose Original or Enhanced graphics.** Video options has a Graphics choice: Enhanced (default) uses `art/`, Original shows only the original art, as the fallback principle asks. It is saved in `config.pn` and takes effect from the next level; `--art DIR` and `--no-art` override it.
 - **Decision (2026-10-19): acceptance gate for remastered ships.** A remaster goes into `art/` only if, in game at UI 2×, it looks better than the original and keeps its features; otherwise the ship stays original. Appearance (per-region colour and brightness spread, SSIM) is measured alongside the outline.
   - The Ishiman ships stay original. Their originals were rendered nearly overhead, so fitted shapes come out plainer than the hand-detailed originals (`docs/fleet-plan.md`, batch 1 outcome).
 - **Finding (2026-10-18): remaster ships from the original frames, not by eye.** The three hand-built cruiser variants drifted from the original design. A remaster now:
