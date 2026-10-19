@@ -259,3 +259,19 @@ skipping the title sequence the same way (Esc every 0.3 s). Memory: private byte
   million pixels of PNG, which only smaller or fewer sheets would reduce.
 - **Checked on screen:** after the fixes, each Enhanced level run entered the level at 1:1; the
   ships draw from the hi-res sheets at UI 1x, 2x and 4x, nothing blank or late.
+
+## 9. Review groups installed (2026-10-19)
+
+Your call after the review: all three review groups are in `art/pictures/` (`@2x` and `@4x`, exact
+multiples, Git LFS):
+- `splash`: the AI version with the original's faint stars blended back (§8 sheet
+  `out/ui-upscale/needs-review/splash-2-star-fix-before-after.png`);
+- the main-menu room `gui/main/top`, `left`, `right`, `bottom`;
+- the intro starfields `log/starfield/a`, `b`, `c` (identical files; only `a` is used).
+
+**Known artefacts kept as they are:**
+- the small red planet on the room's wall viewscreen (`gui/main/top`) gets a maze-like texture;
+- the orange device in `gui/main/left` gets the same texture;
+- the intro starfield's small cross-shaped stars become round dots.
+
+The splash costs a 31 MB texture at UI 4x (8 MB at 2x) for the whole session, since it stays loaded.

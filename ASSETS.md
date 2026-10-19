@@ -35,7 +35,7 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-724 entries are **original**, 112 are **adapted** and 3 are **replaced** (of 839).
+716 entries are **original**, 120 are **adapted** and 3 are **replaced** (of 839).
 - **Replaced (3):** the Human fighter, cruiser and carrier images, 3D remasters rendered into `art/`
   (2026-10-18); their frame tables stay original.
 - **Adapted (63):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
@@ -45,9 +45,9 @@ Notes:
   gateship. Frame tables and 1x overlays are the originals, read from `data/`. All 61 AI-image
   sprites also have a 1x image in `art/`, shrunk from the AI @2x image, so Graphics: Enhanced
   applies at UI 1x.
-- **Adapted (49 more, 2026-10-19):** non-ship graphics upscaled the same way into `art/`
-  (`docs/ui-graphics-upscale.md`): 13 pictures (intro stills, race and briefing pictures; @2x/@4x,
-  Real-ESRGAN) and 36 sprites (asteroids, stations and level objects, 15 planets; AI image,
+- **Adapted (57 more, 2026-10-19):** non-ship graphics upscaled the same way into `art/`
+  (`docs/ui-graphics-upscale.md`): 21 pictures (title splash with its faint stars blended back,
+  main-menu room, intro starfields and stills, race and briefing pictures; @2x/@4x, Real-ESRGAN) and 36 sprites (asteroids, stations and level objects, 15 planets; AI image,
   tolerant-Scale2x overlay). Their 1x files are the originals, read from `data/`.
 
 Both kinds are derived from the originals: the remasters are fitted to and coloured from them, and
@@ -894,10 +894,10 @@ Splash, menu frames, briefing and scroll-text art, star map, credits.
 | `data/pictures/gai/transport.png` | original |
 | `data/pictures/gui/instruments/left.png` | original |
 | `data/pictures/gui/instruments/right.png` | original |
-| `data/pictures/gui/main/bottom.png` | original |
-| `data/pictures/gui/main/left.png` | original |
-| `data/pictures/gui/main/right.png` | original |
-| `data/pictures/gui/main/top.png` | original |
+| `data/pictures/gui/main/bottom.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/gui/main/bottom@2x.png` and `@4x.png`; 1x original |
+| `data/pictures/gui/main/left.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/gui/main/left@2x.png` and `@4x.png`; 1x original |
+| `data/pictures/gui/main/right.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/gui/main/right@2x.png` and `@4x.png`; 1x original |
+| `data/pictures/gui/main/top.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/gui/main/top@2x.png` and `@4x.png`; 1x original |
 | `data/pictures/gui/tablet/bottom.png` | original |
 | `data/pictures/gui/tablet/left.png` | original |
 | `data/pictures/gui/tablet/right.png` | original |
@@ -929,9 +929,9 @@ Splash, menu frames, briefing and scroll-text art, star map, credits.
 | `data/pictures/log/ish-comms.png` | original |
 | `data/pictures/log/ish-encounter.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/log/ish-encounter@2x.png` and `@4x.png`; 1x original |
 | `data/pictures/log/placeholder.png` | original |
-| `data/pictures/log/starfield/a.png` | original |
-| `data/pictures/log/starfield/b.png` | original |
-| `data/pictures/log/starfield/c.png` | original |
+| `data/pictures/log/starfield/a.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/log/starfield/a@2x.png` and `@4x.png`; 1x original |
+| `data/pictures/log/starfield/b.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/log/starfield/b@2x.png` and `@4x.png`; 1x original |
+| `data/pictures/log/starfield/c.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/log/starfield/c@2x.png` and `@4x.png`; 1x original |
 | `data/pictures/obi/escort.png` | original |
 | `data/pictures/obi/race.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3), CC BY-NC-SA, `art/pictures/obi/race@2x.png` and `@4x.png`; 1x original |
 | `data/pictures/obi/transport.png` | original |
@@ -942,7 +942,7 @@ Splash, menu frames, briefing and scroll-text art, star map, credits.
 | `data/pictures/sal/gunship.png` | original |
 | `data/pictures/sal/race.png` | original |
 | `data/pictures/sal/transport.png` | original |
-| `data/pictures/splash.png` | original |
+| `data/pictures/splash.png` | adapted: @2x/@4x upscaled from the original (Real-ESRGAN realesr-animevideov3, faint stars blended back from the original), CC BY-NC-SA, `art/pictures/splash@2x.png` and `@4x.png`; 1x original |
 | `data/pictures/starmap.png` | original |
 | `data/pictures/uns/carrier.png` | original |
 | `data/pictures/uns/cruiser.png` | original |
