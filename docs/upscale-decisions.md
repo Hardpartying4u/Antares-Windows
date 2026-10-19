@@ -4,7 +4,7 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 
 | Sprite | Ship | Image | Overlay | Auto flags (AI) | Agreement orig→chosen | Reason |
 |---|---|---|---|---|---|---|
-| `aud/aslttran` | Audemedon Assault Transport | ai | tolerant | — | 1.00→0.92 | clean, keeps fins |
+| `aud/aslttran` | Audemedon Assault Transport | tolerant | tolerant | — | 1.00→1.00 | changed 2026-10-19: the AI image added dark blue-black streaks along the hull |
 | `aud/carrier` | Carrier | ai | tolerant | — | 1.00→0.96 | clean hull, tanks and fins kept |
 | `aud/cruiser` | Cruiser | ai | tolerant | — | 1.00→0.91 | clean, shape kept |
 | `aud/evat` | Audemedon Extra-vehicular As | original | original | overlay | — | EVA trooper: stays original (decision 2026-10-18); AI turns it into a white blob |
@@ -20,7 +20,7 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `can/engineer` | Engineer Pod | ai | tolerant | overlay | 0.93→0.81 | clean, light kept |
 | `can/evat` | EVA Trooper | original | original | overlay | — | EVA trooper: stays original |
 | ⚠ `can/fighter` | Fighter | ai | tolerant | overlay | 0.49→0.43 | tiny; AI slightly cleaner, little to gain; partial overlay coverage |
-| `can/gateship` | Instead of dying, opens up j | ai | tolerant | — | 0.99→0.94 | excellent: blades and green glow clean (drawn at 4x) |
+| `can/gateship` | Instead of dying, opens up j | tolerant | tolerant | — | 0.99→0.99 | changed 2026-10-19: the AI image turned a small structure on the upper blade into glyph-like squiggles |
 | ⚠ `can/gunship` | Gunship | ai | tolerant | softened | 1.00→0.90 | AI merges the plate pattern into smooth blocks |
 | `can/hvc` | Heavy Cruiser | ai | tolerant | overlay | 1.00→0.90 | clean, smoother |
 | `can/hvd` | Heavy Destroyer | ai | tolerant | — | 0.99→0.92 | clean, keeps fins |
@@ -83,4 +83,4 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `uns/hvd` | Human Heavy Destroyer | ai | tolerant | — | 0.97→0.91 | clean, red lights kept (dimmer) |
 | `uns/transport` | Transport | ai | tolerant | — | 0.98→0.92 | clean, red lights kept |
 
-Totals: 54 image ai / overlay tolerant, 12 image original / overlay original, 9 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 18.
+Totals: 52 image ai / overlay tolerant, 12 image original / overlay original, 11 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 18.

@@ -1,9 +1,9 @@
 {
  "_legend": "image/overlay: ai = Real-ESRGAN realesr-animevideov3 inside the tolerant outline; tolerant = Scale2x within 24 RGB levels; original = no @2x/@4x sheet (game pixel-doubles the 1x); art = the approved 3D remaster already in art/. unsure = needs your call.",
  "aud/aslttran": {
-  "image": "ai",
+  "image": "tolerant",
   "overlay": "tolerant",
-  "note": "clean, keeps fins"
+  "note": "changed 2026-10-19: the AI image added dark blue-black streaks along the hull"
  },
  "aud/carrier": {
   "image": "ai",
@@ -84,9 +84,9 @@
   "note": "tiny; AI slightly cleaner, little to gain; partial overlay coverage"
  },
  "can/gateship": {
-  "image": "ai",
+  "image": "tolerant",
   "overlay": "tolerant",
-  "note": "excellent: blades and green glow clean (drawn at 4x)"
+  "note": "changed 2026-10-19: the AI image turned a small structure on the upper blade into glyph-like squiggles"
  },
  "can/gunship": {
   "image": "ai",

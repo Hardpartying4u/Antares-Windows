@@ -645,8 +645,9 @@ Results:
 
 63 ship sprites have @2x/@4x sheets in `art/`. They were upscaled from the original pixels
 following `docs/upscale-decisions.md`:
-- 54 use a Real-ESRGAN image with a tolerant-Scale2x overlay;
-- 9 use tolerant Scale2x for both.
+- 52 use a Real-ESRGAN image with a tolerant-Scale2x overlay;
+- 11 use tolerant Scale2x for both (the Audemedon assault transport and the Cantharan gateship
+  were switched from the AI image on 2026-10-19, after it showed streaks and squiggles in game).
 
 Of the other sprites, 12 stay original and 3 are the Human 3D remasters. 1x sheets, frame tables and
 pivots come from `data/`. `art/` is 77 MB (61 MB @4x, 18 MB @2x), stored with Git LFS.

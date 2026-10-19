@@ -60,7 +60,7 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/ast/regular/big.pn` | image.png, overlay.png | original |
 | `data/sprites/ast/regular/medium.pn` | image.png, overlay.png | original |
 | `data/sprites/ast/regular/small.pn` | image.png, overlay.png | original |
-| `data/sprites/aud/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/aslttran/`; 1x and frame table original |
+| `data/sprites/aud/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/aslttran/`; 1x and frame table original |
 | `data/sprites/aud/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/carrier/`; 1x and frame table original |
 | `data/sprites/aud/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/aud/cruiser/`; 1x and frame table original |
 | `data/sprites/aud/etc/device.pn` | image.png, overlay.png | original |
@@ -78,7 +78,7 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/can/etc/cantharan.pn` | image.png, overlay.png | original |
 | `data/sprites/can/evat.pn` | image.png, overlay.png | original |
 | `data/sprites/can/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/fighter/`; 1x and frame table original |
-| `data/sprites/can/gateship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/gateship/`; 1x and frame table original |
+| `data/sprites/can/gateship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/gateship/`; 1x and frame table original |
 | `data/sprites/can/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/gunship/`; 1x and frame table original |
 | `data/sprites/can/hvc.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/hvc/`; 1x and frame table original |
 | `data/sprites/can/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/can/hvd/`; 1x and frame table original |
