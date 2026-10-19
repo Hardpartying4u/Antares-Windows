@@ -54,10 +54,10 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `ish/evat` | EVA Trooper | original | original | overlay | — | EVA trooper: stays original |
 | ⚠ `ish/fighter` | Fighter | ai | tolerant | overlay, softened | 1.00→0.88 | tiny; AI slightly softer |
 | `ish/gunship` | Gunship | ai | tolerant | — | 1.00→0.93 | clean, tiers and pods kept |
-| ⚠ `ish/hvc` | Heavy Cruiser | ai | tolerant | overlay | 0.20→0.30 | overlay covers only part of the ship (dithered), so under tint the AI image shows through as cyan streaks |
+| `ish/hvc` | Heavy Cruiser | tolerant | tolerant | overlay | 0.20→0.17 | changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks |
 | `ish/hvd` | Heavy Destroyer | ai | tolerant | — | 0.95→0.92 | clean, lights kept |
 | ⚠ `ish/schooner` | Schooner | ai | tolerant | overlay | 0.64→0.63 | thin spine kept; overlay covers only part of the ship, so under tint the AI image shows through |
-| ⚠ `ish/transport` | Transport | ai | tolerant | overlay | 0.11→0.25 | partial overlay coverage: AI image shows through under tint as streaks |
+| `ish/transport` | Transport | tolerant | tolerant | overlay | 0.11→0.10 | changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks |
 | `loc/flak` | Border Drone | ai | tolerant | overlay | 1.00→0.89 | clean panelled sphere |
 | `obi/escort` | Escort | tolerant | tolerant | overlay | 0.93→0.93 | AI melts the ribbed fan disc (one-pixel ribs), the class's defining feature |
 | ⚠ `obi/etc/liner` | Battlecruiser | ai | tolerant | overlay | 0.99→0.85 | AI keeps the comb of fins but smooths the ribbed hull |
@@ -83,4 +83,4 @@ One row per rotating sprite (78). Image and overlay: **ai** = Real-ESRGAN reales
 | `uns/hvd` | Human Heavy Destroyer | ai | tolerant | — | 0.97→0.91 | clean, red lights kept (dimmer) |
 | `uns/transport` | Transport | ai | tolerant | — | 0.98→0.92 | clean, red lights kept |
 
-Totals: 52 image ai / overlay tolerant, 12 image original / overlay original, 11 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 18.
+Totals: 50 image ai / overlay tolerant, 12 image original / overlay original, 13 image tolerant / overlay tolerant, 3 image art / overlay art. Unsure: 16.

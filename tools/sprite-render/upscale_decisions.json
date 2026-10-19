@@ -260,10 +260,9 @@
   "note": "clean, tiers and pods kept"
  },
  "ish/hvc": {
-  "image": "ai",
+  "image": "tolerant",
   "overlay": "tolerant",
-  "unsure": true,
-  "note": "overlay covers only part of the ship (dithered), so under tint the AI image shows through as cyan streaks"
+  "note": "changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks"
  },
  "ish/hvd": {
   "image": "ai",
@@ -277,10 +276,9 @@
   "unsure": true
  },
  "ish/transport": {
-  "image": "ai",
+  "image": "tolerant",
   "overlay": "tolerant",
-  "unsure": true,
-  "note": "partial overlay coverage: AI image shows through under tint as streaks"
+  "note": "changed 2026-10-19: the overlay covers only part of the ship, so under tint the AI image showed through as cyan streaks"
  },
  "loc/flak": {
   "image": "ai",

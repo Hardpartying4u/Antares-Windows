@@ -645,9 +645,10 @@ Results:
 
 63 ship sprites have @2x/@4x sheets in `art/`. They were upscaled from the original pixels
 following `docs/upscale-decisions.md`:
-- 52 use a Real-ESRGAN image with a tolerant-Scale2x overlay;
-- 11 use tolerant Scale2x for both (the Audemedon assault transport and the Cantharan gateship
-  were switched from the AI image on 2026-10-19, after it showed streaks and squiggles in game).
+- 50 use a Real-ESRGAN image with a tolerant-Scale2x overlay;
+- 13 use tolerant Scale2x for both. Four were switched from the AI image on 2026-10-19 after the
+  in-game check: the Audemedon assault transport and the Cantharan gateship (streaks and
+  squiggles), and the Ishiman heavy cruiser and transport (cyan streaks under a team tint).
 
 Of the other sprites, 12 stay original and 3 are the Human 3D remasters. 1x sheets, frame tables and
 pivots come from `data/`. `art/` is 77 MB (61 MB @4x, 18 MB @2x), stored with Git LFS.
@@ -670,8 +671,9 @@ zoom, with and without `--no-art`):
   with and without `art/`):
   - most tinted ships look like the originals with smoother edges, because the overlay
     (tolerant Scale2x) is what the tint draws;
-  - the Ishiman heavy cruiser and transport show cyan streaks through the tint: their overlays
-    cover only part of the ship, so the AI image shows through (both are marked unsure);
+  - the Ishiman heavy cruiser and transport showed cyan streaks through the tint: their overlays
+    cover only part of the ship, so the AI image showed through. Both now use tolerant Scale2x
+    for the image too; rechecked under a salmon tint at UI 2x, the streaks are gone;
   - the near-black Salrilian heavy destroyer draws untinted with or without `art/`.
 - **How much play is tinted:** players without a `hue:` use gray, which draws `image.png`. None of
   the 23 story levels (`tut1`-`tut3`, `ch01`-`ch20`) or the net levels set a hue; only `dev1`

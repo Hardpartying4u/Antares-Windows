@@ -134,10 +134,10 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/ish/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/fighter/`; 1x and frame table original |
 | `data/sprites/ish/gateship.pn` | image.png, overlay.png | original |
 | `data/sprites/ish/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/gunship/`; 1x and frame table original |
-| `data/sprites/ish/hvc.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/hvc/`; 1x and frame table original |
+| `data/sprites/ish/hvc.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/hvc/`; 1x and frame table original |
 | `data/sprites/ish/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/hvd/`; 1x and frame table original |
 | `data/sprites/ish/schooner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/schooner/`; 1x and frame table original |
-| `data/sprites/ish/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/transport/`; 1x and frame table original |
+| `data/sprites/ish/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image and overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/ish/transport/`; 1x and frame table original |
 | `data/sprites/loc/bunker.pn` | image.png, overlay.png | original |
 | `data/sprites/loc/flak.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/loc/flak/`; 1x and frame table original |
 | `data/sprites/loc/habitat.pn` | image.png, overlay.png | original |
