@@ -202,3 +202,22 @@ Checks: every file exactly 2x/4x its 1x original; sprite alpha levels a subset o
 (binary, except the sun's 14-level glow); `.pn` files and `data/` unchanged. `ASSETS.md` lists
 each as adapted. The loader fixes are in commit `49e96765`. The review group (splash, menu room,
 starfield) is not installed; `out/ui-upscale/needs-review/` holds its sheets.
+
+### Checks after installing (2026-10-19)
+
+- **Gaitori race picture** in the ch01 prologue at UI 2x: drawn at its 1x layout size (400x384
+  screen pixels) from `art/pictures/gai/race@2x.png` (the capture matches the `@2x` file, mean
+  difference 9.4, against 15.6 for the pixel-doubled original).
+- **Graphics: Original** on the splash and the main menu at UI 2x: pixel-identical to the build
+  from before these changes (`699e25e5`, run with `--no-art`), 0 of 7 million pixels differ.
+- **Cost at UI 4x** (`ch15`, 5120x1920 window, private memory):
+  - main menu: 299 MB Enhanced, 296 MB Original (no hi-res picture is loaded at start-up with
+    this set);
+  - after loading the level: 441 MB Enhanced, 330 MB Original (+111 MB, all hi-res ship and
+    object sheets);
+  - Begin to the briefing screen: 0.88 s Enhanced, 0.86 s Original.
+  - Start-up time was not measured reliably (the first-frame detector gave 5.5 s against 0.5 s,
+    while memory at the menu was the same and nothing hi-res loads at start-up); to re-measure.
+- **Splash faint stars** (review group, not installed): blending each star of the original's dark
+  sky back into the AI version as a soft dot (never darkening) restores most of them (63% kept at
+  `@4x` before, 86% after) and leaves ships, planets and the logo untouched.
