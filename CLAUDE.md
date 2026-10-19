@@ -1,9 +1,9 @@
 # Star Bound (Antares on Windows)
 
 ## Every session
-1. **Before any work, read** `antares/docs/design.md` (project goals, principles, milestones,
-   open questions) and `antares/docs/current-state.md` (how the game works today, with code
-   locations).
+1. **Before any work, read** `docs/design.md` (project goals, principles, milestones,
+   open questions) and `docs/current-state.md` (how the game works today, with code
+   locations). Paths here are relative to this repo's root.
 2. **Keep them current.** When a decision is made, record it in `docs/design.md` (and resolve
    the matching open question). When a change alters controls, UI, ship/order behaviour or
    graphics, update `docs/current-state.md`. Commit doc updates with the change they describe.
@@ -12,7 +12,7 @@
 # Build & run notes
 
 Antares (https://github.com/arescentral/antares) is cloned at `<repo>`
-with all submodules. Work is on branch `windows-working-build`, pushed to the user's **private**
+(this repo; this file lives at its root) with all submodules. Work is on branch `windows-working-build`, pushed to the user's **private**
 repo https://github.com/Hardpartying4u/Antares-Windows (remote `starbound`; `origin` is still
 upstream Antares — never push there). Push only when the user asks; Git Credential Manager
 handles sign-in. Commit
@@ -53,7 +53,8 @@ python scripts/test.py --type=replay
 
 ## Package & run
 - `python scripts/dist.py win zip` → `dist\antares-win-git.zip`; expand it into `dist\` to get
-  `dist\Antares\{Antares.exe, data\}` — a standalone, double-clickable folder.
+  `dist\Antares\{Antares.exe, data\, art\, COPYING, COPYING.LESSER, ASSETS.md, CREDITS.md}` — a
+  standalone, double-clickable folder (~89 MB; zip ~82 MB). Graphics defaults to Enhanced (`art\`).
   CRT is static; only Windows system DLLs are used (XAudio2, OpenGL loaded at runtime).
 - Running the raw build output needs the data path: `out\win\opt\antares.exe -a <repo>\data`.
 - Use `-c <path>\config.pn` when testing so the user's real config isn't touched.
