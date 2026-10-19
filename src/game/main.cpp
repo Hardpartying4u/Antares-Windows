@@ -105,6 +105,7 @@ class GamePlay : public Card {
     virtual void mouse_down(const MouseDownEvent& event);
     virtual void mouse_up(const MouseUpEvent& event);
     virtual void mouse_move(const MouseMoveEvent& event);
+    virtual void mouse_wheel(const MouseWheelEvent& event);
 
     virtual void gamepad_button_down(const GamepadButtonDownEvent& event);
     virtual void gamepad_button_up(const GamepadButtonUpEvent& event);
@@ -630,6 +631,10 @@ void GamePlay::mouse_down(const MouseDownEvent& event) { _input_source->mouse_do
 void GamePlay::mouse_up(const MouseUpEvent& event) { _input_source->mouse_up(event); }
 
 void GamePlay::mouse_move(const MouseMoveEvent& event) { _input_source->mouse_move(event); }
+
+// The wheel zooms. It goes through the input source like the zoom keys, so it reaches the game at a
+// major tick (g.zoom is game state: level conditions test it).
+void GamePlay::mouse_wheel(const MouseWheelEvent& event) { _input_source->mouse_wheel(event); }
 
 void GamePlay::gamepad_button_down(const GamepadButtonDownEvent& event) {
     switch (event.button) {

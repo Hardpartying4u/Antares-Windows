@@ -179,6 +179,22 @@ class MouseMoveEvent : public MouseEvent {
     virtual void send(EventReceiver* receiver) const;
 };
 
+// Generated when the mouse wheel turns.
+//
+// This event has two fields:
+//  * steps(): whole notches turned; positive is away from the player (up), negative is toward.
+//  * where(): the location of the mouse pointer.
+class MouseWheelEvent : public MouseEvent {
+  public:
+    MouseWheelEvent(wall_time at, int steps, const Point& where)
+            : MouseEvent(at, where), _steps(steps) {}
+    int          steps() const { return _steps; }
+    virtual void send(EventReceiver* receiver) const;
+
+  private:
+    int _steps;
+};
+
 class EventReceiver {
   public:
     EventReceiver() {}
@@ -194,6 +210,7 @@ class EventReceiver {
     virtual void mouse_down(const MouseDownEvent& event);
     virtual void mouse_up(const MouseUpEvent& event);
     virtual void mouse_move(const MouseMoveEvent& event);
+    virtual void mouse_wheel(const MouseWheelEvent& event);
 };
 
 }  // namespace antares

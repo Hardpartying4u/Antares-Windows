@@ -48,6 +48,8 @@ void MouseUpEvent::send(EventReceiver* receiver) const { receiver->mouse_up(*thi
 
 void MouseMoveEvent::send(EventReceiver* receiver) const { receiver->mouse_move(*this); }
 
+void MouseWheelEvent::send(EventReceiver* receiver) const { receiver->mouse_wheel(*this); }
+
 EventReceiver::~EventReceiver() {}
 
 void EventReceiver::key_down(const KeyDownEvent& event) {}
@@ -58,5 +60,6 @@ void EventReceiver::gamepad_stick(const GamepadStickEvent& event) {}
 void EventReceiver::mouse_down(const MouseDownEvent& event) {}
 void EventReceiver::mouse_up(const MouseUpEvent& event) {}
 void EventReceiver::mouse_move(const MouseMoveEvent& event) {}
+void EventReceiver::mouse_wheel(const MouseWheelEvent& event) {}
 
 }  // namespace antares

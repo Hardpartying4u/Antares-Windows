@@ -55,6 +55,7 @@ class RealInputSource : public InputSource {
     virtual void mouse_down(const MouseDownEvent& event);
     virtual void mouse_up(const MouseUpEvent& event);
     virtual void mouse_move(const MouseMoveEvent& event);
+    virtual void mouse_wheel(const MouseWheelEvent& event);
 
   private:
     static game_ticks at();

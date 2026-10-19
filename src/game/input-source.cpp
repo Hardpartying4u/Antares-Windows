@@ -93,6 +93,12 @@ void RealInputSource::mouse_move(const MouseMoveEvent& event) {
             std::unique_ptr<Event>(new MouseMoveEvent(event.at(), event.where())));
 }
 
+void RealInputSource::mouse_wheel(const MouseWheelEvent& event) {
+    _events.emplace(
+            make_pair(g.admiral.number(), at()),
+            std::unique_ptr<Event>(new MouseWheelEvent(event.at(), event.steps(), event.where())));
+}
+
 game_ticks RealInputSource::at() {
     game_ticks result = g.time + ticks(1);
     while ((result.time_since_epoch() % kMajorTick).count()) {

@@ -171,20 +171,34 @@ static void zoom_shortcut(Zoom zoom) {
     }
 }
 
-static void zoom_in() {
+Zoom wheel_zoom(Zoom current, bool in) {
+    if (current > Zoom::SIXTEENTH) {
+        return in ? Zoom::SIXTEENTH : current;
+    } else if (in) {
+        return (current > Zoom::DOUBLE) ? static_cast<Zoom>(static_cast<int>(current) - 1) : current;
+    }
+    return (current < Zoom::SIXTEENTH) ? static_cast<Zoom>(static_cast<int>(current) + 1) : current;
+}
+
+// `wheel`: the step came from the mouse wheel (see wheel_zoom()), not a zoom key.
+static void zoom_in(bool wheel) {
     if (g.key_mask & kZoomInKey) {
         return;
     }
-    if (g.zoom > Zoom::DOUBLE) {
+    if (wheel) {
+        zoom_to(wheel_zoom(g.zoom, true));
+    } else if (g.zoom > Zoom::DOUBLE) {
         zoom_to(static_cast<Zoom>(static_cast<int>(g.zoom) - 1));
     }
 }
 
-static void zoom_out() {
+static void zoom_out(bool wheel) {
     if (g.key_mask & kZoomOutKey) {
         return;
     }
-    if (g.zoom < Zoom::ALL) {
+    if (wheel) {
+        zoom_to(wheel_zoom(g.zoom, false));
+    } else if (g.zoom < Zoom::ALL) {
         zoom_to(static_cast<Zoom>(static_cast<int>(g.zoom) + 1));
     }
 }
@@ -516,6 +530,19 @@ void PlayerShip::mouse_up(const MouseUpEvent& event) {
 
 void PlayerShip::mouse_move(const MouseMoveEvent& event) { _cursor.mouse_move(event); }
 
+// Each notch becomes a zoom step (data 1 marks it as the wheel's). It counts as a zoom control, not
+// a mouse click: the zoom-in and zoom-out masks levels set for the keys (tutorial 1 enables them
+// while the mouse is still off) apply when the step runs.
+void PlayerShip::mouse_wheel(const MouseWheelEvent& event) {
+    if (!active()) {
+        return;
+    }
+    const PlayerEventType type = (event.steps() > 0) ? PlayerEventType::ZOOM_IN : PlayerEventType::ZOOM_OUT;
+    for (int i = 0; i < std::abs(event.steps()); ++i) {
+        _player_events.push_back(PlayerEvent{type, 1});
+    }
+}
+
 void PlayerShip::gamepad_button_down(const GamepadButtonDownEvent& event) {
     switch (event.button) {
         case Gamepad::Button::LB:
@@ -588,8 +615,8 @@ void PlayerShip::gamepad_button_down(const GamepadButtonDownEvent& event) {
     switch (event.button) {
         case Gamepad::Button::A: _gamepad_keys |= kUpKey; break;
         case Gamepad::Button::B: _gamepad_keys |= kDownKey; break;
-        case Gamepad::Button::X: zoom_out(); break;
-        case Gamepad::Button::Y: zoom_in(); break;
+        case Gamepad::Button::X: zoom_out(false); break;
+        case Gamepad::Button::Y: zoom_in(false); break;
         case Gamepad::Button::BACK: Messages::advance(); break;
         case Gamepad::Button::LT: _gamepad_keys |= kSpecialKey; break;
         case Gamepad::Button::RT: _gamepad_keys |= (kPulseKey | kBeamKey); break;
@@ -820,8 +847,8 @@ void PlayerShip::update() {
             case PlayerEventType::FIRE_S_OFF: gTheseKeys &= ~(kSpecialKey & ~g.key_mask); break;
             case PlayerEventType::WARP_OFF: gTheseKeys &= ~(kWarpKey & ~g.key_mask); break;
 
-            case PlayerEventType::ZOOM_OUT: zoom_out(); break;
-            case PlayerEventType::ZOOM_IN: zoom_in(); break;
+            case PlayerEventType::ZOOM_OUT: zoom_out(e.data == 1); break;
+            case PlayerEventType::ZOOM_IN: zoom_in(e.data == 1); break;
             case PlayerEventType::ZOOM_1X: zoom_shortcut(Zoom::ACTUAL); break;
             case PlayerEventType::ZOOM_2X: zoom_shortcut(Zoom::HALF); break;
             case PlayerEventType::ZOOM_4X: zoom_shortcut(Zoom::QUARTER); break;

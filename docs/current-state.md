@@ -63,7 +63,7 @@ GLFW (src/glfw/video-driver.cpp)
 | Select base | Keypad / | Select your next base as control object. With Target held: target any base (friend or foe) |
 | Target | Shift | A modifier: makes select keys, hotkeys, Warp and mouse clicks act on the **target** instead of the control object. Tapped and held ≥ 0.75 s alone, then released: **targets your own ship** |
 | Order to go | Control | Orders the **control** object to go to the current **target** (`kGiveCommandKey` → `PlayerShipGiveCommand`) |
-| Scale in / out | Keypad + / Keypad − | Step zoom in / out one level |
+| Scale in / out | Keypad + / Keypad − | Step zoom in / out one level (the mouse wheel does too, see §1.3) |
 | Computer previous / next | Up / Down arrow | Move the minicomputer's line cursor |
 | Computer accept | Right arrow | Activate the highlighted minicomputer line |
 | Computer cancel | Left arrow | Back out to the minicomputer main menu |
@@ -124,7 +124,18 @@ GLFW (src/glfw/video-driver.cpp)
 | Click | menus | Press buttons, checkboxes, tabs (`src/ui/screen.cpp`, `src/ui/widget.cpp`) |
 | Any click / key | intros, fades, scroll text | Skip |
 
-Double-click window is 30 ticks (0.5 s, `kDoubleClickInterval`). There is no scroll-wheel handling.
+Double-click window is 30 ticks (0.5 s, `kDoubleClickInterval`).
+
+**Mouse wheel (2026-10-20):** zooms in a mission. Up steps toward 2:1, down toward 1:16 and stops
+there (unlike the zoom keys it doesn't step into the automatic zooms); from an automatic zoom (nearest
+foe or object, all), up goes to 1:16. The GLFW driver turns scrolling into whole notches
+(`GLFWVideoDriver::scroll`; touchpad fractions add up), sends a `MouseWheelEvent`, and `GamePlay`
+queues it in the input source like a key, so it reaches `PlayerShip` at a major tick and becomes the
+same `ZOOM_IN`/`ZOOM_OUT` player event as the zoom keys (marked as the wheel's) — deterministic, and
+`ZoomCondition`s fire as for the keys. Levels' zoom-in/zoom-out masks apply to it; the mouse mask
+doesn't (tutorial 1 enables zooming while the mouse is still off). Replays don't record or react to
+it; no action numbers changed. The rule is `wheel_zoom()` (`player-ship.cpp`), tested by
+`controls-test`. Menus ignore the wheel.
 The OS cursor is hidden; the game draws its own (`GLFW_CURSOR_HIDDEN`). All mouse positions are
 in logical pixels: the driver converts window coordinates through the UI scale and border
 (`GLFWVideoDriver::to_screen`), so clicks stay exact at every scale.

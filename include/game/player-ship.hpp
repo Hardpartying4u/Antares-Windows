@@ -23,6 +23,7 @@
 
 #include "config/keys.hpp"
 #include "data/base-object.hpp"
+#include "data/enums.hpp"
 #include "game/cursor.hpp"
 #include "ui/editable-text.hpp"
 #include "ui/event.hpp"
@@ -85,6 +86,11 @@ enum class PlayerEventType {
     HOTKEY_TARGET = 0x053,
 };
 
+// The zoom one wheel notch moves to: in (away from the player) steps toward 2:1, out steps toward
+// 1:16 and stops there; from an automatic zoom (nearest foe or object, all) a notch in goes to 1:16.
+// Unlike the zoom keys, the wheel doesn't step into the automatic zooms.
+Zoom wheel_zoom(Zoom current, bool in);
+
 struct PlayerEvent {
     PlayerEventType type;
     int             data;
@@ -110,6 +116,7 @@ class PlayerShip : public EventReceiver {
     virtual void mouse_down(const MouseDownEvent& event);
     virtual void mouse_up(const MouseUpEvent& event);
     virtual void mouse_move(const MouseMoveEvent& event);
+    virtual void mouse_wheel(const MouseWheelEvent& event);
 
     virtual void gamepad_button_down(const GamepadButtonDownEvent& event);
     virtual void gamepad_button_up(const GamepadButtonUpEvent& event);

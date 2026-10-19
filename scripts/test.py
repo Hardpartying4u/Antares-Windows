@@ -25,6 +25,7 @@ EXCEPT = "EXCEPT"
 WINE_TESTS = [
     "art-test",
     "color-test",
+    "controls-test",
     "prefs-test",
     "editable-text-test",
     "fixed-test",
@@ -157,6 +158,7 @@ def main():
     tests = [
         (unit_test, opts, queue, "art-test"),
         (unit_test, opts, queue, "prefs-test"),
+        (unit_test, opts, queue, "controls-test"),
         (unit_test, opts, queue, "color-test"),
         (unit_test, opts, queue, "editable-text-test"),
         (unit_test, opts, queue, "fixed-test"),
