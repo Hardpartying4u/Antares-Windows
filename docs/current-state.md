@@ -160,6 +160,17 @@ the Play Again menu. **LB** (target bumper) / **RB** (select bumper) turn A/B/X/
 select/target/order/autopilot/transfer commands aimed with the left stick.
 Labels: `data/strings/gamepad/*.pn`.
 
+**Slow start-up on some PCs (finding, 2026-10-20).**
+- GLFW 3.3.2 enumerates DirectInput game controllers inside `glfwInit` (`_glfwInitJoysticksWin32`),
+  before Antares creates its window. That has always been so; it isn't part of the stage 3 polling.
+- DirectInput asks every HID device for its name. On the developer's PC a SteelSeries Apex 5
+  keyboard (USB 1038:1650) takes 5 s to answer each of four interfaces, so the window appears only
+  after about 30 s.
+- Measured 2026-10-20, fullscreen, 3 launches each: 30.5–30.7 s to the window both with the build
+  from `d3515022` (before the gamepad polling) and with `d27574a2` (with it).
+- A plain DirectInput enumeration outside the game took 30.2 s and found no controllers.
+- This depends on the device and its software, not on Antares code, so it was left alone.
+
 ---
 
 ## 2. Player ship, selection and fleet orders
