@@ -234,3 +234,19 @@ can follow later.
 
 **Correction for `docs/current-state.md` §1.4 (not changed here):** the gamepad mapping is
 real but only the macOS driver reads gamepads; on Windows no gamepad input arrives.
+
+## 7. Outcome of stages 1–3 (2026-10-20)
+
+Each stage is its own commit with unit tests; a clean rebuild passes all 26 tests (16 replays
+unchanged: no action numbers moved).
+
+| Stage | Commit | What changed | Tested |
+|---|---|---|---|
+| 1 | `4d591f5e` | Select friendly, Select hostile and Zoom to nearest hostile default to Keypad `.`, Keypad `*` and End. A saved config still holding one of Ares' dead defaults (Keypad Clear, Keypad =, Help) is moved to the new key on load unless another action uses it; other bindings are kept. F2 lowers the volume (it did nothing); F3 stops at the maximum. Key Controls has a **Reset to Defaults** button (Cancel undoes it). | `prefs-test` (defaults reachable and distinct, the move, an old config file). In game at UI 2×, starting from an old-format config with the three dead defaults and Fire 1 on Q: the saved config had the new keys and Q kept; F2 twice took the volume 7 → 5; Keypad `*` targeted the hostile, Keypad `.` selected a friendly, End switched to the nearest-hostile zoom; Reset to Defaults put Fire 1 back to Option. |
+| 2 | `d7ddff19` | The GLFW driver reads the scroll wheel (fractions add up to notches) and sends a `MouseWheelEvent`; `GamePlay` queues it in the input source like a key, so it reaches `PlayerShip` at a major tick as the same `ZOOM_IN`/`ZOOM_OUT` player event. Up steps toward 2:1, down to 1:16 and stops; from an automatic zoom, up goes to 1:16. Levels' zoom masks apply to it; the mouse mask doesn't (tutorial 1 enables zooming while the mouse is off). | `controls-test` (step rule). In game, 5120-wide window, UI 1×, 2×, 3×, 4×: 4 notches up reach 2:1, 6 down return to 1:16. A level `zoom` condition fired on the wheel (the probe level's 2:1 condition reset the zoom to 1:4). With zoom-in disabled by the level, the wheel did nothing. Replays neither record nor react to it. |
+| 3 | `3cb6bd5c` | The GLFW driver polls the first standard-mapping gamepad once a frame; `GamepadPoller` sends the gamepad events the game already handles (buttons, LT/RT with hysteresis, left stick as 32 directions with a dead zone, only on change; a disconnect releases everything). Gamepad input switches on-screen labels to gamepad names. | `controls-test`: button mapping, triggers, dead zone and steps, disconnect, and each stick direction steering the flagship that way through the game's rotation table (it caught a mirrored x before it reached the game). **No real controller was connected, so it hasn't been tried with one.** |
+
+`docs/current-state.md` §1.2–1.4 describe the new behaviour; §1.4 now says the gamepad was read only
+on macOS until stage 3.
+
+Stages 4–8 are untouched.
