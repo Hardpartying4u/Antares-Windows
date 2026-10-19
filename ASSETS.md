@@ -35,10 +35,10 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-142 entries are **original**, 51 are **adapted** and 3 are **replaced** (of 196).
+135 entries are **original**, 58 are **adapted** and 3 are **replaced** (of 196).
 - **Replaced (3):** the Human fighter, cruiser and carrier images, 3D remasters rendered into `art/`
   (2026-10-18); their frame tables stay original.
-- **Adapted (51):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
+- **Adapted (58):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
   `art/` (2026-10-19, `docs/upscale-decisions.md`): Real-ESRGAN for the image where it looked
   better, tolerant Scale2x otherwise and for every overlay. Their 1x sheets and frame tables are the
   originals, read from `data/`.
@@ -189,16 +189,16 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/obi/etc/obiard/turning.pn` | image.png, overlay.png | original |
 | `data/sprites/obi/etc/obiard/waving.pn` | image.png, overlay.png | original |
 | `data/sprites/obi/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/transport/`; 1x and frame table original |
-| `data/sprites/sal/aslttran.pn` | image.png, overlay.png | original |
-| `data/sprites/sal/carrier.pn` | image.png, overlay.png | original |
-| `data/sprites/sal/cruiser.pn` | image.png, overlay.png | original |
+| `data/sprites/sal/aslttran.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/aslttran/`; 1x and frame table original |
+| `data/sprites/sal/carrier.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/carrier/`; 1x and frame table original |
+| `data/sprites/sal/cruiser.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/cruiser/`; 1x and frame table original |
 | `data/sprites/sal/etc/battlestation.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/etc/lab.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/evat.pn` | image.png, overlay.png | original |
-| `data/sprites/sal/fighter.pn` | image.png, overlay.png | original |
-| `data/sprites/sal/gunship.pn` | image.png, overlay.png | original |
-| `data/sprites/sal/hvd.pn` | image.png, overlay.png | original |
-| `data/sprites/sal/transport.pn` | image.png, overlay.png | original |
+| `data/sprites/sal/fighter.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/fighter/`; 1x and frame table original |
+| `data/sprites/sal/gunship.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/gunship/`; 1x and frame table original |
+| `data/sprites/sal/hvd.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/hvd/`; 1x and frame table original |
+| `data/sprites/sal/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/sal/transport/`; 1x and frame table original |
 | `data/sprites/sfx/crew.pn` | image.png, overlay.png | original |
 | `data/sprites/sfx/debris.pn` | image.png, overlay.png | original |
 | `data/sprites/sfx/energy.pn` | image.png, overlay.png | original |
