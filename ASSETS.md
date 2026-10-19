@@ -35,10 +35,10 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-145 entries are **original**, 48 are **adapted** and 3 are **replaced** (of 196).
+142 entries are **original**, 51 are **adapted** and 3 are **replaced** (of 196).
 - **Replaced (3):** the Human fighter, cruiser and carrier images, 3D remasters rendered into `art/`
   (2026-10-18); their frame tables stay original.
-- **Adapted (48):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
+- **Adapted (51):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
   `art/` (2026-10-19, `docs/upscale-decisions.md`): Real-ESRGAN for the image where it looked
   better, tolerant Scale2x otherwise and for every overlay. Their 1x sheets and frame tables are the
   originals, read from `data/`.
@@ -184,11 +184,11 @@ Each entry is a frame table (`.pn`) plus its `image.png` and `overlay.png` (the 
 | `data/sprites/loc/relay.pn` | image.png, overlay.png | original |
 | `data/sprites/loc/shipyard.pn` | image.png, overlay.png | original |
 | `data/sprites/loc/sun.pn` | image.png, overlay.png | original |
-| `data/sprites/obi/escort.pn` | image.png, overlay.png | original |
-| `data/sprites/obi/etc/liner.pn` | image.png, overlay.png | original |
+| `data/sprites/obi/escort.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/escort/`; 1x and frame table original |
+| `data/sprites/obi/etc/liner.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image AI (Real-ESRGAN realesr-animevideov3), overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/etc/liner/`; 1x and frame table original |
 | `data/sprites/obi/etc/obiard/turning.pn` | image.png, overlay.png | original |
 | `data/sprites/obi/etc/obiard/waving.pn` | image.png, overlay.png | original |
-| `data/sprites/obi/transport.pn` | image.png, overlay.png | original |
+| `data/sprites/obi/transport.pn` | image.png, overlay.png | adapted: @2x/@4x upscaled from the original (image tolerant Scale2x, overlay tolerant Scale2x), CC BY-NC-SA, `art/sprites/obi/transport/`; 1x and frame table original |
 | `data/sprites/sal/aslttran.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/carrier.pn` | image.png, overlay.png | original |
 | `data/sprites/sal/cruiser.pn` | image.png, overlay.png | original |
