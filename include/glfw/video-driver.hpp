@@ -25,6 +25,7 @@
 #include "config/keys.hpp"
 #include "drawing/color.hpp"
 #include "math/geometry.hpp"
+#include "ui/gamepad-poller.hpp"
 #include "video/opengl-driver.hpp"
 
 struct GLFWwindow;
@@ -63,6 +64,7 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
     void        edit(int key, int action, int mods);
     void        mouse_button(int button, int action, int mods);
     void        mouse_move(double x, double y);
+    void        poll_gamepad();
     void        scroll(double x, double y);
     void        window_size(int width, int height);
     void        window_maximize(bool maximized);
@@ -77,7 +79,9 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
     static void window_size_callback(GLFWwindow* w, int width, int height);
     static void window_maximize_callback(GLFWwindow* w, int maximized);
 
-    bool   _fullscreen;
+    bool          _fullscreen;
+    GamepadPoller _gamepad;
+    InputMode     _input_mode = KEYBOARD_MOUSE;  // last kind of input used; picks on-screen labels
     double _scroll = 0;  // wheel movement not yet sent as a whole notch (touchpads scroll in fractions)
 
     // The window is _window_size in GLFW screen coordinates and _framebuffer_size in pixels.

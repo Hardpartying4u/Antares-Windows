@@ -257,7 +257,7 @@ void GLFWVideoDriver::update_layout() {
                         (_framebuffer_size.height - _viewport_size.height) / 2};
 }
 
-InputMode GLFWVideoDriver::input_mode() const { return KEYBOARD_MOUSE; }
+InputMode GLFWVideoDriver::input_mode() const { return _input_mode; }
 
 bool GLFWVideoDriver::start_editing(TextReceiver* text) {
     _text = text;
@@ -277,6 +277,7 @@ void* GLFWVideoDriver::get_proc_address(const char* proc_name) const {
 }
 
 void GLFWVideoDriver::key(int key, int scancode, int action, int mods) {
+    _input_mode = KEYBOARD_MOUSE;
 #if GLFW_VERSION_MINOR >= 2
     if ((key == GLFW_KEY_ENTER) && (mods == GLFW_MOD_ALT) && (action == GLFW_PRESS)) {
         window_maximize(!_fullscreen);
@@ -433,6 +434,7 @@ void GLFWVideoDriver::edit(int key, int action, int mods) {
 }
 
 void GLFWVideoDriver::mouse_button(int button, int action, int mods) {
+    _input_mode = KEYBOARD_MOUSE;
     if (action == GLFW_PRESS) {
         if (now() <= (_last_click_usecs + kDoubleClickInterval)) {
             _last_click_count += 1;
@@ -449,7 +451,33 @@ void GLFWVideoDriver::mouse_button(int button, int action, int mods) {
 }
 
 void GLFWVideoDriver::mouse_move(double x, double y) {
+    _input_mode = KEYBOARD_MOUSE;
     MouseMoveEvent(now(), to_screen(x, y)).send(_loop->top());
+}
+
+// Reads the first connected gamepad with a standard mapping (XInput pads and others GLFW knows)
+// and sends the changes as the gamepad events the game handles (see GamepadPoller). Called once a
+// frame from loop().
+void GLFWVideoDriver::poll_gamepad() {
+    GamepadPoller::State state;
+    bool                 connected = false;
+    for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid) {
+        GLFWgamepadstate gs;
+        if (glfwJoystickIsGamepad(jid) && glfwGetGamepadState(jid, &gs)) {
+            for (int i = 0; i < GamepadPoller::kButtons; ++i) {
+                state.buttons[i] = (gs.buttons[i] == GLFW_PRESS);
+            }
+            for (int i = 0; i < GamepadPoller::kAxes; ++i) {
+                state.axes[i] = gs.axes[i];
+            }
+            connected = true;
+            break;
+        }
+    }
+    for (const auto& event : _gamepad.update(state, connected, now())) {
+        _input_mode = GAMEPAD;
+        event->send(_loop->top());
+    }
 }
 
 void GLFWVideoDriver::scroll(double x, double y) {
@@ -613,6 +641,7 @@ void GLFWVideoDriver::loop(Card* initial) {
     while (!main_loop.done() && !glfwWindowShouldClose(_window)) {
         glfwPollEvents();
         update_layout();  // picks up UI scale changes made in the options screen
+        poll_gamepad();
         refresh_scaled_textures();  // and reloads start-up textures for a new scale or Graphics
         _loop->draw();
         glfwSwapBuffers(_window);

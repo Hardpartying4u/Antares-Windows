@@ -142,6 +142,17 @@ in logical pixels: the driver converts window coordinates through the UI scale a
 
 ### 1.4 Gamepad (summary)
 
+**Platforms.** Until 2026-10-20 only the macOS driver read a gamepad (`src/mac/video-driver.cpp`,
+Joy-Con); on Windows no gamepad input arrived. The GLFW driver now polls the first connected
+gamepad with a standard mapping (XInput pads and others GLFW knows) once a frame
+(`GLFWVideoDriver::poll_gamepad`) and `GamepadPoller` (`src/ui/gamepad-poller.cpp`) sends the same
+gamepad events: buttons as they change; triggers as LT/RT (pressed above 75 %, released below 40 %);
+the left stick as one of 32 directions or centred (dead zone 0.6 out, 0.45 back), only on change,
+as the vector `PlayerShip::gamepad_stick` expects (it adds 180°). A disconnect releases everything
+held. Gamepad input switches on-screen labels to gamepad names; a key or click switches back.
+`controls-test` covers the mapping and checks that each stick direction steers the flagship that
+way. Not yet tried with a real controller (none was connected when it was written).
+
 Handled in `PlayerShip::gamepad_*` (`player-ship.cpp` ~519–692) and `GamePlay::gamepad_button_down`.
 Left stick steers (turns toward stick direction); A thrust, B brake, RT fire 1+2, LT special,
 LSB warp toggle, X/Y zoom out/in, Back next message, D-pad drives the minicomputer, Start opens
