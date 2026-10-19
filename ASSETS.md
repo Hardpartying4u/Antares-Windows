@@ -35,7 +35,7 @@ Notes:
 | Other original data | 4 |
 | **Total** | **839** |
 
-130 entries are **original**, 63 are **adapted** and 3 are **replaced** (of 196).
+773 entries are **original**, 63 are **adapted** and 3 are **replaced** (of 839).
 - **Replaced (3):** the Human fighter, cruiser and carrier images, 3D remasters rendered into `art/`
   (2026-10-18); their frame tables stay original.
 - **Adapted (63):** ship sprites whose @2x/@4x sheets were upscaled from the original pixels into
