@@ -19,6 +19,7 @@
 #include "config/dirs.hpp"
 
 #include <sfz/sfz.hpp>
+#include <stdexcept>
 
 #include "config/preferences.hpp"
 #include "game/sys.hpp"
@@ -71,6 +72,20 @@ pn::string_view art_path() {
 void set_art_path(pn::string_view path, bool forced) {
     art        = path.copy();
     art_forced = forced;
+}
+
+void configure_art(pn::string_view art_option, bool no_art) {
+    set_art_path("");
+    if (no_art) {
+        return;
+    }
+    const bool forced = !art_option.empty();
+    pn::string dir    = forced ? art_option.copy() : default_art_path();
+    if (sfz::path::isdir(dir)) {
+        set_art_path(dir, forced);
+    } else if (forced) {
+        throw std::runtime_error(pn::format("{0}: art folder not found", dir).c_str());
+    }
 }
 
 }  // namespace antares

@@ -66,6 +66,10 @@ class Resource {
     Resource() = delete;
 };
 
+// Where a resource file would be read from, in search order: "plugin", "scenario" (factory
+// scenario folder), "art", "data", or "" if it isn't found.
+pn::string_view resource_source(pn::string_view resource_path);
+
 }  // namespace antares
 
 #endif  // ANTARES_DATA_RESOURCE_HPP_

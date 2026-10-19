@@ -24,6 +24,7 @@ group("default") {
   deps = [
     ":antares",
     ":antares-download-sounds",
+    ":art-test",
     ":build-pix",
     ":color-test",
     ":editable-text-test",
@@ -537,6 +538,17 @@ source_set("libantares-test") {
       "src/video/offscreen-driver.cpp",
     ]
   }
+}
+
+executable("art-test") {
+  testonly = true
+  output_extension = exe
+  sources = [ "src/config/art.test.cpp" ]
+  deps = [
+    ":libantares-test",
+    "//ext/gmock:gmock_main",
+  ]
+  configs += [ ":antares_private" ]
 }
 
 executable("color-test") {

@@ -165,14 +165,7 @@ void main(int argc, char* const* argv) {
                 "Application data not found."
                 " Please keep Antares next to the data folder.");
     }
-    if (!no_art) {
-        pn::string dir = art.has_value() ? art->copy() : default_art_path();
-        if (sfz::path::isdir(dir)) {
-            set_art_path(dir, art.has_value());
-        } else if (art.has_value()) {
-            throw std::runtime_error(pn::format("{0}: art folder not found", dir).c_str());
-        }
-    }
+    configure_art(art.has_value() ? *art : pn::string_view{}, no_art);
 
     extract_data();
 

@@ -211,11 +211,7 @@ static bool resource_exists_in_zip(const zipxx::ZipArchive& zip, pn::string_view
 }
 
 static bool resource_exists(pn::string_view resource_path) {
-    return (plug.dir.has_value() && resource_exists_in_dir(*plug.dir, resource_path)) ||
-           (plug.zip && resource_exists_in_zip(*plug.zip, resource_path)) ||
-           resource_exists_in_dir(factory_scenario_path(), resource_path) ||
-           (!art_path().empty() && resource_exists_in_dir(art_path(), resource_path)) ||
-           resource_exists_in_dir(application_path(), resource_path);
+    return !resource_source(resource_path).empty();
 }
 
 static bool startswith(pn::string_view s, pn::string_view prefix) {
@@ -227,6 +223,20 @@ static bool endswith(pn::string_view s, pn::string_view suffix) {
 }
 
 }  // namespace
+
+pn::string_view resource_source(pn::string_view resource_path) {
+    if ((plug.dir.has_value() && resource_exists_in_dir(*plug.dir, resource_path)) ||
+        (plug.zip && resource_exists_in_zip(*plug.zip, resource_path))) {
+        return "plugin";
+    } else if (resource_exists_in_dir(factory_scenario_path(), resource_path)) {
+        return "scenario";
+    } else if (!art_path().empty() && resource_exists_in_dir(art_path(), resource_path)) {
+        return "art";
+    } else if (resource_exists_in_dir(application_path(), resource_path)) {
+        return "data";
+    }
+    return "";
+}
 
 static std::vector<pn::string> list_resources(pn::string_view dir, pn::string_view extension) {
     std::vector<pn::string> resources;

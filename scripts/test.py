@@ -23,6 +23,7 @@ FAILED = "FAILED"
 EXCEPT = "EXCEPT"
 
 WINE_TESTS = [
+    "art-test",
     "color-test",
     "editable-text-test",
     "fixed-test",
@@ -153,6 +154,7 @@ def main():
     queue = multiprocessing.Queue()
     pool = multiprocessing.pool.ThreadPool()
     tests = [
+        (unit_test, opts, queue, "art-test"),
         (unit_test, opts, queue, "color-test"),
         (unit_test, opts, queue, "editable-text-test"),
         (unit_test, opts, queue, "fixed-test"),
