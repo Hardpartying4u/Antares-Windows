@@ -25,6 +25,7 @@ EXCEPT = "EXCEPT"
 WINE_TESTS = [
     "art-test",
     "color-test",
+    "prefs-test",
     "editable-text-test",
     "fixed-test",
     "object-data",
@@ -155,6 +156,7 @@ def main():
     pool = multiprocessing.pool.ThreadPool()
     tests = [
         (unit_test, opts, queue, "art-test"),
+        (unit_test, opts, queue, "prefs-test"),
         (unit_test, opts, queue, "color-test"),
         (unit_test, opts, queue, "editable-text-test"),
         (unit_test, opts, queue, "fixed-test"),

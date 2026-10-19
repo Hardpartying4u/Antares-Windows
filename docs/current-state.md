@@ -31,7 +31,9 @@ GLFW (src/glfw/video-driver.cpp)
   for modifiers: **Option = Alt**, **Command = Windows/Super key**.
 - The 44 rebindable actions are the `KeyNum` enum (`include/config/keys.hpp` ~214). Defaults
   are in `Preferences::Preferences()` (`src/config/preferences.cpp` ~43–93). Bindings are saved
-  to `config.pn` (`src/config/file-prefs-driver.cpp`) and edited in **Options › Key Controls**.
+  to `config.pn` (`src/config/file-prefs-driver.cpp`) and edited in **Options › Key Controls**,
+  which has a **Reset to Defaults** button (added 2026-10-20, between Cancel and Options; Cancel
+  undoes it).
 - Display names for actions: `data/strings/controls/long.pn`; key names:
   `data/strings/keyboard/*.pn`.
 
@@ -56,8 +58,8 @@ GLFW (src/glfw/video-driver.cpp)
 
 | Action | Default key | What it does |
 |---|---|---|
-| Select friendly | Keypad Clear | Cycle the **control** selection (yellow label) through friendly ships, nearest in the direction your ship faces. With Target held: *target* a friendly instead |
-| Select hostile | Keypad = | Always *targets* (sky-blue label) the next hostile in your facing direction |
+| Select friendly | Keypad . | Cycle the **control** selection (yellow label) through friendly ships, nearest in the direction your ship faces. With Target held: *target* a friendly instead |
+| Select hostile | Keypad * | Always *targets* (sky-blue label) the next hostile in your facing direction |
 | Select base | Keypad / | Select your next base as control object. With Target held: target any base (friend or foe) |
 | Target | Shift | A modifier: makes select keys, hotkeys, Warp and mouse clicks act on the **target** instead of the control object. Tapped and held ≥ 0.75 s alone, then released: **targets your own ship** |
 | Order to go | Control | Orders the **control** object to go to the current **target** (`kGiveCommandKey` → `PlayerShipGiveCommand`) |
@@ -72,7 +74,7 @@ GLFW (src/glfw/video-driver.cpp)
 |---|---|---|
 | Transfer control | F8 | Switch piloting to the control object (must be your own thinking ship) |
 | Zoom to 1:1 / 1:2 / 1:4 / 1:16 | F9 / F10 / F11 / F12 | Jump to that zoom; pressing the same key again returns to the previous zoom |
-| Zoom to closest hostile | Help | Auto-scale to fit nearest foe |
+| Zoom to closest hostile | End | Auto-scale to fit nearest foe |
 | Zoom to closest object | Home | Auto-scale to fit nearest object |
 | Zoom to all | Page Up | Fit everything |
 | Message next page/clear | Backspace | Advance/clear the on-screen message |
@@ -82,7 +84,7 @@ GLFW (src/glfw/video-driver.cpp)
 | Action | Default key | What it does |
 |---|---|---|
 | Help | F1 | Opens the in-game Help screen (pauses) |
-| Lower volume | F2 | Intended to lower volume — **currently a no-op**: `set_volume(volume())` (`src/game/main.cpp` ~597) |
+| Lower volume | F2 | Volume −1 (down to 0; fixed 2026-10-20, it used to do nothing) |
 | Raise volume | F3 | Volume +1 |
 | Mute music | F4 | Toggle in-game music (only if "Music During Action" is on) |
 | Expert net settings | F5 | No effect (network play not implemented) |
@@ -104,10 +106,12 @@ GLFW (src/glfw/video-driver.cpp)
 | Alt+Enter | anywhere | Toggle fullscreen/windowed (`GLFWVideoDriver::key`, `src/glfw/video-driver.cpp` ~214) |
 | 1–0 | briefing | Show the data sheet for the n-th briefing object |
 
-> **PC keyboard caveat.** GLFW has no key that maps to `Key::N_CLEAR` or `Key::HELP`
-> (`glfw_key_to_usb`; Num Lock maps to `NONE`), and most PC keypads have no `=`.
-> So **Select friendly, Select hostile and Zoom to closest hostile have no reachable default
-> key on Windows/Linux** until rebound in Options › Key Controls.
+> **PC defaults (2026-10-20).** Ares' defaults for Select friendly (Keypad Clear), Select hostile
+> (Keypad =) and Zoom to closest hostile (Help) don't exist on PC keyboards (GLFW has no key for
+> Clear or Help; most PC keypads have no `=`). The defaults are now Keypad `.`, Keypad `*` and End.
+> A saved `config.pn` still holding one of the old keys is moved to the new one when loaded, unless
+> another action already uses it (`migrate_unreachable_defaults`, `src/config/preferences.cpp`);
+> every other saved binding is kept. `prefs-test` covers the defaults and the move.
 
 ### 1.3 Mouse
 

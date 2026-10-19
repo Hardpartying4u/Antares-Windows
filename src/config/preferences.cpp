@@ -50,8 +50,9 @@ Preferences::Preferences() {
     keys[kEnterKeyNum] = Key::SPACE;
     keys[kWarpKeyNum]  = Key::TAB;
 
-    keys[kSelectFriendKeyNum] = Key::N_CLEAR;
-    keys[kSelectFoeKeyNum]    = Key::N_EQUALS;
+    // Keypad Clear and Keypad = (Ares' defaults) aren't on PC keyboards; Keypad . and * are.
+    keys[kSelectFriendKeyNum] = Key::N_PERIOD;
+    keys[kSelectFoeKeyNum]    = Key::N_TIMES;
     keys[kSelectBaseKeyNum]   = Key::N_DIVIDE;
     keys[kDestinationKeyNum]  = Key::SHIFT;
     keys[kOrderKeyNum]        = Key::CONTROL;
@@ -69,7 +70,7 @@ Preferences::Preferences() {
     keys[kScale122KeyNum]     = Key::F10;
     keys[kScale124KeyNum]     = Key::F11;
     keys[kScale1216KeyNum]    = Key::F12;
-    keys[kScaleHostileKeyNum] = Key::HELP;
+    keys[kScaleHostileKeyNum] = Key::END;  // Ares used Help, which PC keyboards don't have
     keys[kScaleObjectKeyNum]  = Key::HOME;
     keys[kScaleAllKeyNum]     = Key::PAGE_UP;
 
@@ -103,6 +104,34 @@ Preferences::Preferences() {
     ui_scale    = 0;
 
     enhanced_graphics = true;
+}
+
+int migrate_unreachable_defaults(Preferences* p) {
+    static const struct {
+        int key_num;
+        Key old_default;
+    } kMoved[] = {
+            {kSelectFriendKeyNum, Key::N_CLEAR},
+            {kSelectFoeKeyNum, Key::N_EQUALS},
+            {kScaleHostileKeyNum, Key::HELP},
+    };
+    const Preferences defaults;
+    int               moved = 0;
+    for (const auto& m : kMoved) {
+        if (p->keys[m.key_num] != m.old_default) {
+            continue;
+        }
+        const Key new_key = defaults.keys[m.key_num];
+        bool      taken   = false;
+        for (int i = 0; i < KEY_COUNT; ++i) {
+            taken = taken || ((i != m.key_num) && (p->keys[i] == new_key));
+        }
+        if (!taken) {
+            p->keys[m.key_num] = new_key;
+            ++moved;
+        }
+    }
+    return moved;
 }
 
 Preferences Preferences::copy() const {

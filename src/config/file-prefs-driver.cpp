@@ -102,6 +102,7 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
     for (auto i : range<size_t>(KEY_COUNT)) {
         set(_current.keys[i], keys.get(kKeyNames[i]));
     }
+    migrate_unreachable_defaults(&_current);
 
     pn::map_cref video = m.get("video").as_map();
     set(_current.fullscreen, video.get("fullscreen"));

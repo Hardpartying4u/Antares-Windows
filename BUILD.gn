@@ -26,6 +26,7 @@ group("default") {
     ":antares-download-sounds",
     ":art-test",
     ":build-pix",
+    ":prefs-test",
     ":color-test",
     ":editable-text-test",
     ":fixed-test",
@@ -545,6 +546,17 @@ executable("art-test") {
   testonly = true
   output_extension = exe
   sources = [ "src/config/art.test.cpp" ]
+  deps = [
+    ":libantares-test",
+    "//ext/gmock:gmock_main",
+  ]
+  configs += [ ":antares_private" ]
+}
+
+executable("prefs-test") {
+  testonly = true
+  output_extension = exe
+  sources = [ "src/config/prefs.test.cpp" ]
   deps = [
     ":libantares-test",
     "//ext/gmock:gmock_main",

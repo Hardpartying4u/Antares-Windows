@@ -595,11 +595,11 @@ void GamePlay::key_down(const KeyDownEvent& event) {
                     return;
                 }
             } else if (event.key() == sys.prefs->key(kVolumeDownKeyNum)) {
-                sys.prefs->set_volume(sys.prefs->volume());
+                sys.prefs->set_volume(std::max(0, sys.prefs->volume() - 1));
                 sys.audio->set_global_volume(sys.prefs->volume());
                 return;
             } else if (event.key() == sys.prefs->key(kVolumeUpKeyNum)) {
-                sys.prefs->set_volume(sys.prefs->volume() + 1);
+                sys.prefs->set_volume(std::min(kMaxVolumePreference, sys.prefs->volume() + 1));
                 sys.audio->set_global_volume(sys.prefs->volume());
                 return;
             } else if (event.key() == sys.prefs->key(kActionMusicKeyNum)) {

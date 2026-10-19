@@ -401,6 +401,31 @@ KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
         }});
     }
 
+    // Reset to defaults: added in code (the layout is in data/interfaces/options/keys.pn, part of
+    // the separately licensed data), between Cancel and Options. Cancel still restores the keys
+    // from when Options was opened.
+    {
+        PlainButtonData data;
+        data.id     = "reset-keys";
+        data.type   = WidgetDataBase::BUTTON;
+        data.bounds = {146, 427, 386, 437};
+        data.label  = "RESET TO DEFAULTS";
+        data.hue    = Hue::PALE_PURPLE;
+        data.style  = InterfaceStyle::SMALL;
+        dynamic_cast<PlainButton*>(add_widget(WidgetData{std::move(data)}))
+                ->bind({
+                        [this] {
+                            const Preferences defaults;
+                            for (int i = 0; i < KEY_COUNT; ++i) {
+                                sys.prefs->set_key(i, defaults.keys[i]);
+                            }
+                            _selected_key = -1;
+                            update_conflicts();
+                            adjust_interface();
+                        },
+                });
+    }
+
     adjust_interface();
 }
 

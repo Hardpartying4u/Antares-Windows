@@ -41,6 +41,12 @@ struct Preferences {
     bool    enhanced_graphics;  // true: use the art folder (Enhanced); false: Original.
 };
 
+// Saved configs from before 2026-10-20 store Ares' defaults for Select friendly (Keypad Clear),
+// Select hostile (Keypad =) and Zoom to nearest hostile (Help), keys PC keyboards don't have.
+// Moves each one still on that old default to the new default, unless another action already
+// uses the new key. Other bindings are left as saved. Returns how many were moved.
+int migrate_unreachable_defaults(Preferences* p);
+
 class PrefsDriver {
   public:
     PrefsDriver();
