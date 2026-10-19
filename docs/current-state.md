@@ -406,7 +406,9 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78â
     Original draws the original sprites and Enhanced the `art/` sheets. Clicking Graphics:
     Original then Done saves `false`; clicking Enhanced then Cancel puts `false` back.
   - Tests and tools never set it, so they always see the original art.
-  - `scripts/dist.py` packages `art/` next to `data/`.
+  - `scripts/dist.py win zip` packages `art/` next to `data/`, plus `COPYING`, `COPYING.LESSER`,
+    `ASSETS.md` and `CREDITS.md` next to `Antares.exe`. Checked 2026-10-19 from a fresh folder with
+    no config: it starts, and Video options shows Graphics: Enhanced by default.
   - Each file is looked up on its own, so a sprite takes its sheets from `art/` and its frame table
     from `data/`.
   - Tested in game: by default the Human fighter, cruiser and carrier draw from `art/`; with
