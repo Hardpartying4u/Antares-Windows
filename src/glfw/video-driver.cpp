@@ -34,6 +34,7 @@
 #endif
 
 #include "config/preferences.hpp"
+#include "game/timing.hpp"
 
 using sfz::range;
 
@@ -591,6 +592,7 @@ void GLFWVideoDriver::loop(Card* initial) {
     MainLoop main_loop(*this, initial);
     _loop = &main_loop;
     main_loop.draw();
+    timing_mark("first frame");
 
     while (!main_loop.done() && !glfwWindowShouldClose(_window)) {
         glfwPollEvents();

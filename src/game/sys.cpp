@@ -17,6 +17,7 @@
 // License along with Antares.  If not, see http://www.gnu.org/licenses/
 
 #include "game/sys.hpp"
+#include "game/timing.hpp"
 
 #include <sfz/sfz.hpp>
 
@@ -100,6 +101,7 @@ void refresh_scaled_textures() {
     sys.pix.reload_cursor();
     PluginReloadTextures();
     ++sys.texture_generation;
+    timing_mark(pn::format("textures reloaded for scale {0}", loaded_scale));
 }
 
 void sys_shutdown() {

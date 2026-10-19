@@ -427,6 +427,10 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78โ
     when the UI scale or Graphics setting changes, and interface pictures reload on their next draw.
   - `art-test` also checks the picture and font choice at each scale, a wrong-size `@4x`, and that
     Graphics: Original loads only `data/` pictures.
+  - Hi-res sheets and pictures read the 1x size from the PNG header; hi-res sprite frames free
+    their CPU pixel copy once the texture is uploaded (measured in `docs/ui-graphics-upscale.md` ยง8).
+  - `--timing FILE` (diagnostic) logs start-up milestones, level load start/done, every image
+    decode (path, bytes, pixels, ms) and private memory (`src/game/timing.cpp`).
   - Tested in game: by default the Human fighter, cruiser and carrier draw from `art/`; with
     `--no-art` they show the originals.
 - **Team colour**: `NatePixTable(name, hue)` (`src/drawing/pix-table.cpp` ~38) tints the

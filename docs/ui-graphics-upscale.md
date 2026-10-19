@@ -221,3 +221,41 @@ starfield) is not installed; `out/ui-upscale/needs-review/` holds its sheets.
 - **Splash faint stars** (review group, not installed): blending each star of the original's dark
   sky back into the AI version as a soft dot (never darkening) restores most of them (63% kept at
   `@4x` before, 86% after) and leaves ships, planets and the logo untouched.
+
+## 8. Start-up, level load and memory, measured (2026-10-19)
+
+Measured with the game's own log (`--timing FILE`: milestones, every image decode, private bytes),
+warm file cache (a true cold start needs the Windows file cache emptied, which needs admin rights;
+the first run of each mode was no slower than the rest). Start-up: 5 runs per mode at UI 2x,
+skipping the title sequence the same way (Esc every 0.3 s). Memory: private bytes of the process
+3 s after "level load done", read the same way for every run. 5120-wide window; UI 4x via a
+5120x1920 client.
+
+- **Start-up is not slower.** First frame 476 ms Original, 476 ms Enhanced (medians; ranges
+  466-487 and 472-490); main menu 1352 and 1339 ms (1314-1359, 1312-1358). Loading itself is done
+  by the first frame (about 15 ms of image decoding); the rest is window and OpenGL set-up.
+  Enhanced decodes two more files before the menu (the intro stills at `@2x`, about 4 ms).
+- **Level load and memory**, before and after the fixes below:
+
+  | Level, UI | Original load | Enhanced load (before → after) | Original MB | Enhanced MB (before → after) |
+  |---|---|---|---|---|
+  | ch04, 1x | 68 ms | 96 → 80 ms | 282 | 282 → 283 |
+  | ch15, 1x | 108 ms | 252 → 191 ms | 289 | 297 → 294 |
+  | ch04, 2x | 74 ms | 239 → 155 ms | 286 | 300 → 294 |
+  | ch15, 2x | 107 ms | 773 → 486 ms | 296 | 362 → 336 |
+  | ch04, 4x | 65 ms | 471 → 291 ms | 322 | 369 → 352 |
+  | ch15, 4x | 111 ms | 1105 → 663 ms | 331 | 441 → 397 |
+
+- **What the +111 MB was:** about 45 MB were CPU copies of every hi-res sprite frame, kept after
+  the texture was uploaded and never used by the game (now freed). The remaining +66 MB at UI 4x in
+  ch15 equals the hi-res textures themselves (18 million pixels, 69 MB as RGBA), which the graphics
+  driver also keeps in system memory: that part is the real cost of the art.
+- **Fixes (hi-res path only; Original decodes, draws and uses memory as before):**
+  1. a hi-res sheet or picture reads its 1x size from the PNG header instead of decoding the 1x
+     image (`png_size`, `Resource::sprite_size`);
+  2. hi-res sprite frames free their CPU pixel copy after uploading the texture;
+  3. the edge-colour bleed for smoothed textures uses direct row access.
+  Level load at UI 4x in ch15 is still 0.55 s slower than Original: about 0.4 s is decoding 18
+  million pixels of PNG, which only smaller or fewer sheets would reduce.
+- **Checked on screen:** after the fixes, each Enhanced level run entered the level at 1:1; the
+  ships draw from the hi-res sheets at UI 1x, 2x and 4x, nothing blank or late.

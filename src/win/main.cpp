@@ -35,6 +35,7 @@
 #include "config/preferences.hpp"
 #include "data/extractor.hpp"
 #include "game/sys.hpp"
+#include "game/timing.hpp"
 #include "glfw/video-driver.hpp"
 #include "ui/flows/master.hpp"
 
@@ -76,6 +77,7 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "        --art           set path to the Star Bound art folder\n"
             "                        (default: art next to the application data)\n"
             "        --no-art        use only the original art\n"
+            "        --timing FILE   write start-up and load timings to FILE\n"
             "    -h, --help          display this help screen\n",
             progname, default_application_path(), default_config_path(),
             default_factory_scenario_path());
@@ -135,6 +137,9 @@ void main(int argc, char* const* argv) {
                     return true;
                 } else if (opt == "no-art") {
                     no_art = true;
+                    return true;
+                } else if (opt == "timing") {
+                    timing_open(get_value());
                     return true;
                 } else if (opt == "app-data") {
                     return callbacks.short_option(pn::rune{'a'}, get_value);

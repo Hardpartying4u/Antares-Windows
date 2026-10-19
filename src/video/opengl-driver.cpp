@@ -198,23 +198,22 @@ void gl_log(GLint object) {
 // a visible one that one's colour (alpha stays 0), a few texels deep, so filtered edges keep their
 // colour.
 static void bleed_into_clear(ArrayPixMap& pix) {
-    const int w = pix.size().width, h = pix.size().height;
+    const int             w = pix.size().width, h = pix.size().height;
+    std::vector<RgbColor> next(w * h);
+    std::vector<uint8_t>  set(w * h);
     for (int pass = 0; pass < 2; ++pass) {
-        std::vector<RgbColor> next(w * h);
-        std::vector<bool>     set(w * h, false);
+        std::fill(set.begin(), set.end(), 0);
         for (int y = 0; y < h; ++y) {
+            const RgbColor* row = pix.row(y);
             for (int x = 0; x < w; ++x) {
-                if (pix.get(x, y).alpha != 0) {
+                if (row[x].alpha != 0) {
                     continue;
                 }
                 int r = 0, g = 0, b = 0, n = 0;
-                for (int dy = -1; dy <= 1; ++dy) {
-                    for (int dx = -1; dx <= 1; ++dx) {
-                        const int nx = x + dx, ny = y + dy;
-                        if ((nx < 0) || (ny < 0) || (nx >= w) || (ny >= h)) {
-                            continue;
-                        }
-                        const RgbColor c = pix.get(nx, ny);
+                for (int ny = std::max(y - 1, 0); ny <= std::min(y + 1, h - 1); ++ny) {
+                    const RgbColor* nrow = pix.row(ny);
+                    for (int nx = std::max(x - 1, 0); nx <= std::min(x + 1, w - 1); ++nx) {
+                        const RgbColor& c = nrow[nx];
                         if ((c.alpha != 0) || ((pass > 0) && (c.red | c.green | c.blue))) {
                             r += c.red, g += c.green, b += c.blue, ++n;
                         }
@@ -222,13 +221,16 @@ static void bleed_into_clear(ArrayPixMap& pix) {
                 }
                 if (n) {
                     next[y * w + x] = rgba(r / n, g / n, b / n, 0);
-                    set[y * w + x]  = true;
+                    set[y * w + x]  = 1;
                 }
             }
         }
-        for (int i = 0; i < w * h; ++i) {
-            if (set[i]) {
-                pix.set(i % w, i / w, next[i]);
+        for (int y = 0; y < h; ++y) {
+            RgbColor* row = pix.mutable_row(y);
+            for (int x = 0; x < w; ++x) {
+                if (set[y * w + x]) {
+                    row[x] = next[y * w + x];
+                }
             }
         }
     }

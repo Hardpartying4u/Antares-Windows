@@ -57,17 +57,14 @@ static vector<int> sheet_scales_to_try(int draw_scale) {
 
 NatePixTable::NatePixTable(pn::string_view name, Hue hue, int draw_scale)
         : _draw_scale(draw_scale > 0 ? draw_scale : sys.video->scale()) {
-    SpriteData  data    = Resource::sprite_data(name);
-    ArrayPixMap image   = Resource::sprite_image(name);
-    ArrayPixMap overlay = Resource::sprite_overlay(name);
-
-    if (image.size() != overlay.size()) {
-        throw std::runtime_error("size mismatch between image and overlay");
-    }
+    SpriteData  data = Resource::sprite_data(name);
+    ArrayPixMap image(0, 0);
+    ArrayPixMap overlay(0, 0);
 
     // Use a higher-resolution sheet when the screen can show it. It must be an exact multiple of
     // the 1x sheet, because frame rectangles and pivots stay in 1x units: they define collision
-    // bounds and weapon mounts, so only the texture changes.
+    // bounds and weapon mounts, so only the texture changes. The 1x size comes from the PNG header,
+    // so the 1x sheet is only decoded when it is the one used.
     int scale = 1;
     for (int s : sheet_scales_to_try(_draw_scale)) {
         if (s == 1) {
@@ -75,9 +72,10 @@ NatePixTable::NatePixTable(pn::string_view name, Hue hue, int draw_scale)
         } else if (!Resource::sprite_exists(name, s)) {
             continue;
         }
+        const Size  one_x      = Resource::sprite_size(name);
         ArrayPixMap hi_image   = Resource::sprite_image(name, s);
         ArrayPixMap hi_overlay = Resource::sprite_overlay(name, s);
-        const Size  want{image.size().width * s, image.size().height * s};
+        const Size  want{one_x.width * s, one_x.height * s};
         if ((hi_image.size() != want) || (hi_overlay.size() != want)) {
             pn::err.format(
                     "sprites/{0}: ignoring @{1}x sheets: not exactly {1} times the 1x size\n",
@@ -88,6 +86,13 @@ NatePixTable::NatePixTable(pn::string_view name, Hue hue, int draw_scale)
         overlay = std::move(hi_overlay);
         scale   = s;
         break;
+    }
+    if (scale == 1) {
+        image   = Resource::sprite_image(name);
+        overlay = Resource::sprite_overlay(name);
+        if (image.size() != overlay.size()) {
+            throw std::runtime_error("size mismatch between image and overlay");
+        }
     }
 
     for (SpriteData::Frame frame : data.frames) {
@@ -165,6 +170,11 @@ void NatePixTable::Frame::build(pn::string_view name, int frame) {
     _texture = sys.video->texture(
             pn::format("/sprites/{0}%{1}", name, frame), _pix_map, _scale,
             (_scale > 1) ? TextureFilter::SMOOTH_MINIFY : TextureFilter::PIXELS);
+    if (_scale > 1) {
+        // The game only needs the texture. A 1x pixmap is kept for the tools (bin/tint), which
+        // never load hi-res sheets; a hi-res copy would just hold memory for the whole level.
+        _pix_map = ArrayPixMap(0, 0);
+    }
 }
 
 }  // namespace antares

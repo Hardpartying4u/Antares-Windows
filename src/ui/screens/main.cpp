@@ -34,6 +34,7 @@
 #include "ui/screens/options.hpp"
 #include "ui/screens/scroll-text.hpp"
 #include "video/driver.hpp"
+#include "game/timing.hpp"
 
 namespace antares {
 
@@ -112,6 +113,7 @@ void MainScreen::become_front() {
     switch (_state) {
         case NORMAL:
             InterfaceScreen::become_front();
+            timing_mark("main menu shown");
             sys.music.play(Music::IDLE, Music::title_song);
             _next_timer = (now() + kMainDemoTimeOutTime);
             break;

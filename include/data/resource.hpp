@@ -26,6 +26,7 @@
 namespace antares {
 
 class ArrayPixMap;
+struct Size;
 class BaseObject;
 class NatePixTable;
 class Texture;
@@ -59,6 +60,7 @@ class Resource {
     static ArrayPixMap             sprite_image(pn::string_view name, int scale = 1);
     static ArrayPixMap             sprite_overlay(pn::string_view name, int scale = 1);
     static bool                    sprite_exists(pn::string_view name, int scale);
+    static Size                    sprite_size(pn::string_view name);  // 1x sheet, header only
     static std::vector<pn::string> strings(pn::string_view name);
     static pn::string              text(pn::string_view name);
     static Texture                 texture(pn::string_view name);

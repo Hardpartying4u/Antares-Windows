@@ -19,9 +19,11 @@
 #include "data/resource.hpp"
 
 #include <stdio.h>
+#include <string.h>
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <pn/input>
 #include <pn/output>
 #include <sfz/sfz.hpp>
@@ -45,6 +47,7 @@
 #include "data/sprite-data.hpp"
 #include "drawing/text.hpp"
 #include "game/sys.hpp"
+#include "game/timing.hpp"
 #include "video/driver.hpp"
 
 namespace path = sfz::path;
@@ -291,6 +294,52 @@ static pn::value info_procyon() {
     return x;
 }
 
+// Decodes a PNG resource; with --timing, logs its path, file size, pixels and time.
+static ArrayPixMap decode_png(pn::string_view path) {
+    const auto  start = std::chrono::steady_clock::now();
+    ArrayPixMap pix   = read_png(BinaryResourceData::load(path).input());
+    if (timing_on()) {
+        const double ms =
+                std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start)
+                        .count();
+        int64_t           bytes  = -1;
+        const pn::string_view source = resource_source(path);
+        pn::string        file;
+        if (source == "art") {
+            file = pn::format("{0}/{1}", art_path(), path);
+        } else if (source == "data") {
+            file = pn::format("{0}/{1}", application_path(), path);
+        }
+        if (!file.empty()) {
+            sfz::Stat st;
+#ifdef _WIN32
+            if (_stat(file.c_str(), &st) == 0) {
+#else
+            if (stat(file.c_str(), &st) == 0) {
+#endif
+                bytes = st.st_size;
+            }
+        }
+        timing_decode(
+                pn::format("{0}:{1}", source, path), bytes,
+                int64_t{pix.size().width} * pix.size().height, ms);
+    }
+    return pix;
+}
+
+// Width and height of a PNG resource, read from its header without decoding it.
+static Size png_size(pn::string_view path) {
+    pn::data d = BinaryResourceData::load(path).data();
+    if ((d.size() < 24) || (memcmp(d.data() + 12, "IHDR", 4) != 0)) {
+        throw std::runtime_error(pn::format("{0}: not a PNG", path).c_str());
+    }
+    auto be32 = [&](int i) {
+        return (int(d.data()[i]) << 24) | (int(d.data()[i + 1]) << 16) | (int(d.data()[i + 2]) << 8) |
+               int(d.data()[i + 3]);
+    };
+    return {be32(16), be32(20)};
+}
+
 // A picture or font image comes at 1x and optionally at @2x and @4x. For a screen scale, try first
 // the smallest one at least as detailed as the screen, then larger ones, then smaller ones (the
 // same order as sprite sheets): 1 -> 1, 2, 4; 2 -> 2, 4, 1; 3 -> 4, 2, 1; 4 -> 4, 2, 1; the picture
@@ -333,7 +382,7 @@ static HidpiImage find_hidpi_image(pn::string_view name, int screen_scale, bool 
         if (!base_read) {
             base_read = true;
             if (resource_exists(base_path)) {
-                base_size.emplace(read_png(BinaryResourceData::load(base_path).input()).size());
+                base_size.emplace(png_size(base_path));
             }
         }
         return base_size;
@@ -346,7 +395,7 @@ static HidpiImage find_hidpi_image(pn::string_view name, int screen_scale, bool 
             continue;
         }
         try {
-            image.pix = read_png(BinaryResourceData::load(image.path).input());
+            image.pix = decode_png(image.path);
         } catch (...) {
             std::throw_with_nested(std::runtime_error(image.path.c_str()));
         }
@@ -572,11 +621,13 @@ static pn::string sprite_path(pn::string_view name, pn::string_view kind, int sc
 static ArrayPixMap load_sprite_sheet(pn::string_view name, pn::string_view kind, int scale) {
     pn::string path = sprite_path(name, kind, scale);
     try {
-        return read_png(BinaryResourceData::load(path).input());
+        return decode_png(path);
     } catch (...) {
         std::throw_with_nested(std::runtime_error(path.c_str()));
     }
 }
+
+Size Resource::sprite_size(pn::string_view name) { return png_size(sprite_path(name, "image", 1)); }
 
 ArrayPixMap Resource::sprite_image(pn::string_view name, int scale) {
     return load_sprite_sheet(name, "image", scale);

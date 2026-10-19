@@ -32,6 +32,7 @@
 #include "game/motion.hpp"
 #include "game/space-object.hpp"
 #include "game/sys.hpp"
+#include "game/timing.hpp"
 #include "game/vector.hpp"
 #include "math/rotation.hpp"
 #include "sound/driver.hpp"
@@ -138,7 +139,9 @@ void Master::init() {
 
     g.random.seed = _seed;
 
+    timing_mark("init start");
     sys_init();
+    timing_mark("sys_init done");
     Label::init();
     Messages::init();
     InstrumentInit();
@@ -146,6 +149,7 @@ void Master::init() {
     PluginInit(
             _plugin_path.has_value() ? sfz::make_optional<pn::string_view>(*_plugin_path)
                                      : sfz::nullopt);
+    timing_mark("plugin loaded");
     SpaceObjectHandlingInit();  // MUST be after ScenarioMakerInit()
     Admiral::init();
     Vectors::init();
@@ -154,6 +158,7 @@ void Master::init() {
 
     _publisher_screen = nullptr;
     _ego_screen       = Resource::texture("credit");
+    timing_mark("init done");
 }
 
 }  // namespace antares

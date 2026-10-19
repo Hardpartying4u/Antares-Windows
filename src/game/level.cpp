@@ -45,6 +45,7 @@
 #include "math/random.hpp"
 #include "math/rotation.hpp"
 #include "math/units.hpp"
+#include "game/timing.hpp"
 
 using sfz::range;
 using std::set;
@@ -184,6 +185,7 @@ static void construct_players(const Players& players) {
 }
 
 LoadState start_construct_level(const Level& level) {
+    timing_mark("level load start");
     ResetAllSpaceObjects();
     reset_action_queue();
     Vectors::reset();
@@ -352,6 +354,7 @@ void construct_level(LoadState* state) {
     ++state->step;
     if (state->step == state->max) {
         state->done = true;
+        timing_mark("level load done");
     }
     return;
 }
