@@ -666,6 +666,16 @@ zoom, with and without `--no-art`):
 - **Tinted level** (`dev1`, salmon side, UI 2x):
   - private memory 279 MB against 223 MB;
   - load about 2.0 s against 1.7 s.
+- **Tinted ships, zoomed in** (parked test scenario with a salmon player, 1:1 zoom, UI 2x and 4x,
+  with and without `art/`):
+  - most tinted ships look like the originals with smoother edges, because the overlay
+    (tolerant Scale2x) is what the tint draws;
+  - the Ishiman heavy cruiser and transport show cyan streaks through the tint: their overlays
+    cover only part of the ship, so the AI image shows through (both are marked unsure);
+  - the near-black Salrilian heavy destroyer draws untinted with or without `art/`.
+- **How much play is tinted:** players without a `hue:` use gray, which draws `image.png`. None of
+  the 23 story levels (`tut1`-`tut3`, `ch01`-`ch20`) or the net levels set a hue; only `dev1`
+  (one CPU side, salmon) does. So almost all play shows the image layer, not the overlay.
 
 ### 4.4 Effects and other layers
 
