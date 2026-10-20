@@ -217,5 +217,58 @@ TEST_F(ControlsTest, ScreenToWorldInvertsScaleToViewport) {
     }
 }
 
+// Which ships a drag box takes: the player's own that can take orders; never the flagship, a base,
+// a ship whose destination the level locks, or someone else's.
+TEST_F(ControlsTest, GroupSelectable) {
+    const uint32_t ship = kCanAcceptDestination | kCanBeDestination;
+    EXPECT_TRUE(group_selectable(ship, true, false));
+    EXPECT_FALSE(group_selectable(ship, true, true));                          // flagship
+    EXPECT_FALSE(group_selectable(ship, false, false));                        // not the player's
+    EXPECT_FALSE(group_selectable(ship | kIsDestination, true, false));        // a base
+    EXPECT_FALSE(group_selectable(ship | kStaticDestination, true, false));    // locked
+    EXPECT_FALSE(group_selectable(kCanBeDestination, true, false));            // takes no orders
+}
+
+TEST_F(ControlsTest, DragBox) {
+    const Point a(100, 50), b(200, 150);
+    for (const Point& corner1 : {a, b}) {  // either corner first
+        const Point& corner2 = (corner1 == a) ? b : a;
+        EXPECT_TRUE(in_box(Point(150, 100), corner1, corner2));
+        EXPECT_TRUE(in_box(Point(100, 50), corner1, corner2));    // edges count
+        EXPECT_TRUE(in_box(Point(200, 150), corner1, corner2));
+        EXPECT_FALSE(in_box(Point(99, 100), corner1, corner2));
+        EXPECT_FALSE(in_box(Point(150, 151), corner1, corner2));
+    }
+    EXPECT_TRUE(in_box(Point(200, 50), Point(200, 150), Point(100, 50)));  // other diagonal
+}
+
+// Group moves: one ship goes to the point; a group spreads on a centred grid, each spot distinct,
+// the same every time.
+TEST_F(ControlsTest, FormationOffsets) {
+    EXPECT_EQ(formation_offset(0, 1, 160), Point(0, 0));
+    for (int count = 2; count <= 12; ++count) {
+        std::vector<Point> spots;
+        int64_t            sum_h = 0, sum_v = 0;
+        for (int i = 0; i < count; ++i) {
+            const Point p = formation_offset(i, count, 160);
+            EXPECT_EQ(p, formation_offset(i, count, 160)) << "deterministic";
+            for (const Point& q : spots) {
+                EXPECT_NE(p, q) << count << " ships: no two on one spot";
+                EXPECT_GE(std::max(std::abs(p.h - q.h), std::abs(p.v - q.v)), 160);
+            }
+            EXPECT_LE(std::max(std::abs(p.h), std::abs(p.v)), 2 * 160) << "small";
+            spots.push_back(p);
+            sum_h += p.h;
+            sum_v += p.v;
+        }
+        if ((count == 4) || (count == 9)) {  // full grids are centred on the point
+            EXPECT_EQ(sum_h, 0);
+            EXPECT_EQ(sum_v, 0);
+        }
+    }
+    EXPECT_EQ(formation_offset(0, 4, 160), Point(-80, -80));
+    EXPECT_EQ(formation_offset(3, 4, 160), Point(80, 80));
+}
+
 }  // namespace
 }  // namespace antares

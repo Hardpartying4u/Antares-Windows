@@ -161,7 +161,10 @@ class ReplayMaster : public Card {
 
     // Test input the replay file doesn't hold, one per line: "TICK key ACTION" (an action number,
     // pressed for one major tick), "TICK lclick X Y" or "TICK rclick X Y" (a click at logical
-    // pixels), "TICK select-initial N" (select the level's Nth initial object, as a left-click on
+    // pixels), "TICK ldrag X1 Y1 X2 Y2" (a drag box), "TICK keydown N" / "TICK keyup N" (hold an
+    // action, e.g. 11, the target modifier, for a Shift+drag), "TICK log-orderable" (log where each
+    // ship the player could order is drawn), "TICK log-selection" (log the selected ships and
+    // where they are heading), "TICK select-initial N" (select the level's Nth initial object, as a left-click on
     // it would), "TICK rclick-initial N" (a right-click where initial N is drawn at that tick), or
     // "TICK script-target A B" (what a level's "target" action does: initial A ordered to initial
     // B, its static destination cleared for the order). TICK is in game ticks, rounded up to a
@@ -174,14 +177,63 @@ class ReplayMaster : public Card {
             long long tick, a = 0, b = 0;
             char      word[16];
             if ((l.empty() || (l[0] == '#')) ||
-                (sscanf(l.c_str(), "%lld %15s %lld %lld", &tick, word, &a, &b) < 3)) {
+                (sscanf(l.c_str(), "%lld %15s %lld %lld", &tick, word, &a, &b) < 2)) {
                 continue;
             }
             tick           = ((tick + 2) / 3) * 3;
             game_ticks at  = game_ticks(ticks(tick));
             game_ticks off = game_ticks(ticks(tick + 3));
             std::string w(word);
-            if (w == "select-initial") {
+            if (w == "ldrag") {
+                // "TICK ldrag X1 Y1 X2 Y2": left button down at (X1, Y1), up a major tick later at
+                // (X2, Y2): a drag box.
+                long long x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+                sscanf(l.c_str(), "%*lld %*15s %lld %lld %lld %lld", &x1, &y1, &x2, &y2);
+                _input_source.add(
+                        at, unique_ptr<Event>(new MouseDownEvent(
+                                    wall_time(), 0, 1, Point(int32_t(x1), int32_t(y1)))));
+                _input_source.add(
+                        off, unique_ptr<Event>(new MouseUpEvent(
+                                     wall_time(), 0, Point(int32_t(x2), int32_t(y2)))));
+            } else if (w == "keydown") {
+                _input_source.add(at, unique_ptr<Event>(new ActionDownEvent(wall_time(), int(a))));
+            } else if (w == "keyup") {
+                _input_source.add(at, unique_ptr<Event>(new ActionUpEvent(wall_time(), int(a))));
+            } else if (w == "log-orderable") {
+                // Where each ship the player could order is drawn (for writing ldrag lines).
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([this](EventReceiver*) {
+                    if (!_orders_log.has_value()) {
+                        return;
+                    }
+                    for (auto o : SpaceObject::all()) {
+                        if ((o->active == kObjectInUse) && o->sprite.get() &&
+                            group_selectable(
+                                    o->attributes, o->owner == g.admiral,
+                                    o == g.admiral->flagship())) {
+                            _orders_log->format(
+                                    "{0}\torderable\t{1} #{2}\tat {3}, {4}\n",
+                                    g.time.time_since_epoch().count(), o->long_name(), o.number(),
+                                    o->sprite->where.h, o->sprite->where.v);
+                        }
+                    }
+                })));
+            } else if (w == "log-selection") {
+                // Each selected ship and where it is heading.
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([this](EventReceiver*) {
+                    if (!_orders_log.has_value()) {
+                        return;
+                    }
+                    auto ships = modern_selection();
+                    _orders_log->format(
+                            "{0}\tselection\t{1} ships\n", g.time.time_since_epoch().count(),
+                            ships.size());
+                    for (auto o : ships) {
+                        _orders_log->format(
+                                "{0}\t  selected\t{1}\n", g.time.time_since_epoch().count(),
+                                describe(o));
+                    }
+                })));
+            } else if (w == "select-initial") {
                 const int n = int(a);
                 _input_source.add(at, unique_ptr<Event>(new StepEvent([n](EventReceiver*) {
                     if (initial(n).get()) {

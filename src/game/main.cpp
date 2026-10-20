@@ -213,6 +213,8 @@ void MainPlay::become_front() {
             // The Modern mode: a Modern preset, outside replays and the tutorials.
             g.modern_controls = modern_controls_for_level(
                     _replay, (_level.type() == Level::Type::SOLO) && _level.solo.skip.has_value());
+            g.modern_selection.clear();
+            g.modern_selection_control = SpaceObject::none();
 
             set_up_instruments();
 

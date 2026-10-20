@@ -549,6 +549,13 @@ whose point moves along a route.
   - The step A pieces this needed (the mode decided at level start, Classic for replays and
     tutorials) came with it; the separate toggle is the preset choice itself.
 
+- **Step D, multi-select: done 2026-10-20** (`docs/current-state.md` §2.4b).
+  - It includes a drag box, Shift+click, Shift+drag, group orders, a grid formation for group
+    moves and brackets on every selected ship.
+  - The selection is a list in the game state whose first ship is the control object.
+  - Orders are unchanged in kind: each selected ship gets the step B order.
+  - Control groups (step E), attack-move (C) and patrol (F, G) are not started.
+
 ## 6. Effort, risk, order and "done when"
 
 Effort: **S** about a session, **M** two or three, **L** more. Each step is its own commit with

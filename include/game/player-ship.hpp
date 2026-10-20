@@ -146,6 +146,12 @@ class PlayerShip : public EventReceiver {
     void release(int action);
     void action_on(int action);
     void action_off(int action);
+    void modern_left_down(Point where);
+    void modern_left_up(Point where);
+
+    static const int kDragThreshold = 4;  // pixels the mouse must move for a drag box
+    bool             _dragging      = false;
+    Point            _drag_start;
 
     uint32_t                 gTheseKeys;
     std::vector<PlayerEvent> _player_events;

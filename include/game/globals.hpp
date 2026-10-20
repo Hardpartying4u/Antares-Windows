@@ -114,6 +114,11 @@ struct GlobalState {
     uint32_t key_mask;  // Determines input to reject.
 
     bool modern_controls = false;  // The Modern mode's mouse orders (game/modern-orders.hpp).
+    // The Modern selection: ships (and their ids) the right-click orders, in selection order. The
+    // admiral's control object is its first ship; modern_selection_control is the control object
+    // it was last matched with (game/modern-orders.cpp).
+    std::vector<std::pair<Handle<SpaceObject>, int32_t>> modern_selection;
+    Handle<SpaceObject>                                  modern_selection_control;
 
     miniComputerDataType mini;
 

@@ -5,6 +5,7 @@
 #define ANTARES_GAME_MODERN_ORDERS_HPP_
 
 #include <functional>
+#include <vector>
 #include <pn/string>
 
 #include "data/handle.hpp"
@@ -43,6 +44,24 @@ class PlayerShip;
 
 enum class ModernOrder { NONE, ATTACK, FOLLOW, GUARD, MOVE };
 
+// Multi-select (step D). The selection is a list of the player's ships (g.modern_selection) whose
+// first ship is the admiral's control object, so everything built on the single control object
+// keeps working. Only ships that can take orders are in it: the player's own, not the flagship, not
+// a base, not one whose destination the level locks. Ships drop out when they die, are captured or
+// become locked; when the control object changes some other way (a click on one ship, Select
+// friendly, a hotkey, a transfer), the selection becomes just that ship (or empty).
+bool group_selectable(uint32_t attributes, bool owned_by_player, bool is_flagship);
+bool in_box(Point p, Point a, Point b);  // inclusive, either corner order
+std::vector<Handle<SpaceObject>> modern_selection();  // pruned and matched to the control object
+std::vector<Handle<SpaceObject>> modern_ships_in_box(Point a, Point b);  // selectable, by number
+void modern_select(const std::vector<Handle<SpaceObject>>& ships, bool add);
+void modern_selection_matches_control();  // after the caller set the control object itself
+
+// Where ship `index` of `count` goes for a group move: a centred square grid, `spacing` apart.
+// The same order every time, so group moves stay deterministic.
+Point formation_offset(int index, int count, int32_t spacing);
+const int32_t kFormationSpacing = 160;
+
 // What a right-click would do, from what is under the cursor. Pure, for the cursor and the tests.
 ModernOrder classify_order(
         bool control_orderable, bool has_object, bool object_hostile, bool object_is_base,
@@ -64,7 +83,10 @@ ModernOrder modern_right_click(Point where);
 bool give_object_order(Handle<Admiral> admiral, Handle<SpaceObject> object);
 bool give_move_order(Handle<Admiral> admiral, Point world);
 
-// Drawing (view only): brackets on the selected ship, a short-lived marker where an order was
+// The drag box, drawn from where the left button went down to the mouse while it is held.
+void modern_drag(bool active, Point start);
+
+// Drawing (view only): brackets on the selected ships, a short-lived marker where an order was
 // given, and the colour the crosshair takes from what a right-click would do.
 void draw_modern_markers();
 bool modern_cursor_color(Point where, RgbColor* color);

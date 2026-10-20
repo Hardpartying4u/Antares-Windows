@@ -40,6 +40,7 @@
 #include "game/messages.hpp"
 #include "game/minicomputer.hpp"
 #include "game/modern-orders.hpp"
+#include "game/motion.hpp"
 #include "game/non-player-ship.hpp"
 #include "game/space-object.hpp"
 #include "game/starfield.hpp"
@@ -535,6 +536,10 @@ void PlayerShip::mouse_down(const MouseDownEvent& event) {
             } else if (event.count() == 1) {
                 MiniComputerHandleClick(where);
             }
+            if (g.modern_controls && viewport().contains(where) && !(g.key_mask & kMouseMask)) {
+                modern_left_down(where);
+                return;
+            }
             break;
         case 1:
             if (g.modern_controls) {
@@ -560,12 +565,63 @@ void PlayerShip::mouse_up(const MouseUpEvent& event) {
     if (event.button() == 0) {
         MiniComputerHandleMouseStillDown(where);
         MiniComputerHandleMouseUp(where, &_player_events);
+        if (_dragging) {
+            modern_left_up(where);
+        }
     } else if (event.button() > 1) {
         input_up(Binding::mouse(event.button()));
     }
 }
 
 void PlayerShip::mouse_move(const MouseMoveEvent& event) { _cursor.mouse_move(event); }
+
+// Modern left button (docs/modern-controls.md §5.2). Down: Shift+click on one of the player's ships
+// adds it to the selection; a plain click selects as Classic does (a ship replaces the selection,
+// empty space changes nothing). Either way the button may start a drag box.
+void PlayerShip::modern_left_down(Point where) {
+    const bool shift = (gDestKeyState != DEST_KEY_UP);
+    if (shift) {
+        use_target_key();  // Shift is a modifier here: no "target own ship" on its release
+        Rect bounds{where.h - kCursorBoundsSize, where.v - kCursorBoundsSize,
+                    where.h + kCursorBoundsSize, where.v + kCursorBoundsSize};
+        auto ship = GetSpritePointSelectObject(
+                &bounds, g.ship, kCanBeDestination, g.admiral->control(), FRIENDLY);
+        if (ship.get()) {
+            const bool first = modern_selection().empty();
+            if (first) {
+                select_object(ship, false, g.admiral);
+            }
+            modern_select({ship}, true);
+            modern_selection_matches_control();
+        }
+    } else {
+        PlayerShipHandleClick(where, 0);
+    }
+    _dragging   = true;
+    _drag_start = where;
+    modern_drag(true, where);
+}
+
+// Up: if the mouse moved more than a few pixels, the player's orderable ships inside the box are
+// selected (added with Shift). A box with none in it changes nothing.
+void PlayerShip::modern_left_up(Point where) {
+    _dragging = false;
+    modern_drag(false, where);
+    if ((std::abs(where.h - _drag_start.h) <= kDragThreshold) &&
+        (std::abs(where.v - _drag_start.v) <= kDragThreshold)) {
+        return;
+    }
+    const bool shift = (gDestKeyState != DEST_KEY_UP);
+    auto       ships = modern_ships_in_box(_drag_start, where);
+    if (ships.empty()) {
+        return;
+    }
+    if (!shift || modern_selection().empty()) {
+        select_object(ships[0], false, g.admiral);  // the first becomes the control object
+    }
+    modern_select(ships, shift);
+    modern_selection_matches_control();
+}
 
 // Each notch runs the actions bound to its direction. On a zoom action a notch is a zoom step (data
 // 1 marks it as the wheel's: it doesn't step into the automatic zooms); on any other action it is a

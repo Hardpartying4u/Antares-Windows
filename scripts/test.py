@@ -203,6 +203,7 @@ def main():
         (replay_test, opts, queue, "yo-ho-ho"),
         (replay_test, opts, queue, "you-should-have-seen-the-one-that-got-away"),
         (modern_replay_test, opts, queue, "modern-orders", ["shoplifter-1"]),
+        (modern_replay_test, opts, queue, "modern-multi", ["space-race"]),
     ]
 
     if opts.test:

@@ -1,0 +1,19 @@
+# Modern multi-select on the space-race replay (chapter 26, srtm), played with --modern. The player
+# starts with many ships; shoplifter-1 (modern-orders) has only one that takes orders.
+# Tick 600: a small drag box selects the orderable ship inside it (Cruiser #4).
+600 ldrag 300 150 350 195
+606 log-selection
+# Shift (action 11, the target modifier) held: a second drag box adds the ships inside it (Heavy
+# Cruiser #10 and Gunship #8) to the selection.
+612 keydown 11
+615 ldrag 375 195 470 260
+624 keyup 11
+627 log-selection
+# A right-click on empty space: a group move, spread on a small grid around the point.
+660 rclick 200 420
+663 log-selection
+# Zoom to show all (action 26), then a right-click where a Gaitori cruiser (initial 23) is drawn:
+# a group attack.
+900 key 26
+960 rclick-initial 23
+963 log-selection

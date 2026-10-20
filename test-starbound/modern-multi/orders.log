@@ -1,0 +1,21 @@
+606	selection	1 ships
+606	  selected	Cruiser #4 heading for Heavy Destroyer #0
+627	selection	3 ships
+627	  selected	Cruiser #4 heading for Heavy Destroyer #0
+627	  selected	Heavy Cruiser #10 heading for Heavy Destroyer #0
+627	  selected	Gunship #8 heading for Heavy Destroyer #0
+660	Cruiser #4	move	to 1073738975, 1073745834
+660	Heavy Cruiser #10	move	to 1073739135, 1073745834
+660	Gunship #8	move	to 1073738975, 1073745994
+663	selection	3 ships
+663	  selected	Cruiser #4 heading for 1073738975, 1073745834
+663	  selected	Heavy Cruiser #10 heading for 1073739135, 1073745834
+663	  selected	Gunship #8 heading for 1073738975, 1073745994
+960	Cruiser #4	attack	Cruiser #23
+960	Heavy Cruiser #10	attack	Cruiser #23
+960	Gunship #8	attack	Cruiser #23
+963	selection	3 ships
+963	  selected	Cruiser #4 heading for Cruiser #23
+963	  selected	Heavy Cruiser #10 heading for Cruiser #23
+963	  selected	Gunship #8 heading for Cruiser #23
+10140	end	Cruiser #4 heading for Cruiser #23

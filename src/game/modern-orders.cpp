@@ -75,11 +75,36 @@ Handle<SpaceObject> object_at(Point where) {
 }
 
 ModernOrder order_for(Handle<SpaceObject> object) {
-    auto control = g.admiral->control();
+    auto selection = modern_selection();
     return classify_order(
-            modern_orderable(g.admiral), object.get() != nullptr,
+            !selection.empty(), object.get() != nullptr,
             object.get() && (object->owner != g.admiral),
-            object.get() && (object->attributes & kIsDestination), object == control);
+            object.get() && (object->attributes & kIsDestination),
+            (selection.size() == 1) && (object == selection[0]));
+}
+
+bool selectable(Handle<SpaceObject> o) {
+    return o.get() && (o->active == kObjectInUse) &&
+           group_selectable(o->attributes, o->owner == g.admiral, o == g.admiral->flagship());
+}
+
+// The selection with the dead, captured and locked ships dropped, and matched to the control
+// object: if that changed some other way, the selection is just it. Pure: drawing uses it too.
+std::vector<std::pair<Handle<SpaceObject>, int32_t>> current_selection() {
+    std::vector<std::pair<Handle<SpaceObject>, int32_t>> sel;
+    auto control = g.admiral.get() ? g.admiral->control() : SpaceObject::none();
+    if (control != g.modern_selection_control) {
+        if (selectable(control)) {
+            sel.emplace_back(control, control->id);
+        }
+        return sel;
+    }
+    for (const auto& s : g.modern_selection) {
+        if (s.first.get() && (s.first->id == s.second) && selectable(s.first)) {
+            sel.push_back(s);
+        }
+    }
+    return sel;
 }
 
 void log_order(Handle<SpaceObject> control, ModernOrder order, pn::string_view what) {
@@ -116,7 +141,18 @@ void draw_brackets(const Rects& rects, Rect r, int min_half, int arm, const RgbC
     }
 }
 
+// The drag box being drawn: view only, set from PlayerShip's queued mouse events.
+struct {
+    bool  active = false;
+    Point start;
+} gDrag;
+
 }  // namespace
+
+void modern_drag(bool active, Point start) {
+    gDrag.active = active;
+    gDrag.start  = start;
+}
 
 ModernOrder classify_order(
         bool control_orderable, bool has_object, bool object_hostile, bool object_is_base,
@@ -158,13 +194,70 @@ Point screen_to_world(Point screen) {
             screen, scaled_screen.bounds, scaled_screen.scale, Point(v.left, v.top));
 }
 
-bool modern_orderable(Handle<Admiral> admiral) {
-    if (!admiral.get()) {
-        return false;
+bool modern_orderable(Handle<Admiral> admiral) { return !modern_selection().empty(); }
+
+bool group_selectable(uint32_t attributes, bool owned_by_player, bool is_flagship) {
+    return owned_by_player && !is_flagship && (attributes & kCanAcceptDestination) &&
+           !(attributes & (kStaticDestination | kIsDestination));
+}
+
+bool in_box(Point p, Point a, Point b) {
+    return (std::min(a.h, b.h) <= p.h) && (p.h <= std::max(a.h, b.h)) &&
+           (std::min(a.v, b.v) <= p.v) && (p.v <= std::max(a.v, b.v));
+}
+
+std::vector<Handle<SpaceObject>> modern_selection() {
+    g.modern_selection         = current_selection();
+    g.modern_selection_control = g.admiral.get() ? g.admiral->control() : SpaceObject::none();
+    std::vector<Handle<SpaceObject>> ships;
+    for (const auto& s : g.modern_selection) {
+        ships.push_back(s.first);
     }
-    auto c = admiral->control();
-    return c.get() && (c != admiral->flagship()) && (c->owner == admiral) &&
-           (c->attributes & kCanAcceptDestination) && !(c->attributes & kStaticDestination);
+    return ships;
+}
+
+std::vector<Handle<SpaceObject>> modern_ships_in_box(Point a, Point b) {
+    std::vector<Handle<SpaceObject>> ships;
+    for (auto o : SpaceObject::all()) {
+        if (selectable(o) && o->sprite.get() && in_box(o->sprite->where, a, b)) {
+            ships.push_back(o);
+        }
+    }
+    return ships;
+}
+
+void modern_select(const std::vector<Handle<SpaceObject>>& ships, bool add) {
+    modern_selection();  // matched to the control object first
+    if (!add) {
+        g.modern_selection.clear();
+    }
+    for (auto o : ships) {
+        bool present = false;
+        for (const auto& s : g.modern_selection) {
+            present = present || (s.first == o);
+        }
+        if (!present && selectable(o)) {
+            g.modern_selection.emplace_back(o, o->id);
+        }
+    }
+}
+
+void modern_selection_matches_control() {
+    g.modern_selection_control = g.admiral->control();
+}
+
+Point formation_offset(int index, int count, int32_t spacing) {
+    if (count <= 1) {
+        return Point(0, 0);
+    }
+    int cols = 1;
+    while (cols * cols < count) {
+        ++cols;
+    }
+    const int rows = (count + cols - 1) / cols;
+    const int col  = index % cols;
+    const int row  = index / cols;
+    return Point((2 * col - (cols - 1)) * spacing / 2, (2 * row - (rows - 1)) * spacing / 2);
 }
 
 bool modern_controls_for_level(bool replay, bool tutorial) {
@@ -175,15 +268,25 @@ bool modern_controls_for_level(bool replay, bool tutorial) {
 }
 
 bool give_object_order(Handle<Admiral> admiral, Handle<SpaceObject> object) {
-    auto control = admiral->control();
-    if (!modern_orderable(admiral) || !object.get() || (object == control)) {
+    if (!object.get()) {
+        return false;
+    }
+    std::vector<Handle<SpaceObject>> ships;
+    for (auto o : modern_selection()) {
+        if (o != object) {  // a ship isn't ordered to itself
+            ships.push_back(o);
+        }
+    }
+    if (ships.empty()) {
         return false;
     }
     const ModernOrder order = classify_order(
             true, true, object->owner != admiral, object->attributes & kIsDestination, false);
     admiral->set_target(object);
-    SetObjectDestination(control);  // the Classic order: go to the admiral's target
-    log_order(control, order, pn::format("{0} #{1}", object->long_name(), object.number()));
+    for (auto o : ships) {
+        SetObjectDestination(o);  // the Classic order: go to the admiral's target
+        log_order(o, order, pn::format("{0} #{1}", object->long_name(), object.number()));
+    }
     if (admiral == g.admiral) {
         sys.sound.order();
         show_marker(order, object->location, object);
@@ -192,15 +295,20 @@ bool give_object_order(Handle<Admiral> admiral, Handle<SpaceObject> object) {
 }
 
 bool give_move_order(Handle<Admiral> admiral, Point world) {
-    auto control = admiral->control();
-    if (!modern_orderable(admiral)) {
+    auto ships = modern_selection();
+    if (ships.empty()) {
         return false;
     }
-    SetObjectLocationDestination(control, &world);
-    // A move flies straight there, like an object order: the 15 s clock starts used up, so the
-    // ship doesn't turn aside to fight unless it is hit (docs/modern-controls.md §3).
-    control->timeFromOrigin = kTimeToCheckHome;
-    log_order(control, ModernOrder::MOVE, pn::format("to {0}, {1}", world.h, world.v));
+    for (int i = 0; i < ships.size(); ++i) {
+        // A small grid around the point, so a group doesn't stack on one spot.
+        const Point offset = formation_offset(i, ships.size(), kFormationSpacing);
+        Point       p(world.h + offset.h, world.v + offset.v);
+        SetObjectLocationDestination(ships[i], &p);
+        // A move flies straight there, like an object order: the 15 s clock starts used up, so
+        // the ship doesn't turn aside to fight unless it is hit (docs/modern-controls.md §3).
+        ships[i]->timeFromOrigin = kTimeToCheckHome;
+        log_order(ships[i], ModernOrder::MOVE, pn::format("to {0}, {1}", p.h, p.v));
+    }
     if (admiral == g.admiral) {
         sys.sound.order();
         show_marker(ModernOrder::MOVE, world, SpaceObject::none());
@@ -253,6 +361,12 @@ void draw_modern_markers() {
         if ((control != logged) || (now() >= next_log)) {
             logged   = control;
             next_log = now() + std::chrono::milliseconds(250);
+            pn::string names;
+            for (const auto& sel : current_selection()) {
+                names += pn::format("{0}{1} #{2}", names.empty() ? "" : ";",
+                                    sel.first->long_name(), sel.first.number());
+            }
+            timing_mark(pn::format("modern selection\t{0}", names));
             if (control.get() && control->sprite.get()) {
                 timing_mark(pn::format(
                         "modern selected\t{0} #{1}\t{2}\t{3}", control->long_name(),
@@ -276,15 +390,47 @@ void draw_modern_markers() {
             }
         }
     }
-    if (control.get() && control->sprite.get()) {
-        const auto& frame = control->sprite->table->at(control->sprite->whichShape);
-        const Rect  world = scale_sprite_rect(frame, control->location, control->naturalScale);
-        const Point tl = scale_to_viewport(Point(world.left, world.top));
-        const Point br = scale_to_viewport(Point(world.right, world.bottom));
+    // Brackets on every selected ship and on the control object (also when it can't take orders:
+    // a base, the flagship); the control object brighter. Then the drag box.
+    std::vector<Handle<SpaceObject>> marked;
+    if (control.get()) {
+        marked.push_back(control);
+    }
+    for (const auto& sel : current_selection()) {
+        if (sel.first != control) {
+            marked.push_back(sel.first);
+        }
+    }
+    for (auto o : marked) {
+        if (!o->sprite.get()) {
+            continue;
+        }
+        const auto& frame = o->sprite->table->at(o->sprite->whichShape);
+        const Rect  world = scale_sprite_rect(frame, o->location, o->naturalScale);
+        const Point tl    = scale_to_viewport(Point(world.left, world.top));
+        const Point br    = scale_to_viewport(Point(world.right, world.bottom));
         Rect        r(tl.h, tl.v, std::max(tl.h, br.h), std::max(tl.v, br.v));
         r.inset(-3, -3);
         if (clip.contains(r.center())) {
-            draw_brackets(rects, r, 6, 4, GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST));
+            draw_brackets(
+                    rects, r, 6, 4,
+                    GetRGBTranslateColorShade(Hue::YELLOW, (o == control) ? LIGHTEST : LIGHT));
+        }
+    }
+    if (gDrag.active) {
+        const Point m = sys.video->get_mouse();
+        Rect        box(std::min(gDrag.start.h, m.h), std::min(gDrag.start.v, m.v),
+                        std::max(gDrag.start.h, m.h) + 1, std::max(gDrag.start.v, m.v) + 1);
+        box.left   = std::max(box.left, clip.left);
+        box.top    = std::max(box.top, clip.top);
+        box.right  = std::min(box.right, clip.right);
+        box.bottom = std::min(box.bottom, clip.bottom);
+        if ((box.right > box.left) && (box.bottom > box.top)) {
+            const RgbColor c = GetRGBTranslateColorShade(Hue::YELLOW, MEDIUM);
+            rects.fill(Rect(box.left, box.top, box.right, box.top + 1), c);
+            rects.fill(Rect(box.left, box.bottom - 1, box.right, box.bottom), c);
+            rects.fill(Rect(box.left, box.top, box.left + 1, box.bottom), c);
+            rects.fill(Rect(box.right - 1, box.top, box.right, box.bottom), c);
         }
     }
 

@@ -418,6 +418,61 @@ and 4× on 5120×1920:
 **Limit (not new).** Select friendly (the key) only finds friendly ships within about 30° of the
 flagship's heading, in Classic as in Modern. Clicking reaches any ship on the screen.
 
+### 2.4b Modern multi-select (2026-10-20)
+
+Step D of `docs/modern-controls.md`, in the Modern mode only (§2.4a); Classic, replays, the demo
+and the tutorials are unchanged.
+
+**The selection** (`g.modern_selection`) is a list of the player's ships, in selection order. Its
+first ship is the admiral's control object, so the CONTROL line, Build and the rest still see one
+ship.
+- **Who can be selected:** only ships that can take orders: the player's own, not the flagship, not
+  a base, not a ship whose destination the level locks (`group_selectable`).
+- **Ships drop out** when they die, are captured or become locked.
+- **When the control object changes some other way** (a click on one ship, Select friendly, a
+  hotkey, a transfer), the selection becomes just that ship, or empty.
+
+**Left button (play area):**
+- **Click** on a ship: selects it, replacing the selection (as Classic); on empty space it changes
+  nothing.
+- **Shift+click** on one of the player's ships: adds it, and doesn't target it.
+- **Drag** (more than 4 px): a thin yellow box while the button is held. On release, the player's
+  orderable ships inside it are selected, in object order; the first becomes the control object.
+  - **Shift+drag** adds them to the selection.
+  - **A box with none inside** changes nothing.
+- The drag is resolved from the queued mouse-down and mouse-up points, at the release's tick.
+
+**Right-click orders** apply to every selected ship, under the rules of §2.4a (attack, follow,
+guard, move). A ship is never ordered to itself.
+- **Group moves:** the ships spread on a small centred grid around the point, 160 world units apart
+  (`formation_offset`: 2 ships side by side, 3–4 in a 2×2, 5–9 in a 3×3), in selection order, so
+  the result is deterministic.
+- **Orders stored:** the same as before, the existing destinations only, so level scripts still
+  override.
+
+**Brackets** go on every selected ship and on the control object (also when it is a base or the
+flagship); the control object's are brighter.
+
+**Tests:**
+- `controls-test`: who a box selects, the box test either way round, and the formation offsets
+  (distinct, at least 160 apart, centred, deterministic).
+- **Replay test `modern-multi`:** `space-race` played with `--modern` and
+  `test-starbound/modern-multi.inject`. It runs these steps, and two runs are identical:
+  - a drag box selects one ship;
+  - a Shift+drag adds two more;
+  - a group move (three grid points);
+  - at zoom to all, a group attack on a Gaitori cruiser.
+- **Why `space-race`:** `shoplifter-1` (the `modern-orders` test, unchanged) has only one ship the
+  player can order, so it can't hold a multi-ship drag.
+- **New `replay` tool inject steps:** `ldrag`, `keydown`, `keyup`, `log-orderable` and
+  `log-selection`.
+
+**In game (ch05, Modern: Ares, windowed, UI 2× and 4×):** checked from the `--timing` log, no
+screenshots.
+- At zoom to all, a drag box around both Engineers selected both.
+- A right-click on empty space gave each a move to its own grid point.
+- A right-click on the flagship made both follow it.
+
 ### 2.5 Timing
 
 60 ticks per second; every 3rd tick is a "major" tick when collisions, AI and actions run
