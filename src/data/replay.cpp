@@ -403,8 +403,8 @@ void ReplayBuilder::key_down(const KeyDownEvent& event) {
     if (!_out.c_obj()) {
         return;
     }
-    for (auto i : range<int>(KEY_COUNT)) {
-        if (event.key() == sys.prefs->key(i)) {
+    for (int i : sys.prefs->actions_for(Binding::key(event.key()))) {
+        if (i < KEY_COUNT) {
             ReplayData::Action action = {};
             action.at                 = _at;
             action.keys_down.push_back(i);
@@ -417,8 +417,8 @@ void ReplayBuilder::key_up(const KeyUpEvent& event) {
     if (_out.c_obj()) {
         return;
     }
-    for (auto i : range<int>(KEY_COUNT)) {
-        if (event.key() == sys.prefs->key(i)) {
+    for (int i : sys.prefs->actions_for(Binding::key(event.key()))) {
+        if (i < KEY_COUNT) {
             ReplayData::Action action = {};
             action.at                 = _at;
             action.keys_up.push_back(i);

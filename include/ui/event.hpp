@@ -195,6 +195,28 @@ class MouseWheelEvent : public MouseEvent {
     int _steps;
 };
 
+// An action (KeyNum) pressed or released directly, without a device: replays send these, so they
+// play the same whatever the player's bindings are.
+class ActionDownEvent : public Event {
+  public:
+    ActionDownEvent(wall_time at, int action) : Event(at), _action(action) {}
+    int          action() const { return _action; }
+    virtual void send(EventReceiver* receiver) const;
+
+  private:
+    int _action;
+};
+
+class ActionUpEvent : public Event {
+  public:
+    ActionUpEvent(wall_time at, int action) : Event(at), _action(action) {}
+    int          action() const { return _action; }
+    virtual void send(EventReceiver* receiver) const;
+
+  private:
+    int _action;
+};
+
 class EventReceiver {
   public:
     EventReceiver() {}
@@ -211,6 +233,8 @@ class EventReceiver {
     virtual void mouse_up(const MouseUpEvent& event);
     virtual void mouse_move(const MouseMoveEvent& event);
     virtual void mouse_wheel(const MouseWheelEvent& event);
+    virtual void action_down(const ActionDownEvent& event);
+    virtual void action_up(const ActionUpEvent& event);
 };
 
 }  // namespace antares

@@ -415,13 +415,37 @@ KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
         dynamic_cast<PlainButton*>(add_widget(WidgetData{std::move(data)}))
                 ->bind({
                         [this] {
-                            const Preferences defaults;
-                            for (int i = 0; i < KEY_COUNT; ++i) {
-                                sys.prefs->set_key(i, defaults.keys[i]);
-                            }
+                            sys.prefs->set_controls_preset(sys.prefs->controls_preset());
                             _selected_key = -1;
                             update_conflicts();
                             adjust_interface();
+                        },
+                });
+    }
+
+    // The control presets, as radio-like checkboxes under the instructions: choosing one replaces
+    // every binding with that preset's (Cancel restores the previous ones). Reset to Defaults
+    // resets to the chosen preset.
+    int left = 146;
+    for (ControlPreset preset : kControlPresets) {
+        CheckboxButtonData data;
+        data.id     = pn::format("preset-{0}", preset_id(preset));
+        data.type   = WidgetDataBase::CHECKBOX;
+        data.bounds = {left, 410, left + 110, 420};
+        data.label  = pn::format("PRESET: {0}", preset_label(preset));
+        data.hue    = Hue::PALE_PURPLE;
+        data.style  = InterfaceStyle::SMALL;
+        left += 130;
+        dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
+                ->bind({
+                        [preset] { return sys.prefs->controls_preset() == preset; },
+                        [this, preset](bool on) {
+                            if (on) {
+                                sys.prefs->set_controls_preset(preset);
+                                _selected_key = -1;
+                                update_conflicts();
+                                adjust_interface();
+                            }
                         },
                 });
     }

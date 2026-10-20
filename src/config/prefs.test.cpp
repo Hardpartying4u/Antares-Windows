@@ -26,45 +26,45 @@ bool unreachable_on_pc(Key k) {
 TEST_F(PrefsTest, DefaultsReachableAndDistinct) {
     const Preferences p;
     for (int i = 0; i < KEY_COUNT; ++i) {
-        EXPECT_FALSE(unreachable_on_pc(p.keys[i])) << "action " << i;
+        EXPECT_FALSE(unreachable_on_pc(p.key(i))) << "action " << i;
         for (int j = i + 1; j < KEY_COUNT; ++j) {
-            EXPECT_NE(p.keys[i], p.keys[j]) << "actions " << i << " and " << j;
+            EXPECT_NE(p.key(i), p.key(j)) << "actions " << i << " and " << j;
         }
     }
-    EXPECT_EQ(p.keys[kSelectFriendKeyNum], Key::N_PERIOD);
-    EXPECT_EQ(p.keys[kSelectFoeKeyNum], Key::N_TIMES);
-    EXPECT_EQ(p.keys[kScaleHostileKeyNum], Key::END);
+    EXPECT_EQ(p.key(kSelectFriendKeyNum), Key::N_PERIOD);
+    EXPECT_EQ(p.key(kSelectFoeKeyNum), Key::N_TIMES);
+    EXPECT_EQ(p.key(kScaleHostileKeyNum), Key::END);
 }
 
 // A saved config with Ares' old defaults, as configs written before the change have.
 Preferences old_saved() {
     Preferences p;
-    p.keys[kSelectFriendKeyNum] = Key::N_CLEAR;
-    p.keys[kSelectFoeKeyNum]    = Key::N_EQUALS;
-    p.keys[kScaleHostileKeyNum] = Key::HELP;
+    p.bindings[kSelectFriendKeyNum].slot[kPrimarySlot] = Binding::key(Key::N_CLEAR);
+    p.bindings[kSelectFoeKeyNum].slot[kPrimarySlot]    = Binding::key(Key::N_EQUALS);
+    p.bindings[kScaleHostileKeyNum].slot[kPrimarySlot] = Binding::key(Key::HELP);
     return p;
 }
 
 TEST_F(PrefsTest, MigrateOldDefaults) {
     Preferences p = old_saved();
     EXPECT_EQ(migrate_unreachable_defaults(&p), 3);
-    EXPECT_EQ(p.keys[kSelectFriendKeyNum], Key::N_PERIOD);
-    EXPECT_EQ(p.keys[kSelectFoeKeyNum], Key::N_TIMES);
-    EXPECT_EQ(p.keys[kScaleHostileKeyNum], Key::END);
+    EXPECT_EQ(p.key(kSelectFriendKeyNum), Key::N_PERIOD);
+    EXPECT_EQ(p.key(kSelectFoeKeyNum), Key::N_TIMES);
+    EXPECT_EQ(p.key(kScaleHostileKeyNum), Key::END);
 }
 
 TEST_F(PrefsTest, MigrateKeepsChosenKeys) {
     Preferences p = old_saved();
-    p.keys[kSelectFriendKeyNum] = Key::F;  // rebound by the player: kept
+    p.bindings[kSelectFriendKeyNum].slot[kPrimarySlot] = Binding::key(Key::F);  // rebound by the player: kept
     EXPECT_EQ(migrate_unreachable_defaults(&p), 2);
-    EXPECT_EQ(p.keys[kSelectFriendKeyNum], Key::F);
+    EXPECT_EQ(p.key(kSelectFriendKeyNum), Key::F);
 }
 
 TEST_F(PrefsTest, MigrateNeverCreatesAConflict) {
     Preferences p = old_saved();
-    p.keys[kOneKeyNum] = Key::END;  // the new default is already used by another action
+    p.bindings[kOneKeyNum].slot[kPrimarySlot] = Binding::key(Key::END);  // the new default is already used by another action
     EXPECT_EQ(migrate_unreachable_defaults(&p), 2);
-    EXPECT_EQ(p.keys[kScaleHostileKeyNum], Key::HELP);  // left as saved
+    EXPECT_EQ(p.key(kScaleHostileKeyNum), Key::HELP);  // left as saved
 }
 
 const char kConfig[] = "out/test/prefs-old.pn";

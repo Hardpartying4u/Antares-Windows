@@ -49,6 +49,8 @@ void MouseUpEvent::send(EventReceiver* receiver) const { receiver->mouse_up(*thi
 void MouseMoveEvent::send(EventReceiver* receiver) const { receiver->mouse_move(*this); }
 
 void MouseWheelEvent::send(EventReceiver* receiver) const { receiver->mouse_wheel(*this); }
+void ActionDownEvent::send(EventReceiver* receiver) const { receiver->action_down(*this); }
+void ActionUpEvent::send(EventReceiver* receiver) const { receiver->action_up(*this); }
 
 EventReceiver::~EventReceiver() {}
 
@@ -61,5 +63,7 @@ void EventReceiver::mouse_down(const MouseDownEvent& event) {}
 void EventReceiver::mouse_up(const MouseUpEvent& event) {}
 void EventReceiver::mouse_move(const MouseMoveEvent& event) {}
 void EventReceiver::mouse_wheel(const MouseWheelEvent& event) {}
+void EventReceiver::action_down(const ActionDownEvent& event) {}
+void EventReceiver::action_up(const ActionUpEvent& event) {}
 
 }  // namespace antares

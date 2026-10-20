@@ -461,8 +461,9 @@ With nothing but the flagship selected, a right-click only targets, as a Classic
 - **Alt+right-click.** Alt is Fire 1 in the Classic defaults (Left Alt), so in Modern it would
   also fire weapon 1 unless Modern moves Fire 1 off Alt.
 - **Ctrl+right-click.** Conflict-free in both presets once Ctrl acts as a modifier in Modern (§4).
-- **Recommendation:** build it as **A, then left-click**, with **Ctrl+right-click** as an
-  always-available second gesture. Decide WASD against A when the Modern preset is set (M2 stage
+- **Decided 2026-10-20:** **Ctrl+right-click**, plus a rebindable key (G in the Modern preset, an
+  action since M2 stage 4); Modern flight stays on WASD. The original recommendation was **A, then
+  left-click**, with **Ctrl+right-click** as an always-available second gesture. Decide WASD against A when the Modern preset is set (M2 stage
   4). Both reach the same order.
 
 **What the engine must do for attack-move to engage on the way**

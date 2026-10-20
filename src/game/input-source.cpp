@@ -107,19 +107,23 @@ game_ticks RealInputSource::at() {
     return result;
 }
 
+// Replays store action numbers (the original 0-43). They are played back as actions, not turned
+// into the player's keys, so they play the same whatever the bindings are.
 ReplayInputSource::ReplayInputSource(ReplayData* data)
         : _duration(game_ticks(ticks(data->duration * 3))), _exit(false) {
     for (auto action : data->actions) {
         game_ticks at = game_ticks(ticks(action.at * 3));
         for (auto key : action.keys_down) {
-            _events.emplace(
-                    make_pair(0, at),
-                    unique_ptr<Event>(new KeyDownEvent(wall_time(), sys.prefs->key(key))));
+            if (key < KEY_COUNT) {
+                _events.emplace(
+                        make_pair(0, at), unique_ptr<Event>(new ActionDownEvent(wall_time(), key)));
+            }
         }
         for (auto key : action.keys_up) {
-            _events.emplace(
-                    make_pair(0, at),
-                    unique_ptr<Event>(new KeyUpEvent(wall_time(), sys.prefs->key(key))));
+            if (key < KEY_COUNT) {
+                _events.emplace(
+                        make_pair(0, at), unique_ptr<Event>(new ActionUpEvent(wall_time(), key)));
+            }
         }
     }
 }

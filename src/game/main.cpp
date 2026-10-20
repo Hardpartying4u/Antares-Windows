@@ -25,6 +25,7 @@
 #include <pn/output>
 #include <set>
 
+#include "config/bindings.hpp"
 #include "config/gamepad.hpp"
 #include "config/keys.hpp"
 #include "config/preferences.hpp"
@@ -112,6 +113,9 @@ class GamePlay : public Card {
     virtual void gamepad_stick(const GamepadStickEvent& event);
 
   private:
+    bool global_action_down(const Binding& b);
+    bool global_action_up(const Binding& b);
+
     enum State {
         PLAYING,
         PAUSED,
@@ -586,30 +590,7 @@ void GamePlay::key_down(const KeyDownEvent& event) {
             }
 
         default:
-            if (event.key() == sys.prefs->key(kHelpKeyNum)) {
-                if (_replay) {
-                    break;
-                } else {
-                    _state         = HELP;
-                    _player_paused = true;
-                    stack()->push(new HelpScreen);
-                    return;
-                }
-            } else if (event.key() == sys.prefs->key(kVolumeDownKeyNum)) {
-                sys.prefs->set_volume(std::max(0, sys.prefs->volume() - 1));
-                sys.audio->set_global_volume(sys.prefs->volume());
-                return;
-            } else if (event.key() == sys.prefs->key(kVolumeUpKeyNum)) {
-                sys.prefs->set_volume(std::min(kMaxVolumePreference, sys.prefs->volume() + 1));
-                sys.audio->set_global_volume(sys.prefs->volume());
-                return;
-            } else if (event.key() == sys.prefs->key(kActionMusicKeyNum)) {
-                if (sys.prefs->play_music_in_game()) {
-                    sys.music.toggle();
-                }
-                return;
-            } else if (event.key() == sys.prefs->key(kFastMotionKeyNum)) {
-                _fast_motion = true;
+            if (global_action_down(Binding::key(event.key()))) {
                 return;
             }
     }
@@ -618,23 +599,89 @@ void GamePlay::key_down(const KeyDownEvent& event) {
 }
 
 void GamePlay::key_up(const KeyUpEvent& event) {
-    if (event.key() == sys.prefs->key(kFastMotionKeyNum)) {
-        _fast_motion = false;
+    if (global_action_up(Binding::key(event.key()))) {
         return;
     }
 
     _input_source->key_up(event);
 }
 
-void GamePlay::mouse_down(const MouseDownEvent& event) { _input_source->mouse_down(event); }
+// Help, volume, music and fast motion are handled here, from whatever input they are bound to: they
+// aren't part of the simulation, so they don't go through the input queue. Returns whether the
+// input was one of them.
+bool GamePlay::global_action_down(const Binding& b) {
+    for (int a : sys.prefs->actions_for(b)) {
+        switch (a) {
+            case kHelpKeyNum:
+                if (_replay) {
+                    return false;
+                }
+                _state         = HELP;
+                _player_paused = true;
+                stack()->push(new HelpScreen);
+                return true;
+            case kVolumeDownKeyNum:
+                sys.prefs->set_volume(std::max(0, sys.prefs->volume() - 1));
+                sys.audio->set_global_volume(sys.prefs->volume());
+                return true;
+            case kVolumeUpKeyNum:
+                sys.prefs->set_volume(std::min(kMaxVolumePreference, sys.prefs->volume() + 1));
+                sys.audio->set_global_volume(sys.prefs->volume());
+                return true;
+            case kActionMusicKeyNum:
+                if (sys.prefs->play_music_in_game()) {
+                    sys.music.toggle();
+                }
+                return true;
+            case kFastMotionKeyNum: _fast_motion = true; return true;
+            default: break;
+        }
+    }
+    return false;
+}
 
-void GamePlay::mouse_up(const MouseUpEvent& event) { _input_source->mouse_up(event); }
+bool GamePlay::global_action_up(const Binding& b) {
+    for (int a : sys.prefs->actions_for(b)) {
+        if (a == kFastMotionKeyNum) {
+            _fast_motion = false;
+            return true;
+        }
+    }
+    return false;
+}
+
+void GamePlay::mouse_down(const MouseDownEvent& event) {
+    if ((event.button() > 1) && global_action_down(Binding::mouse(event.button()))) {
+        return;
+    }
+    _input_source->mouse_down(event);
+}
+
+void GamePlay::mouse_up(const MouseUpEvent& event) {
+    if ((event.button() > 1) && global_action_up(Binding::mouse(event.button()))) {
+        return;
+    }
+    _input_source->mouse_up(event);
+}
 
 void GamePlay::mouse_move(const MouseMoveEvent& event) { _input_source->mouse_move(event); }
 
-// The wheel zooms. It goes through the input source like the zoom keys, so it reaches the game at a
-// major tick (g.zoom is game state: level conditions test it).
-void GamePlay::mouse_wheel(const MouseWheelEvent& event) { _input_source->mouse_wheel(event); }
+// The wheel goes through the input source like the keys, so the actions bound to it (zoom, by
+// default) reach the game at a major tick (g.zoom is game state: level conditions test it). If it
+// is bound to a global action instead, each notch presses and releases that.
+void GamePlay::mouse_wheel(const MouseWheelEvent& event) {
+    const Binding b      = Binding::wheel(event.steps());
+    bool          global = false;
+    for (int i = 0; i < std::abs(event.steps()); ++i) {
+        if (global_action_down(b)) {
+            global_action_up(b);
+            global = true;
+        }
+    }
+    if (!global) {
+        _input_source->mouse_wheel(event);
+    }
+}
 
 void GamePlay::gamepad_button_down(const GamepadButtonDownEvent& event) {
     switch (event.button) {
@@ -650,13 +697,20 @@ void GamePlay::gamepad_button_down(const GamepadButtonDownEvent& event) {
                         &_play_again));
                 return;
             }
-        default: break;
+        default:
+            if (global_action_down(Binding::gamepad(event.button))) {
+                return;
+            }
+            break;
     }
 
     _input_source->gamepad_button_down(event);
 }
 
 void GamePlay::gamepad_button_up(const GamepadButtonUpEvent& event) {
+    if (global_action_up(Binding::gamepad(event.button))) {
+        return;
+    }
     _input_source->gamepad_button_up(event);
 }
 

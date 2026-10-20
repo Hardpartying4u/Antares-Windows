@@ -268,7 +268,14 @@ enum KeyNum {
     kHotKey9Num  = kFirstHotKeyNum + 8,
     kHotKey10Num = kFirstHotKeyNum + 9,
 
-    KEY_COUNT = 44,  // Number of real keys that can be set in prefs
+    KEY_COUNT = 44,  // The original actions. Replays and configs store these numbers: never renumber.
+
+    // Actions added by Star Bound, after the original 44 (never stored in replays). They can be
+    // bound, but do nothing until the Modern control mode is built (docs/modern-controls.md).
+    kAttackMoveKeyNum = 44,
+    kPatrolKeyNum     = 45,
+
+    ACTION_COUNT = 46,  // Every bindable action.
 };
 
 enum {

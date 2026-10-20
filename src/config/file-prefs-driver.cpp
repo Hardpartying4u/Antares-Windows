@@ -37,22 +37,13 @@ using sfz::path::dirname;
 
 namespace antares {
 
-static const char* kKeyNames[KEY_COUNT] = {
-        "ship accel",      "ship decel",     "ship ccw",    "ship cw",      "fire 1",
-        "fire 2",          "fire s",         "warp",
+// The config is version 2 since 2026-10-20: bindings for every action (two keyboard-and-mouse and
+// one gamepad) and the selected preset, under "controls". Version 1 (no version field) only had
+// "keys", one key per original action; it loads as the Classic preset with those keys. Version 2
+// also writes "keys", so an older build can still read the keys it knows.
+static const int64_t kConfigVersion = 2;
 
-        "select friendly", "select hostile", "select base", "target",       "order",
-        "zoom in",         "zoom out",
-
-        "comp up",         "comp down",      "comp accept", "comp cancel",
-
-        "transfer",        "zoom 1:1",       "zoom 1:2",    "zoom 1:4",     "zoom 1:16",
-        "zoom hostile",    "zoom object",    "zoom all",    "next message", "help",
-        "volume down",     "volume up",      "game music",  "net settings", "fast motion",
-
-        "hotkey 1",        "hotkey 2",       "hotkey 3",    "hotkey 4",     "hotkey 5",
-        "hotkey 6",        "hotkey 7",       "hotkey 8",    "hotkey 9",     "hotkey 10",
-};
+static const char* const kSlotNames[kBindingSlots] = {"primary", "secondary", "gamepad"};
 
 static void set(bool& v, pn::value_cref x) {
     if (x.is_bool()) {
@@ -104,11 +95,44 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
     set(_current.play_idle_music, sound.get("idle music"));
     set(_current.play_music_in_game, sound.get("game music"));
 
-    pn::map_cref keys = m.get("keys").as_map();
-    for (auto i : range<size_t>(KEY_COUNT)) {
-        set(_current.keys[i], keys.get(kKeyNames[i]));
+    if (m.get("controls").is_map()) {
+        pn::map_cref controls = m.get("controls").as_map();
+        if (controls.get("preset").is_string()) {
+            auto preset = preset_with_id(controls.get("preset").as_string());
+            if (preset.has_value()) {
+                _current.controls_preset = *preset;
+                apply_preset(*preset, _current.bindings);  // for any action the file lacks
+            }
+        }
+        pn::map_cref bindings = controls.get("bindings").as_map();
+        for (int a = 0; a < ACTION_COUNT; ++a) {
+            if (!bindings.has(action_config_name(a))) {
+                continue;
+            }
+            pn::map_cref entry = bindings.get(action_config_name(a)).as_map();
+            for (int s = 0; s < kBindingSlots; ++s) {
+                if (!entry.has(kSlotNames[s])) {
+                    continue;
+                }
+                const Binding b = binding_from_value(entry.get(kSlotNames[s]));
+                if (slot_accepts(static_cast<BindingSlot>(s), b)) {
+                    _current.bindings[a].slot[s] = b;
+                }
+            }
+        }
+    } else {
+        pn::map_cref keys = m.get("keys").as_map();
+        for (int a = 0; a < KEY_COUNT; ++a) {
+            pn::value_cref k = keys.get(action_config_name(a));
+            if (k.is_int()) {
+                const Binding b = Binding::key(Key(static_cast<int>(k.as_int())));
+                if (slot_accepts(kPrimarySlot, b)) {
+                    _current.bindings[a].slot[kPrimarySlot] = b;
+                }
+            }
+        }
+        migrate_unreachable_defaults(&_current);
     }
-    migrate_unreachable_defaults(&_current);
 
     pn::map_cref video = m.get("video").as_map();
     set(_current.fullscreen, video.get("fullscreen"));
@@ -124,13 +148,22 @@ void FilePrefsDriver::set(const Preferences& p) {
     _current = p.copy();
 
     pn::map keys;
-    for (auto i : range<size_t>(KEY_COUNT)) {
-        keys[kKeyNames[i]] = p.keys[i].value();
+    for (int a = 0; a < KEY_COUNT; ++a) {
+        keys[action_config_name(a)] = p.key(a).value();
+    }
+    pn::map bindings;
+    for (int a = 0; a < ACTION_COUNT; ++a) {
+        pn::map entry;
+        for (int s = 0; s < kBindingSlots; ++s) {
+            entry[kSlotNames[s]] = binding_to_value(p.bindings[a].slot[s]);
+        }
+        bindings[action_config_name(a)] = std::move(entry);
     }
 
     makedirs(dirname(_path), 0755);
     pn::output output = pn::output{_path, pn::text};
     output.dump(pn::map{
+            {"version", kConfigVersion},
             {"sound",
              pn::map{
                      {"volume", p.volume},
@@ -139,6 +172,11 @@ void FilePrefsDriver::set(const Preferences& p) {
                      {"game music", p.play_music_in_game},
              }},
             {"keys", std::move(keys)},
+            {"controls",
+             pn::map{
+                     {"preset", preset_id(p.controls_preset).copy()},
+                     {"bindings", std::move(bindings)},
+             }},
             {"video",
              pn::map{
                      {"fullscreen", p.fullscreen},

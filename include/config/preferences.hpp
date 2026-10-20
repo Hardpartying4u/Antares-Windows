@@ -21,6 +21,7 @@
 
 #include <pn/string>
 
+#include "config/bindings.hpp"
 #include "config/keys.hpp"
 #include "math/geometry.hpp"
 
@@ -30,7 +31,10 @@ struct Preferences {
     Preferences();
     Preferences copy() const;
 
-    Key     keys[44];
+    // What triggers each action (two keyboard-and-mouse bindings and a gamepad button), and the
+    // preset they were last set from.
+    ActionBindings bindings[ACTION_COUNT];
+    ControlPreset  controls_preset;
     bool    play_idle_music;
     bool    play_music_in_game;
     bool    speech_on;
@@ -39,12 +43,19 @@ struct Preferences {
     Size    window_size;
     int16_t ui_scale;  // 0: automatic; 1-4: fixed integer UI scale.
     bool    enhanced_graphics;  // true: use the art folder (Enhanced); false: Original.
+
+    // The action's first key binding (primary, else secondary), or Key::NONE. Text that names an
+    // action's key (tutorials, labels, the minicomputer) uses this.
+    Key key(int action) const;
+
+    // Whether the bindings are exactly those of the selected preset.
+    bool bindings_match_preset() const;
 };
 
 // Saved configs from before 2026-10-20 store Ares' defaults for Select friendly (Keypad Clear),
 // Select hostile (Keypad =) and Zoom to nearest hostile (Help), keys PC keyboards don't have.
-// Moves each one still on that old default to the new default, unless another action already
-// uses the new key. Other bindings are left as saved. Returns how many were moved.
+// Moves each primary binding still on that old default to the Classic default, unless another
+// action already uses the new key. Other bindings are left as saved. Returns how many were moved.
 int migrate_unreachable_defaults(Preferences* p);
 
 class PrefsDriver {
@@ -55,7 +66,14 @@ class PrefsDriver {
     virtual const Preferences& get() const                   = 0;
     virtual void               set(const Preferences& prefs) = 0;
 
-    Key  key(size_t index) const { return get().keys[index]; }
+    Key            key(size_t index) const { return get().key(index); }
+    const Binding& binding(int action, BindingSlot slot) const {
+        return get().bindings[action].slot[slot];
+    }
+    std::vector<int> actions_for(const Binding& b) const {
+        return antares::actions_for(get().bindings, b);
+    }
+    ControlPreset controls_preset() const { return get().controls_preset; }
     bool play_idle_music() const { return get().play_idle_music; }
     bool play_music_in_game() const { return get().play_music_in_game; }
     bool speech_on() const { return get().speech_on; }
@@ -65,7 +83,9 @@ class PrefsDriver {
     int  ui_scale() const { return get().ui_scale; }
     bool enhanced_graphics() const { return get().enhanced_graphics; }
 
-    void set_key(size_t index, Key key);
+    void set_key(size_t index, Key key);  // as the primary binding
+    void set_binding(int action, BindingSlot slot, const Binding& b);
+    void set_controls_preset(ControlPreset p);  // selects the preset and applies its bindings
     void set_play_idle_music(bool on);
     void set_play_music_in_game(bool on);
     void set_speech_on(bool on);

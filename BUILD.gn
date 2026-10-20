@@ -103,6 +103,7 @@ source_set("libantares-build") {
 
 source_set("libantares-config") {
   sources = [
+    "include/config/bindings.hpp",
     "include/config/dirs.hpp",
     "include/config/file-prefs-driver.hpp",
     "include/config/gamepad.hpp",
@@ -114,6 +115,7 @@ source_set("libantares-config") {
     # source, and ninja doesn't like when you have a library with just
     # includes in the sources list.
     "include/net/http.hpp",
+    "src/config/bindings.cpp",
     "src/config/dirs.cpp",
     "src/config/file-prefs-driver.cpp",
     "src/config/gamepad.cpp",
@@ -570,7 +572,10 @@ executable("controls-test") {
 executable("prefs-test") {
   testonly = true
   output_extension = exe
-  sources = [ "src/config/prefs.test.cpp" ]
+  sources = [
+    "src/config/bindings.test.cpp",
+    "src/config/prefs.test.cpp",
+  ]
   deps = [
     ":libantares-test",
     "//ext/gmock:gmock_main",

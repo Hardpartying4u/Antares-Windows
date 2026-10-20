@@ -41,57 +41,8 @@ static T clamp(T value, T lower, T upper) {
 }
 
 Preferences::Preferences() {
-    keys[kUpKeyNum]    = Key::N8;
-    keys[kDownKeyNum]  = Key::N5;
-    keys[kLeftKeyNum]  = Key::N4;
-    keys[kRightKeyNum] = Key::N6;
-    keys[kOneKeyNum]   = Key::OPTION;
-    keys[kTwoKeyNum]   = Key::COMMAND;
-    keys[kEnterKeyNum] = Key::SPACE;
-    keys[kWarpKeyNum]  = Key::TAB;
-
-    // Keypad Clear and Keypad = (Ares' defaults) aren't on PC keyboards; Keypad . and * are.
-    keys[kSelectFriendKeyNum] = Key::N_PERIOD;
-    keys[kSelectFoeKeyNum]    = Key::N_TIMES;
-    keys[kSelectBaseKeyNum]   = Key::N_DIVIDE;
-    keys[kDestinationKeyNum]  = Key::SHIFT;
-    keys[kOrderKeyNum]        = Key::CONTROL;
-
-    keys[kZoomInKeyNum]  = Key::N_PLUS;
-    keys[kZoomOutKeyNum] = Key::N_MINUS;
-
-    keys[kCompUpKeyNum]     = Key::UP_ARROW;
-    keys[kCompDownKeyNum]   = Key::DOWN_ARROW;
-    keys[kCompAcceptKeyNum] = Key::RIGHT_ARROW;
-    keys[kCompCancelKeyNum] = Key::LEFT_ARROW;
-
-    keys[kTransferKeyNum]     = Key::F8;
-    keys[kScale121KeyNum]     = Key::F9;
-    keys[kScale122KeyNum]     = Key::F10;
-    keys[kScale124KeyNum]     = Key::F11;
-    keys[kScale1216KeyNum]    = Key::F12;
-    keys[kScaleHostileKeyNum] = Key::END;  // Ares used Help, which PC keyboards don't have
-    keys[kScaleObjectKeyNum]  = Key::HOME;
-    keys[kScaleAllKeyNum]     = Key::PAGE_UP;
-
-    keys[kMessageNextKeyNum] = Key::BACKSPACE;
-    keys[kHelpKeyNum]        = Key::F1;
-    keys[kVolumeDownKeyNum]  = Key::F2;
-    keys[kVolumeUpKeyNum]    = Key::F3;
-    keys[kActionMusicKeyNum] = Key::F4;
-    keys[kNetSettingsKeyNum] = Key::F5;
-    keys[kFastMotionKeyNum]  = Key::F6;
-
-    keys[kFirstHotKeyNum + 0] = Key::K1;
-    keys[kFirstHotKeyNum + 1] = Key::K2;
-    keys[kFirstHotKeyNum + 2] = Key::K3;
-    keys[kFirstHotKeyNum + 3] = Key::K4;
-    keys[kFirstHotKeyNum + 4] = Key::K5;
-    keys[kFirstHotKeyNum + 5] = Key::K6;
-    keys[kFirstHotKeyNum + 6] = Key::K7;
-    keys[kFirstHotKeyNum + 7] = Key::K8;
-    keys[kFirstHotKeyNum + 8] = Key::K9;
-    keys[kFirstHotKeyNum + 9] = Key::K0;
+    controls_preset = ControlPreset::CLASSIC;
+    apply_preset(controls_preset, bindings);
 
     play_idle_music    = true;
     play_music_in_game = false;
@@ -115,28 +66,59 @@ int migrate_unreachable_defaults(Preferences* p) {
             {kSelectFoeKeyNum, Key::N_EQUALS},
             {kScaleHostileKeyNum, Key::HELP},
     };
-    const Preferences defaults;
-    int               moved = 0;
+    ActionBindings classic[ACTION_COUNT];
+    apply_preset(ControlPreset::CLASSIC, classic);
+    int moved = 0;
     for (const auto& m : kMoved) {
-        if (p->keys[m.key_num] != m.old_default) {
+        Binding& primary = p->bindings[m.key_num].slot[kPrimarySlot];
+        if (primary != Binding::key(m.old_default)) {
             continue;
         }
-        const Key new_key = defaults.keys[m.key_num];
-        bool      taken   = false;
-        for (int i = 0; i < KEY_COUNT; ++i) {
-            taken = taken || ((i != m.key_num) && (p->keys[i] == new_key));
+        const Binding new_key = classic[m.key_num].slot[kPrimarySlot];
+        bool          taken   = false;
+        for (int i : antares::actions_for(p->bindings, new_key)) {
+            taken = taken || (i != m.key_num);
         }
         if (!taken) {
-            p->keys[m.key_num] = new_key;
+            primary = new_key;
             ++moved;
         }
     }
     return moved;
 }
 
+Key Preferences::key(int action) const {
+    if ((action < 0) || (action >= ACTION_COUNT)) {
+        return Key::NONE;
+    }
+    for (int s : {kPrimarySlot, kSecondarySlot}) {
+        const Binding& b = bindings[action].slot[s];
+        if (b.device == Binding::Device::KEY) {
+            return Key(b.code);
+        }
+    }
+    return Key::NONE;
+}
+
+bool Preferences::bindings_match_preset() const {
+    ActionBindings preset[ACTION_COUNT];
+    apply_preset(controls_preset, preset);
+    for (int a = 0; a < ACTION_COUNT; ++a) {
+        for (int s = 0; s < kBindingSlots; ++s) {
+            if (bindings[a].slot[s] != preset[a].slot[s]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 Preferences Preferences::copy() const {
     Preferences copy;
-    memcpy(copy.keys, keys, sizeof(keys));
+    for (int a = 0; a < ACTION_COUNT; ++a) {
+        copy.bindings[a] = bindings[a];
+    }
+    copy.controls_preset    = controls_preset;
     copy.play_idle_music    = play_idle_music;
     copy.play_music_in_game = play_music_in_game;
     copy.speech_on          = speech_on;
@@ -158,8 +140,19 @@ PrefsDriver::PrefsDriver() {
 PrefsDriver::~PrefsDriver() { sys.prefs = NULL; }
 
 void PrefsDriver::set_key(size_t index, Key key) {
+    set_binding(index, kPrimarySlot, Binding::key(key));
+}
+
+void PrefsDriver::set_binding(int action, BindingSlot slot, const Binding& b) {
     Preferences p(get().copy());
-    p.keys[index] = key;
+    p.bindings[action].slot[slot] = b;
+    set(p);
+}
+
+void PrefsDriver::set_controls_preset(ControlPreset preset) {
+    Preferences p(get().copy());
+    p.controls_preset = preset;
+    apply_preset(preset, p.bindings);
     set(p);
 }
 

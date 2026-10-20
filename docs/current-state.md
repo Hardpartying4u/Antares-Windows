@@ -29,11 +29,54 @@ GLFW (src/glfw/video-driver.cpp)
 - Keys are stored as **USB HID codes** (`Key` enum, `include/config/keys.hpp`). GLFW keys are
   translated in `glfw_key_to_usb()` (`src/glfw/video-driver.cpp` ~60–160). Mac names are used
   for modifiers: **Option = Alt**, **Command = Windows/Super key**.
-- The 44 rebindable actions are the `KeyNum` enum (`include/config/keys.hpp` ~214). Defaults
-  are in `Preferences::Preferences()` (`src/config/preferences.cpp` ~43–93). Bindings are saved
-  to `config.pn` (`src/config/file-prefs-driver.cpp`) and edited in **Options › Key Controls**,
-  which has a **Reset to Defaults** button (added 2026-10-20, between Cancel and Options; Cancel
-  undoes it).
+- **Actions.** The rebindable actions are the `KeyNum` enum (`include/config/keys.hpp`):
+  - the original 44 (0–43), whose numbers replays and old configs store and which never change;
+  - since 2026-10-20, two added after them: Attack move (44) and Patrol (45). They can be bound
+    but do nothing until the Modern mode is built (`docs/modern-controls.md`).
+- **Bindings** (since 2026-10-20, `include/config/bindings.hpp`). Each action has:
+  - a **primary** and a **secondary** binding, each a key, a mouse button (middle and extra
+    buttons) or a wheel direction;
+  - a **gamepad** button.
+
+  Some inputs can't be bound because the game uses them itself:
+  - Esc, Return and Caps Lock;
+  - the left and right mouse buttons (select and target);
+  - the gamepad's LB and RB (the bumper commands) and Start (the Play Again menu).
+
+  Clashes: two actions may not share an input, except the weapons (fire 1, fire 2, special), which
+  may, because the Ares gamepad fires both weapons with RT.
+- **Presets** (data tables in `src/config/bindings.cpp`):
+  - **Classic** (the default) is the game as it was: the keys below, the wheel as the secondary
+    binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move and patrol are
+    unbound.
+  - **Modern** flies on W A S D, with:
+    - fire 1 Space, fire 2 F, special R;
+    - select friendly Q, select hostile E, select base B;
+    - zoom = and −, as well as the wheel;
+    - attack move G, patrol P;
+    - everything else, and the gamepad, as Classic.
+- **Where bindings are edited:** **Options › Key Controls**. It has a preset choice (Preset: Classic /
+  Preset: Modern, which replaces every binding with that preset's) and **Reset to Defaults**, which
+  restores the chosen preset. Cancel undoes either.
+- **Config file** (`src/config/file-prefs-driver.cpp`):
+  - Since 2026-10-20 it is version 2: `version: 2` and a `controls` section with the preset and,
+    for each action, `{primary, secondary, gamepad}`. A binding is written as `{key: 96}`,
+    `{mouse: 2}`, `{wheel: "up"}` or `{gamepad: "rt"}`.
+  - It still writes the version 1 `keys` section (each original action's first key, 0 for none),
+    so an older build reads the keys.
+  - A version 1 file (no `controls`) loads as Classic with its saved keys as the primary bindings,
+    then has the old unreachable defaults moved (below). Invalid bindings in a file (a reserved
+    input, a gamepad button in a key slot) are ignored.
+- **How an input becomes an action.** `PlayerShip` looks up the actions bound to each key, extra
+  mouse button, wheel notch or gamepad button (`Preferences`' `actions_for`) and presses them.
+  - Each action counts how many of its inputs are held: it starts on the first press and ends on
+    the last release.
+  - `GamePlay` handles help, volume, music and fast motion the same way, from whatever they are
+    bound to.
+  - Everything that changes the game still reaches `PlayerShip` through the input queue at a major
+    tick.
+  - Replays are played back as their stored action numbers (`ActionDownEvent`/`ActionUpEvent`),
+    not turned into the player's keys, so they play the same whatever the bindings are.
 - Display names for actions: `data/strings/controls/long.pn`; key names:
   `data/strings/keyboard/*.pn`.
 
@@ -141,6 +184,22 @@ in logical pixels: the driver converts window coordinates through the UI scale a
 (`GLFWVideoDriver::to_screen`), so clicks stay exact at every scale.
 
 ### 1.4 Gamepad (summary)
+
+**Bindings (2026-10-20).** The gamepad's simple buttons are now bindings (the gamepad slot of each
+action, §1.1), so they can be rebound. Classic and Modern both bind them as Ares did:
+- A thrust, B brake, RT fires weapons 1 and 2, LT special;
+- the left stick button warps; X and Y zoom out and in; Back is next message;
+- the D-pad drives the minicomputer.
+
+A pad button bound to warp toggles it, as before: held until the warp starts, it then stays on
+until pressed again.
+
+The left stick (steering), the bumpers and their commands, and Start stay fixed.
+
+Two side effects of routing pad buttons through actions:
+- levels' key masks now apply to them as to the keys (before, the pad bypassed them);
+- turning warp off no longer also drops the other held pad buttons. Before, a slip (`&= !kWarpKey`)
+  cleared them all.
 
 **Platforms.** Until 2026-10-20 only the macOS driver read a gamepad (`src/mac/video-driver.cpp`,
 Joy-Con); on Windows no gamepad input arrived. The GLFW driver now polls the first connected

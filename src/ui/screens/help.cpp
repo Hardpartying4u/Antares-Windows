@@ -18,6 +18,7 @@
 
 #include "ui/screens/help.hpp"
 
+#include <algorithm>
 #include <pn/output>
 
 #include "config/preferences.hpp"
@@ -56,7 +57,8 @@ HelpScreen::HelpScreen()
 HelpScreen::~HelpScreen() {}
 
 void HelpScreen::key_down(const KeyDownEvent& event) {
-    if (event.key() == sys.prefs->key(kHelpKeyNum)) {
+    const auto actions = sys.prefs->actions_for(Binding::key(event.key()));
+    if (std::find(actions.begin(), actions.end(), kHelpKeyNum) != actions.end()) {
         stack()->pop(this);
     } else {
         InterfaceScreen::key_down(event);

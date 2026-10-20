@@ -36,6 +36,22 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - right-click orders;
   - a patrol command;
   - an attack-move command.
+- **Decisions (2026-10-20, Modern controls plan approved):**
+  - Modern flight stays on WASD.
+  - Attack-move defaults to Ctrl+right-click plus a rebindable key (G in the Modern preset).
+  - The on-screen pointer is enough for a double-tapped group number until the camera work.
+- **Decision (2026-10-20): the binding model (M2 stage 4).**
+  - Each action has a primary and a secondary binding (key, extra mouse button or wheel) and a
+    gamepad button. Classic needs three inputs on zoom (keypad, wheel, pad), and a separate pad
+    slot keeps a pad binding from displacing a keyboard one.
+  - New actions go after the original 44, whose numbers never change.
+  - Classic and Modern are presets kept as data tables, chosen in Options; Classic is the default
+    and is today's controls.
+  - The config is version 2 and still reads and writes version 1's `keys`.
+  - Replays play back as action numbers, independent of bindings.
+  - Inputs the game keeps for itself can't be bound: Esc, Return, Caps Lock; left and right mouse;
+    the pad's bumpers and Start.
+  - See `docs/current-state.md` §1.1.
 - **Investigation (2026-10-20, revised the same day):** `docs/modern-controls.md` covers how orders and ship behaviour work, the detailed behaviour of control groups, drag selection with context-sensitive right-click, attack-move and patrol, and the proposed build order (toggle, right-click orders, attack-move, multi-select, groups, two-point patrol, then multi-point patrol routes). Findings:
   - Ctrl orders to an object fly straight there; a ship only fights after being hit or on arrival.
   - Point orders (Hold Position, Go To My Position) engage enemies met on the way, giving up after 15 s of fighting a target that doesn't fire back.
@@ -150,6 +166,6 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - M2: may Modern move the camera away from the flagship (edge or drag scrolling)? The original always centres on it.
 - ~~M2: in Modern, do the mouse buttons fire weapons or select and give orders?~~ Answered 2026-10-20 by the Modern goal: they select and give orders; firing stays on keys.
 - M2 Modern: should tutorials always run Classic, since their text and checks teach the Classic keys? (Proposed: yes; `docs/modern-controls.md` §2.4.)
-- M2 Modern: A then click for attack-move needs A to be free, but the planned Modern flight keys are WASD. Keep flight off WASD, or move attack-move to another key? (`docs/modern-controls.md` §5.2.)
-- M2 Modern: until the camera can leave the flagship, is a pointer to the group enough for a double-tapped group number? (`docs/modern-controls.md` §5.1.)
+- ~~M2 Modern: A then click for attack-move, or WASD flight?~~ Decided 2026-10-20: flight stays on WASD; attack-move is Ctrl+right-click plus a rebindable key (G).
+- ~~M2 Modern: is a pointer to the group enough for a double-tapped group number?~~ Decided 2026-10-20: yes, until the camera work.
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.

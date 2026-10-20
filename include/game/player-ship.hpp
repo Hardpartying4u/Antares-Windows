@@ -21,6 +21,7 @@
 
 #include <vector>
 
+#include "config/bindings.hpp"
 #include "config/keys.hpp"
 #include "data/base-object.hpp"
 #include "data/enums.hpp"
@@ -122,6 +123,9 @@ class PlayerShip : public EventReceiver {
     virtual void gamepad_button_up(const GamepadButtonUpEvent& event);
     virtual void gamepad_stick(const GamepadStickEvent& event);
 
+    virtual void action_down(const ActionDownEvent& event);
+    virtual void action_up(const ActionUpEvent& event);
+
     void update();
 
     bool    show_select() const;
@@ -136,9 +140,17 @@ class PlayerShip : public EventReceiver {
   private:
     bool active() const;
 
+    void input_down(const Binding& b);
+    void input_up(const Binding& b);
+    void press(int action);
+    void release(int action);
+    void action_on(int action);
+    void action_off(int action);
+
     uint32_t                 gTheseKeys;
-    uint32_t                 _gamepad_keys;
     std::vector<PlayerEvent> _player_events;
+    std::vector<Binding>     _pressed;                  // inputs held down
+    int                      _held[ACTION_COUNT] = {};  // how many held inputs hold each action
 
     enum GamepadState {
         NO_BUMPER              = 0,

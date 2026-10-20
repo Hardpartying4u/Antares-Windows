@@ -136,19 +136,9 @@ void ResetPlayerShip() {
 
 PlayerShip::PlayerShip()
         : gTheseKeys(0),
-          _gamepad_keys(0),
           _gamepad_state(NO_BUMPER),
           _control_active(false),
           _control_direction(0) {}
-
-static sfz::optional<KeyNum> key_num(Key key) {
-    for (int i = 0; i < kKeyExtendedControlNum; ++i) {
-        if (key == sys.prefs->key(i)) {
-            return sfz::make_optional(static_cast<KeyNum>(i));
-        }
-    }
-    return sfz::nullopt;
-}
 
 static void zoom_to(Zoom zoom) {
     if (g.zoom != zoom) {
@@ -339,6 +329,177 @@ static PlayerEvent hot_key_up(int i) {
     }
 }
 
+// An input pressed: runs every action bound to it. Inputs are remembered while held, so a key the
+// system repeats doesn't press again, and its release always reaches the actions it pressed.
+void PlayerShip::input_down(const Binding& b) {
+    if (std::find(_pressed.begin(), _pressed.end(), b) != _pressed.end()) {
+        return;
+    }
+    _pressed.push_back(b);
+    for (int a : sys.prefs->actions_for(b)) {
+        press(a);
+    }
+}
+
+void PlayerShip::input_up(const Binding& b) {
+    auto it = std::find(_pressed.begin(), _pressed.end(), b);
+    if (it == _pressed.end()) {
+        return;
+    }
+    _pressed.erase(it);
+    for (int a : sys.prefs->actions_for(b)) {
+        release(a);
+    }
+}
+
+// Each action counts how many of its inputs are held: it starts on the first press and ends on the
+// last release, so holding thrust on both a key and the gamepad and letting go of one keeps thrust.
+void PlayerShip::press(int action) {
+    if ((action < 0) || (action >= ACTION_COUNT)) {
+        return;
+    }
+    if (_held[action]++ == 0) {
+        action_on(action);
+    }
+}
+
+void PlayerShip::release(int action) {
+    if ((action < 0) || (action >= ACTION_COUNT) || (_held[action] == 0)) {
+        return;
+    }
+    if ((--_held[action] == 0) && active()) {
+        action_off(action);
+    }
+}
+
+void PlayerShip::action_on(int action) {
+    PlayerEventType k;
+    switch (action) {
+        case kUpKeyNum: k = PlayerEventType::ACCEL_ON; break;
+        case kDownKeyNum: k = PlayerEventType::DECEL_ON; break;
+        case kLeftKeyNum: k = PlayerEventType::CCW_ON; break;
+        case kRightKeyNum: k = PlayerEventType::CW_ON; break;
+        case kOneKeyNum: k = PlayerEventType::FIRE_1_ON; break;
+        case kTwoKeyNum: k = PlayerEventType::FIRE_2_ON; break;
+        case kEnterKeyNum: k = PlayerEventType::FIRE_S_ON; break;
+
+        case kWarpKeyNum:
+            k = use_target_key() ? PlayerEventType::AUTOPILOT : PlayerEventType::WARP_ON;
+            break;
+
+        case kDestinationKeyNum:
+            gDestKeyState = DEST_KEY_DOWN;
+            gDestKeyTime  = now();
+            return;
+
+        case kSelectFriendKeyNum:
+            k = use_target_key() ? PlayerEventType::TARGET_FRIEND : PlayerEventType::SELECT_FRIEND;
+            break;
+        case kSelectFoeKeyNum:
+            use_target_key();
+            k = PlayerEventType::TARGET_FOE;
+            break;
+        case kSelectBaseKeyNum:
+            k = use_target_key() ? PlayerEventType::TARGET_BASE : PlayerEventType::SELECT_BASE;
+            break;
+
+        case kOrderKeyNum: k = PlayerEventType::ORDER; break;
+        case kTransferKeyNum: k = PlayerEventType::TRANSFER; break;
+
+        case kCompUpKeyNum:
+        case kCompDownKeyNum:
+        case kCompAcceptKeyNum:
+        case kCompCancelKeyNum:
+            minicomputer_interpret_key_down(static_cast<KeyNum>(action), &_player_events);
+            return;
+
+        case kZoomInKeyNum: k = PlayerEventType::ZOOM_IN; break;
+        case kZoomOutKeyNum: k = PlayerEventType::ZOOM_OUT; break;
+        case kScale121KeyNum: k = PlayerEventType::ZOOM_1X; break;
+        case kScale122KeyNum: k = PlayerEventType::ZOOM_2X; break;
+        case kScale124KeyNum: k = PlayerEventType::ZOOM_4X; break;
+        case kScale1216KeyNum: k = PlayerEventType::ZOOM_16X; break;
+        case kScaleHostileKeyNum: k = PlayerEventType::ZOOM_FOE; break;
+        case kScaleObjectKeyNum: k = PlayerEventType::ZOOM_OBJ; break;
+        case kScaleAllKeyNum: k = PlayerEventType::ZOOM_ALL; break;
+        case kMessageNextKeyNum: k = PlayerEventType::NEXT_PAGE; break;
+
+        // Handled by GamePlay before input reaches the ship.
+        case kHelpKeyNum:
+        case kVolumeDownKeyNum:
+        case kVolumeUpKeyNum:
+        case kActionMusicKeyNum:
+        case kNetSettingsKeyNum:
+        case kFastMotionKeyNum: return;
+
+        case kHotKey1Num:
+        case kHotKey2Num:
+        case kHotKey3Num:
+        case kHotKey4Num:
+        case kHotKey5Num:
+        case kHotKey6Num:
+        case kHotKey7Num:
+        case kHotKey8Num:
+        case kHotKey9Num:
+        case kHotKey10Num: hot_key_down(action - kFirstHotKeyNum); return;
+
+        // Modern commands: bindable now, given behaviour with the Modern mode
+        // (docs/modern-controls.md). A level that disables orders (the "order" key mask) will
+        // disable them too.
+        case kAttackMoveKeyNum:
+        case kPatrolKeyNum: return;
+
+        default: return;
+    }
+    _player_events.push_back(PlayerEvent{k});
+}
+
+void PlayerShip::action_off(int action) {
+    PlayerEventType k;
+    switch (action) {
+        case kUpKeyNum: k = PlayerEventType::ACCEL_OFF; break;
+        case kDownKeyNum: k = PlayerEventType::DECEL_OFF; break;
+        case kLeftKeyNum: k = PlayerEventType::CCW_OFF; break;
+        case kRightKeyNum: k = PlayerEventType::CW_OFF; break;
+        case kOneKeyNum: k = PlayerEventType::FIRE_1_OFF; break;
+        case kTwoKeyNum: k = PlayerEventType::FIRE_2_OFF; break;
+        case kEnterKeyNum: k = PlayerEventType::FIRE_S_OFF; break;
+        case kWarpKeyNum: k = PlayerEventType::WARP_OFF; break;
+
+        case kDestinationKeyNum:
+            if ((now() >= (gDestKeyTime + kDestKeyHoldDuration) &&
+                 (gDestKeyState == DEST_KEY_DOWN))) {
+                gDestKeyState = DEST_KEY_UP;
+                k             = PlayerEventType::TARGET_SELF;
+            } else {
+                gDestKeyState = DEST_KEY_UP;
+                return;
+            }
+            break;
+
+        case kCompUpKeyNum:
+        case kCompDownKeyNum:
+        case kCompAcceptKeyNum:
+        case kCompCancelKeyNum:
+            minicomputer_interpret_key_up(static_cast<KeyNum>(action), &_player_events);
+            return;
+
+        case kHotKey1Num:
+        case kHotKey2Num:
+        case kHotKey3Num:
+        case kHotKey4Num:
+        case kHotKey5Num:
+        case kHotKey6Num:
+        case kHotKey7Num:
+        case kHotKey8Num:
+        case kHotKey9Num:
+        case kHotKey10Num: _player_events.push_back(hot_key_up(action - kFirstHotKeyNum)); return;
+
+        default: return;
+    }
+    _player_events.push_back(PlayerEvent{k});
+}
+
 void PlayerShip::key_down(const KeyDownEvent& event) {
     if (event.key() == Key::RETURN) {
         _message.start_editing();
@@ -348,157 +509,19 @@ void PlayerShip::key_down(const KeyDownEvent& event) {
     if (!active()) {
         return;
     }
+    input_down(Binding::key(event.key()));
+}
 
-    sfz::optional<KeyNum> key = key_num(event.key());
-    if (key.has_value()) {
-        PlayerEventType k;
-        switch (*key) {
-            case kUpKeyNum: k = PlayerEventType::ACCEL_ON; break;
-            case kDownKeyNum: k = PlayerEventType::DECEL_ON; break;
-            case kLeftKeyNum: k = PlayerEventType::CCW_ON; break;
-            case kRightKeyNum: k = PlayerEventType::CW_ON; break;
-            case kOneKeyNum: k = PlayerEventType::FIRE_1_ON; break;
-            case kTwoKeyNum: k = PlayerEventType::FIRE_2_ON; break;
-            case kEnterKeyNum: k = PlayerEventType::FIRE_S_ON; break;
+void PlayerShip::key_up(const KeyUpEvent& event) { input_up(Binding::key(event.key())); }
 
-            case kWarpKeyNum:
-                k = use_target_key() ? PlayerEventType::AUTOPILOT : PlayerEventType::WARP_ON;
-                break;
-
-            case kDestinationKeyNum:
-                gDestKeyState = DEST_KEY_DOWN;
-                gDestKeyTime  = now();
-                return;
-
-            case kSelectFriendKeyNum:
-                k = use_target_key() ? PlayerEventType::TARGET_FRIEND
-                                     : PlayerEventType::SELECT_FRIEND;
-                break;
-            case kSelectFoeKeyNum:
-                use_target_key();
-                k = PlayerEventType::TARGET_FOE;
-                break;
-            case kSelectBaseKeyNum:
-                k = use_target_key() ? PlayerEventType::TARGET_BASE : PlayerEventType::SELECT_BASE;
-                break;
-
-            case kOrderKeyNum: k = PlayerEventType::ORDER; break;
-            case kTransferKeyNum: k = PlayerEventType::TRANSFER; break;
-
-            case kCompUpKeyNum:
-            case kCompDownKeyNum:
-            case kCompAcceptKeyNum:
-            case kCompCancelKeyNum: minicomputer_interpret_key_down(*key, &_player_events); return;
-
-            case kZoomInKeyNum: k = PlayerEventType::ZOOM_IN; break;
-            case kZoomOutKeyNum: k = PlayerEventType::ZOOM_OUT; break;
-            case kScale121KeyNum: k = PlayerEventType::ZOOM_1X; break;
-            case kScale122KeyNum: k = PlayerEventType::ZOOM_2X; break;
-            case kScale124KeyNum: k = PlayerEventType::ZOOM_4X; break;
-            case kScale1216KeyNum: k = PlayerEventType::ZOOM_16X; break;
-            case kScaleHostileKeyNum: k = PlayerEventType::ZOOM_FOE; break;
-            case kScaleObjectKeyNum: k = PlayerEventType::ZOOM_OBJ; break;
-            case kScaleAllKeyNum: k = PlayerEventType::ZOOM_ALL; break;
-            case kMessageNextKeyNum: k = PlayerEventType::NEXT_PAGE; break;
-
-            case kHelpKeyNum: return;
-            case kVolumeDownKeyNum: return;
-            case kVolumeUpKeyNum: return;
-            case kActionMusicKeyNum: return;
-            case kNetSettingsKeyNum: return;
-            case kFastMotionKeyNum: return;
-
-            case kHotKey1Num: hot_key_down(0); return;
-            case kHotKey2Num: hot_key_down(1); return;
-            case kHotKey3Num: hot_key_down(2); return;
-            case kHotKey4Num: hot_key_down(3); return;
-            case kHotKey5Num: hot_key_down(4); return;
-            case kHotKey6Num: hot_key_down(5); return;
-            case kHotKey7Num: hot_key_down(6); return;
-            case kHotKey8Num: hot_key_down(7); return;
-            case kHotKey9Num: hot_key_down(8); return;
-            case kHotKey10Num: hot_key_down(9); return;
-
-            case KEY_COUNT: return;
-        }
-        _player_events.push_back(PlayerEvent{k});
+// Replays (and only replays) send actions directly.
+void PlayerShip::action_down(const ActionDownEvent& event) {
+    if (active()) {
+        press(event.action());
     }
 }
 
-void PlayerShip::key_up(const KeyUpEvent& event) {
-    if (!active()) {
-        return;
-    }
-
-    sfz::optional<KeyNum> key = key_num(event.key());
-    if (key.has_value()) {
-        PlayerEventType k;
-        switch (*key) {
-            case kUpKeyNum: k = PlayerEventType::ACCEL_OFF; break;
-            case kDownKeyNum: k = PlayerEventType::DECEL_OFF; break;
-            case kLeftKeyNum: k = PlayerEventType::CCW_OFF; break;
-            case kRightKeyNum: k = PlayerEventType::CW_OFF; break;
-            case kOneKeyNum: k = PlayerEventType::FIRE_1_OFF; break;
-            case kTwoKeyNum: k = PlayerEventType::FIRE_2_OFF; break;
-            case kEnterKeyNum: k = PlayerEventType::FIRE_S_OFF; break;
-            case kWarpKeyNum: k = PlayerEventType::WARP_OFF; break;
-
-            case kDestinationKeyNum:
-                if ((now() >= (gDestKeyTime + kDestKeyHoldDuration) &&
-                     (gDestKeyState == DEST_KEY_DOWN))) {
-                    gDestKeyState = DEST_KEY_UP;
-                    k             = PlayerEventType::TARGET_SELF;
-                } else {
-                    gDestKeyState = DEST_KEY_UP;
-                    return;
-                }
-                break;
-
-            case kSelectFriendKeyNum:
-            case kSelectFoeKeyNum:
-            case kSelectBaseKeyNum:
-            case kOrderKeyNum:
-            case kTransferKeyNum: return;
-
-            case kCompUpKeyNum:
-            case kCompDownKeyNum:
-            case kCompAcceptKeyNum:
-            case kCompCancelKeyNum: minicomputer_interpret_key_up(*key, &_player_events); return;
-
-            case kZoomInKeyNum:
-            case kZoomOutKeyNum:
-            case kScale121KeyNum:
-            case kScale122KeyNum:
-            case kScale124KeyNum:
-            case kScale1216KeyNum:
-            case kScaleHostileKeyNum:
-            case kScaleObjectKeyNum:
-            case kScaleAllKeyNum:
-            case kMessageNextKeyNum: return;
-
-            case kHelpKeyNum: return;
-            case kVolumeDownKeyNum: return;
-            case kVolumeUpKeyNum: return;
-            case kActionMusicKeyNum: return;
-            case kNetSettingsKeyNum: return;
-            case kFastMotionKeyNum: return;
-
-            case kHotKey1Num: _player_events.push_back(hot_key_up(0)); return;
-            case kHotKey2Num: _player_events.push_back(hot_key_up(1)); return;
-            case kHotKey3Num: _player_events.push_back(hot_key_up(2)); return;
-            case kHotKey4Num: _player_events.push_back(hot_key_up(3)); return;
-            case kHotKey5Num: _player_events.push_back(hot_key_up(4)); return;
-            case kHotKey6Num: _player_events.push_back(hot_key_up(5)); return;
-            case kHotKey7Num: _player_events.push_back(hot_key_up(6)); return;
-            case kHotKey8Num: _player_events.push_back(hot_key_up(7)); return;
-            case kHotKey9Num: _player_events.push_back(hot_key_up(8)); return;
-            case kHotKey10Num: _player_events.push_back(hot_key_up(9)); return;
-
-            case KEY_COUNT: return;
-        }
-        _player_events.push_back(PlayerEvent{k});
-    }
-}
+void PlayerShip::action_up(const ActionUpEvent& event) { release(event.action()); }
 
 void PlayerShip::mouse_down(const MouseDownEvent& event) {
     _cursor.mouse_down(event);
@@ -513,7 +536,12 @@ void PlayerShip::mouse_down(const MouseDownEvent& event) {
             }
             break;
         case 1: break;
-        default: return;
+        default:
+            // Left and right select and target; other buttons can be bound to actions.
+            if (active()) {
+                input_down(Binding::mouse(event.button()));
+            }
+            return;
     }
     PlayerShipHandleClick(where, event.button());
 }
@@ -525,21 +553,33 @@ void PlayerShip::mouse_up(const MouseUpEvent& event) {
     if (event.button() == 0) {
         MiniComputerHandleMouseStillDown(where);
         MiniComputerHandleMouseUp(where, &_player_events);
+    } else if (event.button() > 1) {
+        input_up(Binding::mouse(event.button()));
     }
 }
 
 void PlayerShip::mouse_move(const MouseMoveEvent& event) { _cursor.mouse_move(event); }
 
-// Each notch becomes a zoom step (data 1 marks it as the wheel's). It counts as a zoom control, not
-// a mouse click: the zoom-in and zoom-out masks levels set for the keys (tutorial 1 enables them
-// while the mouse is still off) apply when the step runs.
+// Each notch runs the actions bound to its direction. On a zoom action a notch is a zoom step (data
+// 1 marks it as the wheel's: it doesn't step into the automatic zooms); on any other action it is a
+// press and release. It counts as that action, not as a mouse click: the masks levels set for the
+// action apply when it runs (tutorial 1 enables zooming while the mouse is still off).
 void PlayerShip::mouse_wheel(const MouseWheelEvent& event) {
-    if (!active()) {
+    if (!active() || (event.steps() == 0)) {
         return;
     }
-    const PlayerEventType type = (event.steps() > 0) ? PlayerEventType::ZOOM_IN : PlayerEventType::ZOOM_OUT;
+    const std::vector<int> actions = sys.prefs->actions_for(Binding::wheel(event.steps()));
     for (int i = 0; i < std::abs(event.steps()); ++i) {
-        _player_events.push_back(PlayerEvent{type, 1});
+        for (int a : actions) {
+            if (a == kZoomInKeyNum) {
+                _player_events.push_back(PlayerEvent{PlayerEventType::ZOOM_IN, 1});
+            } else if (a == kZoomOutKeyNum) {
+                _player_events.push_back(PlayerEvent{PlayerEventType::ZOOM_OUT, 1});
+            } else {
+                press(a);
+                release(a);
+            }
+        }
     }
 }
 
@@ -566,6 +606,8 @@ void PlayerShip::gamepad_button_down(const GamepadButtonDownEvent& event) {
         return;
     }
 
+    // With a bumper held, A, B, X, Y and the left stick button give the bumper commands, aimed
+    // with the left stick. These are fixed.
     auto player = g.ship;
     if (_gamepad_state) {
         switch (event.button) {
@@ -612,36 +654,19 @@ void PlayerShip::gamepad_button_down(const GamepadButtonDownEvent& event) {
         }
     }
 
-    switch (event.button) {
-        case Gamepad::Button::A: _gamepad_keys |= kUpKey; break;
-        case Gamepad::Button::B: _gamepad_keys |= kDownKey; break;
-        case Gamepad::Button::X: zoom_out(false); break;
-        case Gamepad::Button::Y: zoom_in(false); break;
-        case Gamepad::Button::BACK: Messages::advance(); break;
-        case Gamepad::Button::LT: _gamepad_keys |= kSpecialKey; break;
-        case Gamepad::Button::RT: _gamepad_keys |= (kPulseKey | kBeamKey); break;
-        case Gamepad::Button::LSB:
-            if (player->presenceState == kWarpingPresence) {
-                _gamepad_keys &= !kWarpKey;
-            } else {
-                _gamepad_keys |= kWarpKey;
+    // Otherwise the button runs the actions bound to it. A gamepad button bound to warp toggles it,
+    // as Ares' gamepad did: held until the warp starts, it then stays on until pressed again.
+    const Binding b = Binding::gamepad(event.button);
+    if ((player->presenceState == kWarpingPresence) && (_held[kWarpKeyNum] > 0)) {
+        for (int a : sys.prefs->actions_for(b)) {
+            if (a == kWarpKeyNum) {
+                _held[kWarpKeyNum] = 1;
+                release(kWarpKeyNum);
+                return;
             }
-            break;
-        case Gamepad::Button::UP:
-            minicomputer_interpret_key_down(kCompUpKeyNum, &_player_events);
-            break;
-        case Gamepad::Button::DOWN:
-            minicomputer_interpret_key_down(kCompDownKeyNum, &_player_events);
-            break;
-        case Gamepad::Button::RIGHT:
-            minicomputer_interpret_key_down(kCompAcceptKeyNum, &_player_events);
-            break;
-        case Gamepad::Button::LEFT:
-            minicomputer_interpret_key_down(kCompCancelKeyNum, &_player_events);
-            break;
-
-        default: break;
+        }
     }
+    input_down(b);
 }
 
 void PlayerShip::gamepad_button_up(const GamepadButtonUpEvent& event) {
@@ -663,40 +688,24 @@ void PlayerShip::gamepad_button_up(const GamepadButtonUpEvent& event) {
         default: break;
     }
 
-    if (!active()) {
-        return;
-    }
-
-    if (_gamepad_state) {
-        switch (event.button) {
-            case Gamepad::Button::A:
-            case Gamepad::Button::B:
-            case Gamepad::Button::X:
-            case Gamepad::Button::LSB: return;
-            case Gamepad::Button::Y: return;
-            default: break;
+    const Binding b = Binding::gamepad(event.button);
+    if (g.ship.get() && (g.ship->presenceState == kWarpingPresence)) {
+        const std::vector<int> actions = sys.prefs->actions_for(b);
+        if (std::find(actions.begin(), actions.end(), kWarpKeyNum) != actions.end()) {
+            // Keep warping: release the button's other actions but leave warp held.
+            auto it = std::find(_pressed.begin(), _pressed.end(), b);
+            if (it != _pressed.end()) {
+                _pressed.erase(it);
+                for (int a : actions) {
+                    if (a != kWarpKeyNum) {
+                        release(a);
+                    }
+                }
+            }
+            return;
         }
     }
-
-    auto player = g.ship;
-    switch (event.button) {
-        case Gamepad::Button::A: _gamepad_keys &= ~kUpKey; break;
-        case Gamepad::Button::B: _gamepad_keys &= ~kDownKey; break;
-        case Gamepad::Button::LT: _gamepad_keys &= ~kSpecialKey; break;
-        case Gamepad::Button::RT: _gamepad_keys &= ~(kPulseKey | kBeamKey); break;
-        case Gamepad::Button::LSB:
-            if (player->presenceState != kWarpingPresence) {
-                _gamepad_keys &= !kWarpKey;
-            }
-            break;
-        case Gamepad::Button::RIGHT:
-            minicomputer_interpret_key_up(kCompAcceptKeyNum, &_player_events);
-            break;
-        case Gamepad::Button::LEFT:
-            minicomputer_interpret_key_up(kCompCancelKeyNum, &_player_events);
-            break;
-        default: break;
-    }
+    input_up(b);
 }
 
 void PlayerShip::gamepad_stick(const GamepadStickEvent& event) {
@@ -780,14 +789,14 @@ static void handle_target_keys(const std::vector<PlayerEvent>& player_events) {
 }
 
 static void handle_pilot_keys(
-        Handle<SpaceObject> flagship, int32_t these_keys, int32_t gamepad_keys,
-        bool gamepad_control, int32_t gamepad_control_direction) {
+        Handle<SpaceObject> flagship, int32_t these_keys, bool gamepad_control,
+        int32_t gamepad_control_direction) {
     if (flagship->attributes & kOnAutoPilot) {
-        if ((these_keys | gamepad_keys) & (kUpKey | kDownKey | kLeftKey | kRightKey)) {
+        if (these_keys & (kUpKey | kDownKey | kLeftKey | kRightKey)) {
             flagship->keysDown = these_keys | kAutoPilotKey;
         }
     } else {
-        flagship->keysDown = these_keys | gamepad_keys;
+        flagship->keysDown = these_keys;
         if (gamepad_control) {
             int difference = mAngleDifference(gamepad_control_direction, flagship->direction);
             if (abs(difference) < 15) {
@@ -982,7 +991,7 @@ void PlayerShip::update() {
         handle_target_keys(_player_events);
     }
     handle_pilot_keys(
-            flagship, gTheseKeys, _gamepad_keys, (_gamepad_state == NO_BUMPER) && _control_active,
+            flagship, gTheseKeys, (_gamepad_state == NO_BUMPER) && _control_active,
             _control_direction);
     handle_order_key(_player_events);
     handle_autopilot_keys(_player_events);
