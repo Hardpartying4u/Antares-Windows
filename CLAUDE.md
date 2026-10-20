@@ -51,6 +51,10 @@ python scripts/test.py --type=data
 python scripts/test.py --type=replay
 ```
 
+### Read-only requests
+- When a prompt says read-only, investigation or stop for review, do not change code. Report and
+  wait.
+
 ### In-game UI-scale checks
 - Only when a change involves mouse input or on-screen drawing, and then at UI 2× only.
 - Add 4× only for new drawn elements or new sizes/positions.

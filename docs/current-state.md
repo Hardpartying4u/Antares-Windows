@@ -276,6 +276,10 @@ way. Not yet tried with a real controller (none was connected when it was writte
   blocks the game.
 - `--timing` marks: `sound init done`, `glfwInit done`, `window created`, `controller scan start`
   and `controller scan done` (with its time in ms).
+- **When GLFW is updated:** `src/glfw/win32-joystick.c` is a modified copy of
+  `ext/glfw/glfw-3.3.2/src/win32_joystick.c`. Compare it against the new `ext/glfw` version and
+  carry the changes over (or drop the copy if GLFW no longer enumerates DirectInput in
+  `glfwInit()`). The source list in `BUILD.gn`'s `:libglfw-win` must match the new version too.
 
 Handled in `PlayerShip::gamepad_*` (`player-ship.cpp` ~519–692) and `GamePlay::gamepad_button_down`.
 Left stick steers (turns toward stick direction); A thrust, B brake, RT fire 1+2, LT special,
