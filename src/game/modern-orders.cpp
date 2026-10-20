@@ -141,6 +141,31 @@ void draw_brackets(const Rects& rects, Rect r, int min_half, int arm, const RgbC
     }
 }
 
+// The group pointer being shown (view only, wall time).
+struct {
+    int       group = -1;
+    wall_time since;
+} gPointer;
+
+bool group_valid(const GroupEntry& e) {
+    Handle<SpaceObject> o(e.number);
+    return (e.number >= 0) && (e.number < kMaxSpaceObject) && (o->id == e.id) && selectable(o);
+}
+
+void log_event(pn::string_view what) {
+    if (modern_order_log) {
+        modern_order_log(pn::format("{0}\t{1}\n", g.time.time_since_epoch().count(), what));
+    }
+}
+
+pn::string ship_names(const std::vector<Handle<SpaceObject>>& ships) {
+    pn::string names;
+    for (auto o : ships) {
+        names += pn::format("{0}{1} #{2}", names.empty() ? "" : ";", o->long_name(), o.number());
+    }
+    return names;
+}
+
 // The drag box being drawn: view only, set from PlayerShip's queued mouse events.
 struct {
     bool  active = false;
@@ -240,6 +265,30 @@ void modern_select(const std::vector<Handle<SpaceObject>>& ships, bool add) {
             g.modern_selection.emplace_back(o, o->id);
         }
     }
+}
+
+void modern_group_save(int group) {
+    auto                    ships = modern_selection();
+    std::vector<GroupEntry> entries;
+    for (auto o : ships) {
+        entries.push_back(GroupEntry{o.number(), o->id});
+    }
+    g.modern_groups.save(group, entries);
+    log_event(pn::format("group {0} saved\t{1}", (group + 1) % 10, ship_names(ships)));
+}
+
+std::vector<Handle<SpaceObject>> modern_group_ships(int group) {
+    std::vector<Handle<SpaceObject>> ships;
+    for (const auto& e : g.modern_groups.recall(group, group_valid)) {
+        ships.push_back(Handle<SpaceObject>(e.number));
+    }
+    return ships;
+}
+
+void modern_group_pointer(int group) {
+    gPointer.group = group;
+    gPointer.since = now();
+    log_event(pn::format("group {0} pointer", (group + 1) % 10));
 }
 
 void modern_selection_matches_control() {
@@ -431,6 +480,34 @@ void draw_modern_markers() {
             rects.fill(Rect(box.left, box.bottom - 1, box.right, box.bottom), c);
             rects.fill(Rect(box.left, box.top, box.left + 1, box.bottom), c);
             rects.fill(Rect(box.right - 1, box.top, box.right, box.bottom), c);
+        }
+    }
+
+    // The group pointer (a double-tapped number): for 1.5 s, brackets around the group's middle
+    // if it is on screen, else a line from the middle of the play area toward it.
+    if ((gPointer.group >= 0) && (now() - gPointer.since < secs(1) + std::chrono::milliseconds(500))) {
+        auto ships = g.modern_groups.peek(gPointer.group, group_valid);
+        if (!ships.empty()) {
+            int64_t h = 0, v = 0;
+            for (const auto& e : ships) {
+                h += Handle<SpaceObject>(e.number)->location.h;
+                v += Handle<SpaceObject>(e.number)->location.v;
+            }
+            const Point    c = scale_to_viewport(
+                    Point(int32_t(h / int64_t(ships.size())), int32_t(v / int64_t(ships.size()))));
+            const RgbColor color = GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST);
+            if (clip.contains(c)) {
+                draw_brackets(rects, Rect(c.h - 20, c.v - 20, c.h + 20, c.v + 20), 20, 8, color);
+            } else {
+                const Point  m = clip.center();
+                const double dx = c.h - m.h, dy = c.v - m.v;
+                const double t  = std::min(
+                        (dx != 0) ? (clip.width() / 2 - 12) / std::abs(dx) : 1e9,
+                        (dy != 0) ? (clip.height() / 2 - 12) / std::abs(dy) : 1e9);
+                const Point  end(m.h + int32_t(dx * t), m.v + int32_t(dy * t));
+                Lines().draw(m, end, color);
+                draw_brackets(rects, Rect(end.h - 6, end.v - 6, end.h + 6, end.v + 6), 6, 3, color);
+            }
         }
     }
 

@@ -473,6 +473,67 @@ screenshots.
 - A right-click on empty space gave each a move to its own grid point.
 - A right-click on the flagship made both follow it.
 
+### 2.4c Modern control groups (2026-10-20)
+
+Step E of `docs/modern-controls.md`, in the Modern mode only. Classic keeps its hotkeys, and
+replays, the demo and the tutorials are unchanged.
+
+**What the keys did before (checked first).** These bindings are the same in all three presets:
+- **Numbers 1–0:** the hotkey actions 34–43. A tap selects the hotkey's object (or targets it with
+  Shift); holding 0.85 s assigns it.
+- **Shift:** the target modifier, so Shift+number targeted.
+- **Ctrl:** in Classic and Modern: WASD it is the Order key and fired on key-down, so Ctrl+number
+  would also give an order. Modern: Ares leaves Ctrl unbound.
+- **Rebinding screen:** the numbers, Ctrl and Shift can all be rebound. Ctrl as the group modifier
+  is a fixed key, not an action.
+
+**How the clashes were resolved** (the approved plan, §5.1 of `modern-controls.md`):
+- In the Modern mode the number actions are control groups, not hotkeys.
+- In the Modern mode the Order key fires on release, and only if no number was pressed while it was
+  held. This happens whatever key Order is bound to.
+
+**The keys in the Modern mode:**
+- **Ctrl+number:** saves the selection as that group. An empty selection clears the group.
+- **Number:** selects the group's ships that can still take orders; the first becomes the control
+  object. An empty group sounds a warning and changes nothing.
+- **Shift+number:** adds the group to the selection. Here Shift is only a modifier, so no "target
+  own ship".
+- **The same number twice within 0.5 s:** shows a pointer for 1.5 s. If the group is on screen it
+  is brackets around its middle; otherwise a line from the middle of the play area toward it. The
+  view stays on the flagship (`docs/design.md`).
+
+**Storage and determinism:**
+- Groups are kept in the game state (`g.modern_groups`, `src/game/control-groups.cpp`): ten lists
+  of object numbers and ids. They clear at level start.
+- Ships that die, are captured or become locked drop out when a group is read, for good; a reused
+  object slot doesn't come back as a different ship.
+- Everything goes through the input queue as key events. There are no new order types.
+- Ctrl is tracked as the raw key, so it works whatever it is bound to.
+
+**Tests:**
+- `controls-test`: save (no duplicates, replace, clear), recall, out-of-range groups, add (in
+  order, nothing twice), dropping lost ships for good, reused slots, and clear.
+- `modern-multi` replay test, extended:
+  - Ctrl (also the replay tool's Order key) + 1 saves three ships, and no order is given;
+  - selecting another ship, then 1 recalls the three, and a right-click moves them;
+  - Shift+1 adds them to a single selected ship, giving four.
+
+  Two runs are identical.
+- `modern-orders` expected output changed in its screenshots only (its orders log is unchanged).
+  The `shoplifter-1` recording presses Order at tick 297 and later, and in the Modern mode that
+  order now comes on release.
+- New `replay` tool inject steps: `keyevent-down`, `keyevent-up` (raw keys).
+
+**In game (ch05, Modern: Ares, windowed, UI 2× and 4×, from the timing log):** these all passed:
+- the drag selected both Engineers;
+- Ctrl+1 saved them;
+- clicking the flagship emptied the selection;
+- 1 recalled both, and a right-click moved both;
+- after clicking one Engineer, Shift+1 added the other.
+
+The double-tap check failed only because the test pressed the keys about 560 ms apart, outside the
+window. The window was then widened from 0.4 to 0.5 s, and the replay tool confirmed the pointer.
+
 ### 2.5 Timing
 
 60 ticks per second; every 3rd tick is a "major" tick when collisions, AI and actions run

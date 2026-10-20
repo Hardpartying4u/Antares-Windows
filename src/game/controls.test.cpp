@@ -6,6 +6,7 @@
 #include <gmock/gmock.h>
 
 #include "data/resource.hpp"
+#include "game/control-groups.hpp"
 #include "game/modern-orders.hpp"
 #include "game/player-ship.hpp"
 #include "game/sys.hpp"
@@ -268,6 +269,53 @@ TEST_F(ControlsTest, FormationOffsets) {
     }
     EXPECT_EQ(formation_offset(0, 4, 160), Point(-80, -80));
     EXPECT_EQ(formation_offset(3, 4, 160), Point(80, 80));
+}
+
+// Control groups: save, recall (only ships still valid, the lost ones dropped for good), add.
+TEST_F(ControlsTest, ControlGroupsSaveRecallAdd) {
+    ControlGroups groups;
+    const GroupEntry a{4, 104}, b{8, 108}, c{10, 110}, d{12, 112};
+    auto all_valid = [](const GroupEntry&) { return true; };
+
+    groups.save(0, {a, b, b, c});  // a duplicate is kept once
+    EXPECT_EQ(groups.recall(0, all_valid), (std::vector<GroupEntry>{a, b, c}));
+    EXPECT_TRUE(groups.recall(1, all_valid).empty());   // another group is untouched
+    EXPECT_TRUE(groups.recall(-1, all_valid).empty());  // out of range: nothing
+    EXPECT_TRUE(groups.recall(10, all_valid).empty());
+
+    groups.save(0, {d});  // saving replaces the group
+    EXPECT_EQ(groups.recall(0, all_valid), (std::vector<GroupEntry>{d}));
+    groups.save(0, {});   // saving an empty selection clears it
+    EXPECT_TRUE(groups.recall(0, all_valid).empty());
+
+    // Shift+number: the group appended to the selection, nothing twice, in order.
+    EXPECT_EQ(ControlGroups::add({b, d}, {a, b, c}), (std::vector<GroupEntry>{b, d, a, c}));
+}
+
+TEST_F(ControlsTest, ControlGroupsDropLostShips) {
+    ControlGroups groups;
+    const GroupEntry a{4, 104}, b{8, 108}, c{10, 110};
+    groups.save(2, {a, b, c});
+
+    // b died (or was captured or locked): peek (drawing) skips it but keeps it stored...
+    auto without_b = [&](const GroupEntry& e) { return !(e == b); };
+    EXPECT_EQ(groups.peek(2, without_b), (std::vector<GroupEntry>{a, c}));
+    EXPECT_EQ(groups.peek(2, [](const GroupEntry&) { return true; }),
+              (std::vector<GroupEntry>{a, b, c}));
+    // ...recall drops it for good: it doesn't come back when its slot is valid again.
+    EXPECT_EQ(groups.recall(2, without_b), (std::vector<GroupEntry>{a, c}));
+    EXPECT_EQ(groups.recall(2, [](const GroupEntry&) { return true; }),
+              (std::vector<GroupEntry>{a, c}));
+    // A reused object slot (same number, new id) is a different ship.
+    const GroupEntry reused{4, 999};
+    auto ids_match = [&](const GroupEntry& e) { return !(e == a) || (reused.id == a.id); };
+    EXPECT_EQ(groups.recall(2, ids_match), (std::vector<GroupEntry>{c}));
+    // Every group was lost: recalling it gives nothing.
+    EXPECT_TRUE(groups.recall(2, [](const GroupEntry&) { return false; }).empty());
+
+    groups.save(5, {a});
+    groups.clear();  // a new level
+    EXPECT_TRUE(groups.recall(5, [](const GroupEntry&) { return true; }).empty());
 }
 
 }  // namespace

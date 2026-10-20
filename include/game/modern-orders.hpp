@@ -83,6 +83,14 @@ ModernOrder modern_right_click(Point where);
 bool give_object_order(Handle<Admiral> admiral, Handle<SpaceObject> object);
 bool give_move_order(Handle<Admiral> admiral, Point world);
 
+// Control groups (step E). Ctrl+number saves the selection as group `group` (0-9: keys 1-0); the
+// number selects the group's ships that can still take orders; Shift+number adds them. Pressing
+// the number twice quickly shows a pointer to the group: the view stays on the flagship until the
+// camera work (docs/design.md).
+void                             modern_group_save(int group);
+std::vector<Handle<SpaceObject>> modern_group_ships(int group);
+void                             modern_group_pointer(int group);
+
 // The drag box, drawn from where the left button went down to the mouse while it is held.
 void modern_drag(bool active, Point start);
 

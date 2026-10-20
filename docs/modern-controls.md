@@ -554,7 +554,12 @@ whose point moves along a route.
     moves and brackets on every selected ship.
   - The selection is a list in the game state whose first ship is the control object.
   - Orders are unchanged in kind: each selected ship gets the step B order.
-  - Control groups (step E), attack-move (C) and patrol (F, G) are not started.
+  - Attack-move (C) and patrol (F, G) are not started.
+- **Step E, control groups: done 2026-10-20** (`docs/current-state.md` §2.4c).
+  - Ctrl+number saves, the number recalls, Shift+number adds, and a double tap shows a pointer.
+  - In the Modern mode the number keys are groups, not hotkeys, and the Order key fires on release
+    unless a number was pressed while it was held. That resolves the Ctrl clash in Modern: WASD.
+  - Group digits beside the markers (§4) are not drawn yet.
 
 ## 6. Effort, risk, order and "done when"
 

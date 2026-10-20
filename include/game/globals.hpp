@@ -27,6 +27,7 @@
 #include "data/level.hpp"
 #include "drawing/color.hpp"
 #include "game/action.hpp"
+#include "game/control-groups.hpp"
 #include "game/starfield.hpp"
 #include "math/random.hpp"
 #include "math/units.hpp"
@@ -119,6 +120,7 @@ struct GlobalState {
     // it was last matched with (game/modern-orders.cpp).
     std::vector<std::pair<Handle<SpaceObject>, int32_t>> modern_selection;
     Handle<SpaceObject>                                  modern_selection_control;
+    ControlGroups modern_groups;  // Ctrl+number groups (game/control-groups.hpp)
 
     miniComputerDataType mini;
 

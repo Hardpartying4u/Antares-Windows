@@ -17,3 +17,22 @@
 900 key 26
 960 rclick-initial 23
 963 log-selection
+# Control groups. Ctrl (raw key 224; in the replay tool's Classic bindings also the Order key,
+# which in the Modern mode waits for release and is cancelled by the number) + 1 (action 34)
+# saves the three selected ships as group 1; no order is given.
+1000 keyevent-down 224
+1003 key 34
+1012 keyevent-up 224
+# Select something else (Carrier #5), then 1 recalls the group, and a right-click moves it.
+1020 select-initial 5
+1023 log-selection
+1030 key 34
+1033 log-selection
+1060 rclick 200 420
+1063 log-selection
+# Carrier #5 again, then Shift (action 11) + 1 adds the group to it: four ships.
+1100 select-initial 5
+1110 keydown 11
+1113 key 34
+1122 keyup 11
+1125 log-selection

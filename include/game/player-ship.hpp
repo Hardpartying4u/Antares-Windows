@@ -148,6 +148,13 @@ class PlayerShip : public EventReceiver {
     void action_off(int action);
     void modern_left_down(Point where);
     void modern_left_up(Point where);
+    void modern_group_key(int group);
+
+    bool      _ctrl_held  = false;  // either Ctrl key, whatever it is bound to (group modifier)
+    bool      _order_held = false;  // Modern: the Order key is down, its order waiting for release
+    bool      _order_used = false;  // ... and a number was pressed meanwhile (Ctrl+number)
+    int       _last_group = -1;     // for the double tap
+    wall_time _last_group_time;
 
     static const int kDragThreshold = 4;  // pixels the mouse must move for a drag box
     bool             _dragging      = false;

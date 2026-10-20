@@ -405,7 +405,16 @@ void PlayerShip::action_on(int action) {
             k = use_target_key() ? PlayerEventType::TARGET_BASE : PlayerEventType::SELECT_BASE;
             break;
 
-        case kOrderKeyNum: k = PlayerEventType::ORDER; break;
+        case kOrderKeyNum:
+            if (g.modern_controls) {
+                // Modern: on release, unless a number is pressed meanwhile (Ctrl is both the
+                // Order key in some layouts and the group modifier).
+                _order_held = true;
+                _order_used = false;
+                return;
+            }
+            k = PlayerEventType::ORDER;
+            break;
         case kTransferKeyNum: k = PlayerEventType::TRANSFER; break;
 
         case kCompUpKeyNum:
@@ -443,7 +452,13 @@ void PlayerShip::action_on(int action) {
         case kHotKey7Num:
         case kHotKey8Num:
         case kHotKey9Num:
-        case kHotKey10Num: hot_key_down(action - kFirstHotKeyNum); return;
+        case kHotKey10Num:
+            if (g.modern_controls) {
+                modern_group_key(action - kFirstHotKeyNum);  // control groups, not hotkeys
+            } else {
+                hot_key_down(action - kFirstHotKeyNum);
+            }
+            return;
 
         // Modern commands: bindable now, given behaviour with the Modern mode
         // (docs/modern-controls.md). A level that disables orders (the "order" key mask) will
@@ -495,7 +510,20 @@ void PlayerShip::action_off(int action) {
         case kHotKey7Num:
         case kHotKey8Num:
         case kHotKey9Num:
-        case kHotKey10Num: _player_events.push_back(hot_key_up(action - kFirstHotKeyNum)); return;
+        case kHotKey10Num:
+            if (!g.modern_controls) {
+                _player_events.push_back(hot_key_up(action - kFirstHotKeyNum));
+            }
+            return;
+
+        case kOrderKeyNum:
+            if (g.modern_controls && _order_held) {
+                _order_held = false;
+                if (!_order_used) {
+                    _player_events.push_back(PlayerEvent{PlayerEventType::ORDER});
+                }
+            }
+            return;
 
         default: return;
     }
@@ -503,6 +531,9 @@ void PlayerShip::action_off(int action) {
 }
 
 void PlayerShip::key_down(const KeyDownEvent& event) {
+    if ((event.key() == Key::CONTROL) || (event.key() == Key::R_CONTROL)) {
+        _ctrl_held = true;
+    }
     if (event.key() == Key::RETURN) {
         _message.start_editing();
         return;
@@ -514,7 +545,12 @@ void PlayerShip::key_down(const KeyDownEvent& event) {
     input_down(Binding::key(event.key()));
 }
 
-void PlayerShip::key_up(const KeyUpEvent& event) { input_up(Binding::key(event.key())); }
+void PlayerShip::key_up(const KeyUpEvent& event) {
+    if ((event.key() == Key::CONTROL) || (event.key() == Key::R_CONTROL)) {
+        _ctrl_held = false;
+    }
+    input_up(Binding::key(event.key()));
+}
 
 // Replays (and only replays) send actions directly.
 void PlayerShip::action_down(const ActionDownEvent& event) {
@@ -600,6 +636,41 @@ void PlayerShip::modern_left_down(Point where) {
     _dragging   = true;
     _drag_start = where;
     modern_drag(true, where);
+}
+
+// A number key in the Modern mode (docs/modern-controls.md §5.1): Ctrl+number saves the selection
+// as that group; the number selects the group (its ships that can still take orders; an empty
+// group warns and changes nothing); Shift+number adds the group to the selection. The same number
+// twice within 0.5 s also shows a pointer to the group (view only).
+void PlayerShip::modern_group_key(int group) {
+    _order_used = true;  // a number while the Order key is held: Ctrl+number, not an order
+    if (_ctrl_held) {
+        modern_group_save(group);
+        sys.sound.select();
+        return;
+    }
+    const bool shift = (gDestKeyState != DEST_KEY_UP);
+    auto       ships = modern_group_ships(group);
+    if (ships.empty()) {
+        sys.sound.warning();
+        return;
+    }
+    if (shift) {
+        use_target_key();  // Shift is a modifier here: no "target own ship" on its release
+        if (modern_selection().empty()) {
+            select_object(ships[0], false, g.admiral);
+        }
+        modern_select(ships, true);
+    } else {
+        select_object(ships[0], false, g.admiral);
+        modern_select(ships, false);
+    }
+    modern_selection_matches_control();
+    if ((group == _last_group) && (now() < _last_group_time + std::chrono::milliseconds(500))) {
+        modern_group_pointer(group);
+    }
+    _last_group      = group;
+    _last_group_time = now();
 }
 
 // Up: if the mouse moved more than a few pixels, the player's orderable ships inside the box are

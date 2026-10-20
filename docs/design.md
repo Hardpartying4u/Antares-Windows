@@ -52,6 +52,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Inputs the game keeps for itself can't be bound: Esc, Return, Caps Lock; left and right mouse;
     the pad's bumpers and Start.
   - See `docs/current-state.md` §1.1.
+- **Done (2026-10-20): Modern control groups** (`docs/current-state.md` §2.4c). In the Modern mode the number keys are control groups (Ctrl+number saves, number recalls, Shift+number adds, double tap shows a pointer) and Classic keeps its hotkeys. The Order key fires on release unless a number was pressed while it was held, which resolves the Ctrl clash in Modern: WASD (the approved plan, `docs/modern-controls.md` §5.1).
 - **Done (2026-10-20): Modern right-click orders for one selected ship** (`docs/modern-controls.md` step B, `docs/current-state.md` §2.4a).
   - The Modern mode is on with a Modern preset, and off in replays, the demo and the tutorials. This
     settles the open question on tutorials: they always run Classic.

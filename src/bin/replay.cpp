@@ -163,7 +163,8 @@ class ReplayMaster : public Card {
     // pressed for one major tick), "TICK lclick X Y" or "TICK rclick X Y" (a click at logical
     // pixels), "TICK ldrag X1 Y1 X2 Y2" (a drag box), "TICK keydown N" / "TICK keyup N" (hold an
     // action, e.g. 11, the target modifier, for a Shift+drag), "TICK log-orderable" (log where each
-    // ship the player could order is drawn), "TICK log-selection" (log the selected ships and
+    // ship the player could order is drawn), "TICK keyevent-down K" / "TICK keyevent-up K" (a raw
+    // key, by USB code: 224 is Ctrl), "TICK log-selection" (log the selected ships and
     // where they are heading), "TICK select-initial N" (select the level's Nth initial object, as a left-click on
     // it would), "TICK rclick-initial N" (a right-click where initial N is drawn at that tick), or
     // "TICK script-target A B" (what a level's "target" action does: initial A ordered to initial
@@ -195,6 +196,11 @@ class ReplayMaster : public Card {
                 _input_source.add(
                         off, unique_ptr<Event>(new MouseUpEvent(
                                      wall_time(), 0, Point(int32_t(x2), int32_t(y2)))));
+            } else if (w == "keyevent-down") {
+                // A raw key (USB code), e.g. 224 for Ctrl: the group modifier.
+                _input_source.add(at, unique_ptr<Event>(new KeyDownEvent(wall_time(), Key(int(a)))));
+            } else if (w == "keyevent-up") {
+                _input_source.add(at, unique_ptr<Event>(new KeyUpEvent(wall_time(), Key(int(a)))));
             } else if (w == "keydown") {
                 _input_source.add(at, unique_ptr<Event>(new ActionDownEvent(wall_time(), int(a))));
             } else if (w == "keyup") {

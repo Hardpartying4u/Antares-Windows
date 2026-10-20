@@ -18,4 +18,23 @@
 963	  selected	Cruiser #4 heading for Cruiser #23
 963	  selected	Heavy Cruiser #10 heading for Cruiser #23
 963	  selected	Gunship #8 heading for Cruiser #23
-10140	end	Cruiser #4 heading for Cruiser #23
+1005	group 1 saved	Cruiser #4;Heavy Cruiser #10;Gunship #8
+1023	selection	1 ships
+1023	  selected	Carrier #5 heading for Heavy Destroyer #0
+1035	selection	3 ships
+1035	  selected	Cruiser #4 heading for Cruiser #23
+1035	  selected	Heavy Cruiser #10 heading for Cruiser #23
+1035	  selected	Gunship #8 heading for Cruiser #23
+1062	Cruiser #4	move	to 1073734241, 1073748947
+1062	Heavy Cruiser #10	move	to 1073734401, 1073748947
+1062	Gunship #8	move	to 1073734241, 1073749107
+1065	selection	3 ships
+1065	  selected	Cruiser #4 heading for 1073734241, 1073748947
+1065	  selected	Heavy Cruiser #10 heading for 1073734401, 1073748947
+1065	  selected	Gunship #8 heading for 1073734241, 1073749107
+1125	selection	4 ships
+1125	  selected	Carrier #5 heading for Heavy Destroyer #0
+1125	  selected	Cruiser #4 heading for 1073734241, 1073748947
+1125	  selected	Heavy Cruiser #10 heading for 1073734401, 1073748947
+1125	  selected	Gunship #8 heading for 1073734241, 1073749107
+10140	end	Fighter #17 heading for Castaway Crew Member #16

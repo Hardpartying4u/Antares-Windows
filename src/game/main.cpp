@@ -215,6 +215,7 @@ void MainPlay::become_front() {
                     _replay, (_level.type() == Level::Type::SOLO) && _level.solo.skip.has_value());
             g.modern_selection.clear();
             g.modern_selection_control = SpaceObject::none();
+            g.modern_groups.clear();
 
             set_up_instruments();
 
