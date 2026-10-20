@@ -76,6 +76,16 @@ python scripts/test.py --type=replay
 - PDBs are in `out\win\opt`. Symbolize an offset:
   `"C:\Program Files\AMD\ROCm\6.2\bin\llvm-symbolizer.exe" --obj=out\win\opt\antares.exe --relative-address 0x<offset>`
 
+## Local model
+- houtini-lm (an MCP server) runs a local model.
+- Use it only for: summarising long logs, build errors and test output; first drafts of docs;
+  boilerplate test scaffolding. Pass file paths, not pasted text, where the tool allows
+  (`code_task_files` takes `paths`).
+- Never use it for design, investigation, engine rules, replay or determinism work.
+- The local model never edits files, runs git or pushes. Check everything it returns before
+  using it (its sums can be wrong).
+- If the local model isn't running, just do the work yourself.
+
 ## Open items
 - Not yet tested on a clean PC (Windows Sandbox isn't enabled; its software OpenGL is too old
   for Antares anyway). Copy `dist\Antares` to another PC with internet and double-click.
