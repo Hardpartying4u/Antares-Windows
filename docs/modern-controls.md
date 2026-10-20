@@ -561,6 +561,78 @@ whose point moves along a route.
     unless a number was pressed while it was held. That resolves the Ctrl clash in Modern: WASD.
   - Group digits beside the markers (§4) are not drawn yet.
 
+## 5b. Attack-move and patrol: how they can be built (investigation, 2026-10-21)
+
+Read-only. Code references as in §1 (`non-player-ship.cpp`, `admiral.cpp`); keys from §8.
+
+**What the engine already does.**
+- **Point orders already engage on the way.** A point destination
+  (`SetObjectLocationDestination`, `admiral.cpp` ~375) ends with `timeFromOrigin = 0`. Classic's
+  Hold Position and Go To My Position use this.
+- **The engage rule** (`ThinkObjectNormalPresence` ~450): a ship turns aside to fight its nearest
+  enemy within engage range while `timeFromOrigin < 15 s`. It then resumes its destination.
+- **The 15 s clock only grows** while the ship is in weapon range of a target. It resets when the
+  ship is hit, or when it is within 1024 units of its destination.
+- **The result:** an existing point order already behaves as an attack-move, with one limit. After
+  about 15 s of fighting a target that doesn't fire back (a base, a transport), the ship gives up
+  and carries on.
+- **Modern's plain move (step B)** is the same order with the clock started at 15 s, so it doesn't
+  turn aside.
+- **Nothing already patrols.** Classic's keys don't: the only point orders are Hold Position and
+  Go To My Position. The computer admirals choose destinations (`Admiral::think`) but never alternate
+  between points. The level data has no waypoint routes. Escort (follow) and guard are the nearest
+  existing behaviours.
+
+**Attack-move: built from existing orders.** No new ship behaviour.
+- A then click (Modern: Ares; G in Modern: WASD), or Ctrl+right-click: each selected ship gets
+  `SetObjectLocationDestination` to its formation point (the same grid as a group move). The clock
+  is left at 0.
+- That is exactly the Classic point order, so it inherits everything:
+  - it engages enemies met within engage range, fights them, then continues;
+  - it holds at the point and fights anything that comes near;
+  - it goes through the per-tick queue;
+  - a level's `target` action replaces it, like any destination.
+- **The one difference from a C&C attack-move** is the 15 s give-up against targets that don't fire
+  back.
+- **If that matters in play,** the smallest fix is a per-ship flag that stops `ThinkObjectEngageTarget`
+  (~1244) advancing the clock (§3, step 2). It is a few lines, in effect only on attack-move ships,
+  and is cleared by any other destination. Proposal: build without it first and add it only if
+  playtesting shows ships breaking off fights.
+
+**Patrol: existing orders, plus a small per-tick step** (new state, no new ship AI).
+- **The order:** W then click (Modern: Ares; T in Modern: WASD). Each selected ship gets a point
+  order (clock 0, so it engages on the way) to the clicked point, plus a patrol record:
+  `{ship, id, point A (where it was), point B (the click), heading for B}`. Records live in the game
+  state, beside the selection.
+- **The step** (once per major tick, after `PlayerShip::update()`, in record order): if a ship is
+  within its arrival distance of the point it is heading for, it gets the other point as a new point
+  order. The arrival distance is the larger of its data's arrive distance and a fixed minimum of
+  about 200 units, because ships brake and may never reach the exact point. The switch resets the
+  clock, so each leg engages enemies afresh.
+- **Fighting on a leg:** the ship fights the enemies it meets, then resumes the leg, because its
+  destination is unchanged.
+- **Determinism:** the step reads and writes only game state, runs at a fixed point in the major
+  tick in a fixed order, and uses no wall time. Replays run Classic, so the list stays empty there.
+  The Modern replay tests stay repeatable.
+- **Scripts and other orders win:** the step drops a record when the ship's destination is no longer
+  the patrol point it set. That covers a level's `target` action, any player order, and a Classic
+  key order. It also drops records for ships that die, are captured or become locked (as the
+  selection does), and all records clear at level start.
+- **Drawing (view only):** a dashed line between A and B for selected patrolling ships (§4).
+
+**Recommended order:**
+1. attack-move, with no engine change;
+2. two-point patrol, with the per-tick step;
+3. only if needed, the attack-move flag;
+4. multi-point routes (Shift+click after W) later, as step G.
+
+**Tests:**
+- unit tests for the patrol step's switch and cancel rules (pure functions on positions and
+  destinations);
+- the modern-multi replay test extended with an attack-move and a patrol leg switch, two runs
+  identical;
+- in game at UI 2× and 4× from the timing log.
+
 ## 6. Effort, risk, order and "done when"
 
 Effort: **S** about a session, **M** two or three, **L** more. Each step is its own commit with
