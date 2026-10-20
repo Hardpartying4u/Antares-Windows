@@ -77,13 +77,15 @@ def data_test(opts, queue, name, args=[], smoke_args=[]):
     return diff_test(opts, queue, name, ["out/cur/%s" % name] + args, expected)
 
 
-def offscreen_test(opts, queue, name, args=[]):
+def offscreen_test(opts, queue, name, args=[], expected_dir="test"):
+    # expected_dir="test-starbound" marks a script whose output Star Bound changed on purpose; its
+    # expected output lives there and upstream's test/ data is left as it is.
     cmd = ["out/cur/offscreen", name]
     if opts.smoke:
         cmd.append("--text")
         expected = "test/smoke/%s" % name
     else:
-        expected = "test/%s" % name
+        expected = "%s/%s" % (expected_dir, name)
     return diff_test(opts, queue, name, cmd + args, expected)
 
 
@@ -184,7 +186,8 @@ def main():
         (offscreen_test, opts, queue, "fast-motion", ["--text"]),
         (offscreen_test, opts, queue, "main-screen", opengl),
         (offscreen_test, opts, queue, "mission-briefing", ["--text"]),
-        (offscreen_test, opts, queue, "options", ["--text"]),
+        # Star Bound rebuilt Options > Key Controls (rebinding screen), so options has its own output.
+        (offscreen_test, opts, queue, "options", ["--text"], "test-starbound"),
         (offscreen_test, opts, queue, "pause", ["--text"]),
         (replay_test, opts, queue, "and-it-feels-so-good"),
         (replay_test, opts, queue, "astrotrash-plus"),

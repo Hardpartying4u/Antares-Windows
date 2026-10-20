@@ -656,6 +656,17 @@ MainScreen
 | **Options › Video** | `options.cpp` ~231 | `interfaces/options/video.pn` + code | Fullscreen checkbox (applies next launch, or Alt+Enter); a column of **UI Scale** choices — Auto, 1x, 2x, 3x, 4x — that behave as radio buttons and apply immediately (added in code, `kUiScaleChoices`); below Fullscreen, **Graphics: Enhanced / Original** radio choices (`kGraphicsChoices`, saved as `enhanced graphics` in `config.pn`, default Enhanced; takes effect from the next level); Key Controls, Sound, Cancel (reverts), Done |
 | **Options › Key Controls** (rebinding screen, 2026-10-20) | `options.cpp` (`KeyControlScreen`) | `interfaces/options/keys.pn` for the frame, Cancel, Options, Done and the conflict line; the rest in code (the data's tab box and instructions are removed with `InterfaceScreen::remove_widget`) | Page choices (Ship, Command, Shortcuts, Utility, Hot Keys, Modern: `kActionGroups`); preset choice with "(CHANGED)"; for each action on the page, Primary, Secondary and Gamepad cells. Click a cell, then press a key, the middle or a side mouse button, the wheel (primary and secondary) or a gamepad button (gamepad cell); Esc cancels; an input the slot doesn't take, or a reserved one, sounds a warning. **Clear** empties the selected cell. Clashing cells flash gold, the conflict line names the first pair, and Done and Options wait until they are fixed. **Reset to Defaults** restores the chosen preset. Cell changes are rebuilt from the screen's timer, not from the clicked cell's own action |
 
+**Offscreen screen tests** (`src/bin/offscreen.cpp`, `python scripts/test.py --type=offscreen`; not
+among the 28 standard tests):
+- `options` drives Sound → Key Controls and clicks the old tab row at y 50. Its output changed
+  from `4d591f5e` (Reset to Defaults button, new default keys), then with the rebinding screen and
+  presets; the y-50 clicks now hit nothing, so the old four select beeps are gone. That is the
+  intended screen, so its expected output is Star Bound's own, `test-starbound/options`
+  (2026-10-21); upstream's `test/options` is left as it is.
+- `main-screen` can't pass on Windows and never has: it needs the OpenGL offscreen driver, which
+  upstream leaves out of Windows builds (`#ifndef _WIN32` in `offscreen.cpp`), so it writes an
+  empty `sound.log` and no screens. Upstream's Windows CI doesn't run offscreen tests either.
+
 ### 3.4 In-game screen layout
 
 All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78–88 and
