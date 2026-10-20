@@ -6,6 +6,7 @@
 #include <gmock/gmock.h>
 
 #include "data/resource.hpp"
+#include "game/modern-orders.hpp"
 #include "game/player-ship.hpp"
 #include "game/sys.hpp"
 #include "math/rotation.hpp"
@@ -167,6 +168,52 @@ TEST_F(ControlsTest, GamepadStickSteersTheRightWay) {
         auto sign = [](Fixed f) { return (f > Fixed::from_float(0.5)) ? 1 : (f < Fixed::from_float(-0.5)) ? -1 : 0; };
         EXPECT_EQ(sign(h), c.want_h) << "pad " << c.pad_x << "," << c.pad_y;
         EXPECT_EQ(sign(v), c.want_v) << "pad " << c.pad_x << "," << c.pad_y;
+    }
+}
+
+// What a Modern right-click does, from what is under the cursor.
+TEST_F(ControlsTest, ModernRightClickOrders) {
+    using O = ModernOrder;
+    //                        orderable, object, hostile, base,  is the selected ship
+    EXPECT_EQ(classify_order(true, false, false, false, false), O::MOVE);    // empty space
+    EXPECT_EQ(classify_order(true, true, true, false, false), O::ATTACK);    // enemy ship
+    EXPECT_EQ(classify_order(true, true, true, true, false), O::ATTACK);     // enemy base
+    EXPECT_EQ(classify_order(true, true, false, false, false), O::FOLLOW);   // friendly ship
+    EXPECT_EQ(classify_order(true, true, false, true, false), O::GUARD);     // friendly base
+    EXPECT_EQ(classify_order(true, true, false, false, true), O::NONE);      // itself
+    // Nothing orderable selected (the flagship, a base, a locked ship): a right-click only
+    // targets, as in Classic.
+    for (bool object : {false, true}) {
+        for (bool hostile : {false, true}) {
+            EXPECT_EQ(classify_order(false, object, hostile, false, false), O::NONE);
+        }
+    }
+}
+
+// Screen to world is the inverse of the game's world to screen (scale_to_viewport) at every zoom
+// (1:16 to 2:1, and in between as the zoom eases) and wherever the play area starts on screen.
+TEST_F(ControlsTest, ScreenToWorldInvertsScaleToViewport) {
+    const Rect bounds(1073741824 - 9000, 1073741824 - 5000, 1073741824 + 9000, 1073741824 + 5000);
+    for (int32_t factor : {256, 512, 1024, 1500, 2048, 3000, 4096, 6000, 8192}) {
+        const Scale scale{factor};
+        for (Point origin : {Point(128, 0), Point(32, 0), Point(1100, 0)}) {
+            for (int x = origin.h; x < origin.h + 2400; x += 37) {
+                for (int y = 0; y < 1440; y += 41) {
+                    const Point world = viewport_to_world(Point(x, y), bounds, scale, origin);
+                    const Point back(
+                            scale_by(world.h - bounds.left, scale) + origin.h,
+                            scale_by(world.v - bounds.top, scale) + origin.v);
+                    if (factor <= SCALE_SCALE.factor) {
+                        // At 1:1 and further out each pixel covers whole world units: exact.
+                        ASSERT_EQ(back, Point(x, y)) << factor;
+                    } else {
+                        // Zoomed in, a world unit covers several pixels: the nearest one.
+                        ASSERT_LE(std::abs(back.h - x), 1) << factor;
+                        ASSERT_LE(std::abs(back.v - y), 1) << factor;
+                    }
+                }
+            }
+        }
     }
 }
 

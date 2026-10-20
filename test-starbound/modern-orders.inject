@@ -1,0 +1,20 @@
+# Modern right-click orders on the shoplifter-1 replay (chapter 7, ch04), played with --modern.
+# The player's ships there: the liner (initial 0, takes no orders), the rescue transport
+# (initial 1), the flagship (initial 5) and an escort (initial 6) whose destination the level locks.
+# Select friendly (action 8) cycles through them; after each, a right-click on empty space near
+# the top right of the play area: only an orderable ship moves, the others are only targeted.
+300 key 8
+330 rclick 560 120
+600 key 8
+630 rclick 560 120
+900 key 8
+930 rclick 560 120
+# A right-click on the centre of the play area, where the flagship always is: follow it.
+1200 rclick 368 240
+# Zoom to show all (action 26), then a right-click where a Gaitori cruiser (initial 8) is drawn:
+# attack it. The click lands on the right ship at the new zoom.
+1450 key 26
+1500 rclick-initial 8
+# What a level's "target" action does: the transport ordered back to the liner, its first
+# destination. The scripted order replaces the Modern one.
+1800 script-target 1 0

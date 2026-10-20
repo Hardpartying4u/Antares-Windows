@@ -339,6 +339,85 @@ strings in `data/strings/minicomputer.pn`). 10 lines × 25 chars at panel offset
 - **Mission Status**: level-defined status lines
 - The top lines always show the current **CONTROL** and **TARGET** objects.
 
+### 2.4a Modern right-click orders (2026-10-20)
+
+The first Modern feature (`src/game/modern-orders.cpp`; plan: `docs/modern-controls.md` step B).
+
+**When it applies:**
+- The Modern mode is on when a Modern preset (Modern: Ares or Modern: WASD) is chosen.
+- It is decided when a level starts playing (`g.modern_controls`, `MainPlay`).
+- It is always off in replays, the demo and the tutorials (levels with a skip option). Their text
+  and checks teach the Classic keys.
+- With it off, nothing differs from Classic.
+
+**Selecting.** A left-click on a friendly ship selects it, as in Classic: it becomes the control
+object, which will be the main ship once several can be selected. A click on empty space changes
+nothing. In the Modern mode the selected ship gets yellow corner brackets, at least 12 px across,
+so a blip at 1:16 is marked too.
+
+**Right-click on the play area.** It first targets what is under the cursor (±16 px, as a Classic
+right-click), then orders the selected ship:
+
+| Under the cursor | Order | Engine |
+|---|---|---|
+| An enemy ship or base (anything not the player's) | Attack | The Classic order to the target: `destObject`, assault duty |
+| A friendly ship | Follow (escort) | The same, escort duty: the ship matches the leader's heading and warps with it |
+| A friendly base | Guard | The same, guard duty |
+| Empty space | Move there | A point destination (`destinationLocation`, no `destObject`) with `timeFromOrigin` started at 15 s |
+
+- **The click point:** converted to world coordinates at its major tick with the inverse of
+  `scale_to_viewport` (`viewport_to_world`), so it is right at every zoom and UI scale.
+- **When there's no order:** if the flagship, a base or a ship that can't take orders
+  (`kStaticDestination`, or no `kCanAcceptDestination`) is selected, a right-click only targets.
+  The flagship is never moved by these orders.
+- **Feedback:** the order sound plays, and a ring in the order's colour closes in over a second
+  where the order was given: red attack, aqua follow, gold guard, green move.
+- **Cursor:** while hovering, the crosshair takes the colour of what a right-click would do.
+- **Masks:** a level's mouse mask disables the right-click, and its "order" mask turns it into
+  target-only.
+
+**What the engine stores.** Nothing new. An object order is the existing destination object with
+its duty. A move is a destination point with the 15 s clock started, so the ship flies straight
+there, fights back if hit, and holds there on arrival (§1.3 of `docs/modern-controls.md`). A level's
+scripted `target` action therefore replaces a Modern order exactly as it replaces a Classic one.
+In the campaign, scripted orders go to ships whose destination the level locks, and those can't
+take Modern orders at all.
+
+**Input and determinism.** Clicks go through the per-tick input queue like every click. They are
+resolved at the tick against that tick's sprite positions, as Classic clicks are.
+
+**Diagnostics.** With `--timing`, each Modern order is written to the timing log. So are the
+selected ship's screen position and the positions of the ships the player could order, four times
+a second. The in-game check uses these to click on them.
+
+**Tests:**
+- **Unit tests (`controls-test`):** what a right-click does for each case, and screen→world→screen
+  at nine zooms and three play-area origins (exact at 1:1 and further out, within 1 px zoomed in).
+- **Replay test (`modern-orders`, a 17th replay test):** the `shoplifter-1` replay (ch04) played
+  with `--modern` and input injected from `test-starbound/modern-orders.inject`. It runs these
+  steps:
+  - Select friendly, then right-clicks that only target while the Liner is selected;
+  - a move by the Transport;
+  - follow the flagship;
+  - at zoom-to-all, a right-click on a Gaitori cruiser's position (attack);
+  - a level-style scripted order replacing the Modern one.
+
+  `orders.log` records each step. The expected output lives in `test-starbound/`, not upstream's
+  `test/`. The `replay` tool's `--modern` and `--inject=FILE` options make this possible (see
+  `ReplayMaster::inject`).
+
+**In game (2026-10-20, ch05, Modern: Ares, windowed):** at UI 1×, 2× and 3× on a 5120×1440 client,
+and 4× on 5120×1920:
+- A left-click on an Engineer at zoom-to-all selected it.
+- A right-click on empty space moved it, and a right-click on the flagship made it follow.
+- Left-clicks on the flagship at 1:4 and 1:16 selected it.
+- At UI 1×, left-clicks on the moving Engineer at 1:4 and 1:16 selected it. At 2×–4× it was off the
+  play area at those zooms.
+- The brackets, the green move cursor and the order ring showed at every scale.
+
+**Limit (not new).** Select friendly (the key) only finds friendly ships within about 30° of the
+flagship's heading, in Classic as in Modern. Clicking reaches any ship on the screen.
+
 ### 2.5 Timing
 
 60 ticks per second; every 3rd tick is a "major" tick when collisions, AI and actions run

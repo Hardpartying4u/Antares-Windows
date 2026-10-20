@@ -128,6 +128,10 @@ ReplayInputSource::ReplayInputSource(ReplayData* data)
     }
 }
 
+void ReplayInputSource::add(game_ticks at, std::unique_ptr<Event> event) {
+    _events.emplace(make_pair(0, at), std::move(event));
+}
+
 void ReplayInputSource::start() {}
 
 bool ReplayInputSource::get(Handle<Admiral> admiral, game_ticks at, EventReceiver& receiver) {

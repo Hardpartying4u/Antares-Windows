@@ -47,6 +47,7 @@
 #include "game/level.hpp"
 #include "game/messages.hpp"
 #include "game/minicomputer.hpp"
+#include "game/modern-orders.hpp"
 #include "game/motion.hpp"
 #include "game/non-player-ship.hpp"
 #include "game/player-ship.hpp"
@@ -208,6 +209,10 @@ void MainPlay::become_front() {
             }
 
             _state = PLAYING;
+
+            // The Modern mode: a Modern preset, outside replays and the tutorials.
+            g.modern_controls = modern_controls_for_level(
+                    _replay, (_level.type() == Level::Type::SOLO) && _level.solo.skip.has_value());
 
             set_up_instruments();
 
@@ -409,6 +414,7 @@ void GamePlay::draw() const {
     Vectors::draw();
     draw_sprites();
     Label::draw();
+    draw_modern_markers();
 
     Messages::draw_message();
     if (_should_draw_site) {

@@ -42,7 +42,7 @@ From PowerShell/Bash, wrap each step as `cmd /c "<bat that does the above> <comm
 Windows toolchain doesn't track header dependencies, and stale objects crash at runtime
 (seen as replay tests failing with 0xC0000409).
 
-## Tests (26 total: 6 unit, 4 data, 16 replay)
+## Tests (27 total: 6 unit, 4 data, 17 replay)
 Diff tests need GNU `diff`; append Git's tools to the **end** of PATH so MSVC `link` still wins:
 ```bat
 set "PATH=%PATH%;C:\Program Files\Git\usr\bin"

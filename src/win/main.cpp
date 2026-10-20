@@ -34,6 +34,7 @@
 #include "config/ledger.hpp"
 #include "config/preferences.hpp"
 #include "data/extractor.hpp"
+#include "game/modern-orders.hpp"
 #include "game/sys.hpp"
 #include "game/timing.hpp"
 #include "glfw/video-driver.hpp"
@@ -140,6 +141,14 @@ void main(int argc, char* const* argv) {
                     return true;
                 } else if (opt == "timing") {
                     timing_open(get_value());
+                    // Modern orders go to the timing log too (for checking them in game).
+                    modern_order_log = [](pn::string_view s) {
+                        pn::string line = s.copy();
+                        while (!line.empty() && (line.data()[line.size() - 1] == '\n')) {
+                            line = line.substr(0, line.size() - 1).copy();
+                        }
+                        timing_mark(pn::format("modern order\t{0}", line));
+                    };
                     return true;
                 } else if (opt == "app-data") {
                     return callbacks.short_option(pn::rune{'a'}, get_value);

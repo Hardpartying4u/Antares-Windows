@@ -22,6 +22,7 @@
 #include "drawing/color.hpp"
 #include "drawing/pix-table.hpp"
 #include "game/globals.hpp"
+#include "game/modern-orders.hpp"
 #include "game/sys.hpp"
 #include "game/time.hpp"
 #include "lang/defines.hpp"
@@ -118,8 +119,9 @@ void GameCursor::draw() const {
 
     where = clamp(where);
     if (active()) {
-        const Rect     clip_rect = viewport();
-        const RgbColor color     = GetRGBTranslateColorShade(Hue::SKY_BLUE, MEDIUM);
+        const Rect clip_rect = viewport();
+        RgbColor   color     = GetRGBTranslateColorShade(Hue::SKY_BLUE, MEDIUM);
+        modern_cursor_color(where, &color);  // Modern: tinted by what a right-click would do
 
         Point top_a    = Point(where.h, clip_rect.top);
         Point top_b    = Point(where.h, (where.v - kCursorBoundsSize));

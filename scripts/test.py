@@ -97,6 +97,21 @@ def replay_test(opts, queue, name, args=[]):
     return diff_test(opts, queue, name, cmd + args, expected)
 
 
+def modern_replay_test(opts, queue, name, args=[]):
+    # A Star Bound replay test: an upstream replay played with the Modern control mode and extra
+    # input from test-starbound/NAME.inject; the expected output is test-starbound/NAME (upstream's
+    # test/ data is left as it is). One screenshot per 600 ticks keeps the expected output small.
+    cmd = [
+        "out/cur/replay",
+        "test/%s.NLRP" % args[0],
+        "--text",
+        "--modern",
+        "--interval=600",
+        "--inject=test-starbound/%s.inject" % name,
+    ]
+    return diff_test(opts, queue, name, cmd, "test-starbound/%s" % name)
+
+
 def call(args):
     fn = args[0]
     opts = args[1]
@@ -187,6 +202,7 @@ def main():
         (replay_test, opts, queue, "while-the-iron-is-hot"),
         (replay_test, opts, queue, "yo-ho-ho"),
         (replay_test, opts, queue, "you-should-have-seen-the-one-that-got-away"),
+        (modern_replay_test, opts, queue, "modern-orders", ["shoplifter-1"]),
     ]
 
     if opts.test:
@@ -204,7 +220,7 @@ def main():
         if "offscreen" not in opts.type:
             tests = [t for t in tests if t[0] != offscreen_test]
         if "replay" not in opts.type:
-            tests = [t for t in tests if t[0] != replay_test]
+            tests = [t for t in tests if t[0] not in (replay_test, modern_replay_test)]
 
     if opts.wine:
         tests = [t for t in tests if t[3] in WINE_TESTS]

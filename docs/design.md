@@ -52,6 +52,13 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Inputs the game keeps for itself can't be bound: Esc, Return, Caps Lock; left and right mouse;
     the pad's bumpers and Start.
   - See `docs/current-state.md` §1.1.
+- **Done (2026-10-20): Modern right-click orders for one selected ship** (`docs/modern-controls.md` step B, `docs/current-state.md` §2.4a).
+  - The Modern mode is on with a Modern preset, and off in replays, the demo and the tutorials. This
+    settles the open question on tutorials: they always run Classic.
+  - Left-click selects. A right-click attacks an enemy, follows a friendly ship, guards a friendly
+    base, or moves to empty space.
+  - The flagship is never ordered.
+  - Orders are the existing destinations, so scripted orders still override them.
 - **Decision (2026-10-20): three presets.**
   - Classic is unchanged.
   - **Modern: Ares** (Ares-style) is the default Modern layout: the arrows steer, as Ares'
@@ -176,7 +183,7 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - ~~M2: may Modern add multi-ship selection?~~ Answered 2026-10-20: yes (the Modern goal in §4). It is built as a selection list whose first ship stays the single control object (`docs/modern-controls.md` §2).
 - M2: may Modern move the camera away from the flagship (edge or drag scrolling)? The original always centres on it.
 - ~~M2: in Modern, do the mouse buttons fire weapons or select and give orders?~~ Answered 2026-10-20 by the Modern goal: they select and give orders; firing stays on keys.
-- M2 Modern: should tutorials always run Classic, since their text and checks teach the Classic keys? (Proposed: yes; `docs/modern-controls.md` §2.4.)
+- ~~M2 Modern: should tutorials always run Classic?~~ Decided 2026-10-20: yes, the Modern mode is off in the tutorials (levels with a skip option).
 - ~~M2 Modern: A then click for attack-move, or WASD flight?~~ Decided 2026-10-20: flight stays on WASD; attack-move is Ctrl+right-click plus a rebindable key (G).
 - ~~M2 Modern: is a pointer to the group enough for a double-tapped group number?~~ Decided 2026-10-20: yes, until the camera work.
 - ~~M2 Classic: Left Alt (fire 1) + Tab (warp) and the left Windows key (fire 2) take the game out of focus.~~ Decided 2026-10-20: Classic's fire 1 is X and fire 2 is Z. Saved Classic configs still on the old keys move, unless the new key is taken (`docs/current-state.md` §1.2).

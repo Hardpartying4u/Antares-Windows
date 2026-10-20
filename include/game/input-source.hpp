@@ -74,6 +74,10 @@ class ReplayInputSource : public InputSource {
     virtual void gamepad_button_down(const GamepadButtonDownEvent& event);
     virtual void mouse_down(const MouseDownEvent& event);
 
+    // Adds an event the replay file doesn't hold, delivered to the local player at a major tick
+    // (the replay test tool injects Modern clicks this way).
+    void add(game_ticks at, std::unique_ptr<Event> event);
+
   private:
     bool advance(EventReceiver& receiver);
 

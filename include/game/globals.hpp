@@ -113,6 +113,8 @@ struct GlobalState {
 
     uint32_t key_mask;  // Determines input to reject.
 
+    bool modern_controls = false;  // The Modern mode's mouse orders (game/modern-orders.hpp).
+
     miniComputerDataType mini;
 
     Zoom                zoom;

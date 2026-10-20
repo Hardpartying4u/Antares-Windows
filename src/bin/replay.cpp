@@ -18,7 +18,12 @@
 
 #include "data/replay.hpp"
 
+#include <stdio.h>
+
+#include <fstream>
+#include <functional>
 #include <pn/output>
+#include <string>
 #include <sfz/sfz.hpp>
 
 #include "config/dirs.hpp"
@@ -38,6 +43,7 @@
 #include "game/level.hpp"
 #include "game/main.hpp"
 #include "game/messages.hpp"
+#include "game/modern-orders.hpp"
 #include "game/motion.hpp"
 #include "game/space-object.hpp"
 #include "game/sys.hpp"
@@ -61,6 +67,40 @@ namespace path = sfz::path;
 
 namespace antares {
 namespace {
+
+// A test step run when the input queue delivers it to the player's ship (at its major tick).
+class StepEvent : public Event {
+  public:
+    StepEvent(std::function<void(EventReceiver*)> step)
+            : Event(wall_time()), _step(std::move(step)) {}
+    void send(EventReceiver* receiver) const override { _step(receiver); }
+
+  private:
+    std::function<void(EventReceiver*)> _step;
+};
+
+// The level's Nth initial object, if it exists now.
+Handle<SpaceObject> initial(int n) {
+    if ((n >= 0) && (n < g.initials.size()) && g.initials[n].get() && g.initials[n]->active &&
+        (g.initials[n]->id == g.initial_ids[n])) {
+        return g.initials[n];
+    }
+    return SpaceObject::none();
+}
+
+pn::string describe(Handle<SpaceObject> o) {
+    if (!o.get()) {
+        return "nothing";
+    }
+    if (o->destObject.get()) {
+        return pn::format(
+                "{0} #{1} heading for {2} #{3}", o->long_name(), o.number(),
+                o->destObject->long_name(), o->destObject.number());
+    }
+    return pn::format(
+            "{0} #{1} heading for {2}, {3}", o->long_name(), o.number(), o->destinationLocation.h,
+            o->destinationLocation.v);
+}
 
 class ReplayMaster : public Card {
   public:
@@ -89,6 +129,13 @@ class ReplayMaster : public Card {
                 break;
 
             case REPLAY:
+                if (_orders_log.has_value()) {
+                    // Where the selected ship ended up, so the test shows the order took effect.
+                    _orders_log->format(
+                            "{0}\tend\t{1}\n", g.time.time_since_epoch().count(),
+                            describe(Handle<Admiral>(0)->control()));
+                    modern_order_log = nullptr;
+                }
                 if (_output_path.has_value()) {
                     pn::string path = pn::format("{0}/debriefing.txt", *_output_path);
                     sfz::makedirs(path::dirname(path), 0755);
@@ -112,6 +159,81 @@ class ReplayMaster : public Card {
         }
     }
 
+    // Test input the replay file doesn't hold, one per line: "TICK key ACTION" (an action number,
+    // pressed for one major tick), "TICK lclick X Y" or "TICK rclick X Y" (a click at logical
+    // pixels), "TICK select-initial N" (select the level's Nth initial object, as a left-click on
+    // it would), "TICK rclick-initial N" (a right-click where initial N is drawn at that tick), or
+    // "TICK script-target A B" (what a level's "target" action does: initial A ordered to initial
+    // B, its static destination cleared for the order). TICK is in game ticks, rounded up to a
+    // major tick. Orders the Modern mode gives, and each scripted order's result, are logged to
+    // OUTPUT/orders.log.
+    void inject(pn::string_view path) {
+        std::ifstream in(path.copy().c_str());
+        std::string   l;
+        while (std::getline(in, l)) {
+            long long tick, a = 0, b = 0;
+            char      word[16];
+            if ((l.empty() || (l[0] == '#')) ||
+                (sscanf(l.c_str(), "%lld %15s %lld %lld", &tick, word, &a, &b) < 3)) {
+                continue;
+            }
+            tick           = ((tick + 2) / 3) * 3;
+            game_ticks at  = game_ticks(ticks(tick));
+            game_ticks off = game_ticks(ticks(tick + 3));
+            std::string w(word);
+            if (w == "select-initial") {
+                const int n = int(a);
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([n](EventReceiver*) {
+                    if (initial(n).get()) {
+                        g.admiral->set_control(initial(n));
+                    }
+                })));
+            } else if (w == "rclick-initial") {
+                const int n = int(a);
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([n](EventReceiver* r) {
+                    auto o = initial(n);
+                    if (o.get() && o->sprite.get()) {
+                        const Point where = o->sprite->where;
+                        r->mouse_down(MouseDownEvent(wall_time(), 1, 1, where));
+                        r->mouse_up(MouseUpEvent(wall_time(), 1, where));
+                    }
+                })));
+            } else if (w == "script-target") {
+                const int s = int(a), d = int(b);
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([this, s, d](EventReceiver*) {
+                    auto subject = initial(s), direct = initial(d);
+                    if (!subject.get() || !direct.get()) {
+                        return;
+                    }
+                    // As apply(const TargetAction&) in src/game/action.cpp.
+                    uint32_t save = subject->attributes;
+                    subject->attributes &= ~kStaticDestination;
+                    OverrideObjectDestination(subject, direct);
+                    subject->attributes = save;
+                    if (_orders_log.has_value()) {
+                        _orders_log->format(
+                                "{0}\tscript target\t{1}\n", g.time.time_since_epoch().count(),
+                                describe(subject));
+                    }
+                })));
+            } else if (w == "key") {
+                _input_source.add(at, unique_ptr<Event>(new ActionDownEvent(wall_time(), int(a))));
+                _input_source.add(off, unique_ptr<Event>(new ActionUpEvent(wall_time(), int(a))));
+            } else if ((w == "lclick") || (w == "rclick")) {
+                const int button = (w == "rclick") ? 1 : 0;
+                _input_source.add(
+                        at, unique_ptr<Event>(new MouseDownEvent(wall_time(), button, 1, Point(int32_t(a), int32_t(b)))));
+                _input_source.add(
+                        off, unique_ptr<Event>(new MouseUpEvent(wall_time(), button, Point(int32_t(a), int32_t(b)))));
+            }
+        }
+        if (_output_path.has_value()) {
+            sfz::makedirs(*_output_path, 0755);
+            _orders_log.emplace(pn::format("{0}/orders.log", *_output_path), pn::text);
+            modern_order_log = [this](pn::string_view s) { _orders_log->write(s); };
+        }
+    }
+
   private:
     void init();
 
@@ -126,6 +248,7 @@ class ReplayMaster : public Card {
     const int32_t             _random_seed;
     GameResult                _game_result;
     ReplayInputSource         _input_source;
+    sfz::optional<pn::output> _orders_log;
 };
 
 void ReplayMaster::init() {
@@ -162,6 +285,8 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "\n    -t, --text           produce text output"
             "\n    -s, --smoke          run as smoke text"
             "\n        --opengl=2.0|3.2 select OpenGL version (default: 3.2)"
+            "\n        --modern         play with the Modern control mode on"
+            "\n        --inject=FILE    add clicks and key actions from FILE (see ReplayMaster)"
             "\n        --help           display this help screen"
             "\n",
             progname);
@@ -187,6 +312,7 @@ void main(int argc, char* const* argv) {
     int                       height       = 480;
     bool                      text         = false;
     bool                      smoke        = false;
+    sfz::optional<pn::string> inject_path;
     std::pair<int, int>       gl_version   = {3, 2};
     pn::string_view           glsl_version = "330 core";
     callbacks.short_option = [&](pn::rune opt, const args::callbacks::get_value_f& get_value) {
@@ -225,6 +351,12 @@ void main(int argc, char* const* argv) {
             } else {
                 throw std::runtime_error("invalid OpenGL version");
             }
+            return true;
+        } else if (opt == "modern") {
+            modern_controls_in_replays = true;
+            return true;
+        } else if (opt == "inject") {
+            inject_path.emplace(get_value().copy());
             return true;
         } else if (opt == "help") {
             usage(pn::out, sfz::path::basename(argv[0]), 0);
@@ -270,16 +402,23 @@ void main(int argc, char* const* argv) {
     NullLedger ledger;
 
     pn::input replay_file{*replay_path, pn::binary};
+    auto      master = [&]() {
+        auto m = new ReplayMaster(replay_file, output_dir);
+        if (inject_path.has_value()) {
+            m->inject(*inject_path);
+        }
+        return m;
+    };
     if (smoke) {
         TextVideoDriver video({width, height}, sfz::optional<pn::string>());
-        video.loop(new ReplayMaster(replay_file, output_dir), scheduler);
+        video.loop(master(), scheduler);
     } else if (text) {
         TextVideoDriver video({width, height}, output_dir);
-        video.loop(new ReplayMaster(replay_file, output_dir), scheduler);
+        video.loop(master(), scheduler);
     } else {
 #ifndef _WIN32
         OffscreenVideoDriver video({width, height}, 1, gl_version, glsl_version, output_dir);
-        video.loop(new ReplayMaster(replay_file, output_dir), scheduler);
+        video.loop(master(), scheduler);
 #endif
     }
 }

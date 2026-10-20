@@ -1,0 +1,7 @@
+330	Passenger Liner #0	target only	the selected ship can't take orders
+630	Passenger Liner #0	target only	the selected ship can't take orders
+930	Transport #1	move	to 1073735039, 1073738584
+1200	Transport #1	follow	Heavy Cruiser #5
+1500	Transport #1	attack	Cruiser #8
+1800	script target	Transport #1 heading for Passenger Liner #0
+24342	end	Transport #1 heading for Cell 1 #2

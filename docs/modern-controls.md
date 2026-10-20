@@ -537,6 +537,18 @@ whose point moves along a route.
 - **Scripted orders override Modern ones** (§1.6), so a level can still take a ship away for its
   story.
 
+## 5a. Built so far
+
+- **Step B, right-click orders for one selected ship: done 2026-10-20.** See
+  `docs/current-state.md` §2.4a for the behaviour, how the engine stores the order and the tests.
+  - The Modern mode is on with a Modern preset, outside replays, the demo and the tutorials (as
+    proposed in §2.4).
+  - A move is a point destination with the 15 s clock started (§3, step 1). No order-mode flag was
+    needed yet; attack-move (step C) will add one.
+  - A scripted order replaces a Modern one because the Modern order is only a destination.
+  - The step A pieces this needed (the mode decided at level start, Classic for replays and
+    tutorials) came with it; the separate toggle is the preset choice itself.
+
 ## 6. Effort, risk, order and "done when"
 
 Effort: **S** about a session, **M** two or three, **L** more. Each step is its own commit with

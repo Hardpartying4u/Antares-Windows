@@ -39,6 +39,7 @@
 #include "game/level.hpp"
 #include "game/messages.hpp"
 #include "game/minicomputer.hpp"
+#include "game/modern-orders.hpp"
 #include "game/non-player-ship.hpp"
 #include "game/space-object.hpp"
 #include "game/starfield.hpp"
@@ -535,7 +536,13 @@ void PlayerShip::mouse_down(const MouseDownEvent& event) {
                 MiniComputerHandleClick(where);
             }
             break;
-        case 1: break;
+        case 1:
+            if (g.modern_controls) {
+                // Modern: target what is under the cursor and order the selected ship there.
+                modern_right_click(where);
+                return;
+            }
+            break;
         default:
             // Left and right select and target; other buttons can be bound to actions.
             if (active()) {
