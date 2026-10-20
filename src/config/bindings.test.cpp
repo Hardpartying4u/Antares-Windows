@@ -78,16 +78,72 @@ TEST_F(BindingsTest, ClassicMatchesTodaysControls) {
     }
 }
 
-TEST_F(BindingsTest, ModernFliesOnWasd) {
-    const ActionBindings* m = preset(ControlPreset::MODERN);
+TEST_F(BindingsTest, ModernWasdFliesOnWasd) {
+    const ActionBindings* m = preset(ControlPreset::MODERN_WASD);
     EXPECT_EQ(m[kUpKeyNum].slot[kPrimarySlot], Binding::key(Key::W));
     EXPECT_EQ(m[kDownKeyNum].slot[kPrimarySlot], Binding::key(Key::S));
     EXPECT_EQ(m[kLeftKeyNum].slot[kPrimarySlot], Binding::key(Key::A));
     EXPECT_EQ(m[kRightKeyNum].slot[kPrimarySlot], Binding::key(Key::D));
+    EXPECT_EQ(m[kOrderKeyNum].slot[kPrimarySlot], Binding::key(Key::CONTROL));
     EXPECT_EQ(m[kAttackMoveKeyNum].slot[kPrimarySlot], Binding::key(Key::G));
-    EXPECT_EQ(m[kPatrolKeyNum].slot[kPrimarySlot], Binding::key(Key::P));
+    EXPECT_EQ(m[kPatrolKeyNum].slot[kPrimarySlot], Binding::key(Key::T));  // not P: left hand
     EXPECT_EQ(m[kZoomInKeyNum].slot[kSecondarySlot], Binding::wheel(+1));
     EXPECT_EQ(m[kUpKeyNum].slot[kGamepadSlot], Binding::gamepad(Pad::A));  // same pad as Classic
+}
+
+// Ares-style: the arrows steer; every other fire and action key is under the left hand, except the
+// zoom shortcuts (above the arrows and on F9-F12) and hotkeys 6-0; Ctrl, Alt and the Windows keys
+// are left free.
+TEST_F(BindingsTest, ModernAresStyleLayout) {
+    const ActionBindings* m = preset(ControlPreset::MODERN_ARES);
+    EXPECT_EQ(m[kUpKeyNum].slot[kPrimarySlot], Binding::key(Key::UP_ARROW));
+    EXPECT_EQ(m[kDownKeyNum].slot[kPrimarySlot], Binding::key(Key::DOWN_ARROW));
+    EXPECT_EQ(m[kLeftKeyNum].slot[kPrimarySlot], Binding::key(Key::LEFT_ARROW));
+    EXPECT_EQ(m[kRightKeyNum].slot[kPrimarySlot], Binding::key(Key::RIGHT_ARROW));
+    EXPECT_EQ(m[kOneKeyNum].slot[kPrimarySlot], Binding::key(Key::SPACE));
+    EXPECT_EQ(m[kTwoKeyNum].slot[kPrimarySlot], Binding::key(Key::F));
+    EXPECT_EQ(m[kEnterKeyNum].slot[kPrimarySlot], Binding::key(Key::D));
+    EXPECT_EQ(m[kOrderKeyNum].slot[kPrimarySlot], Binding::key(Key::S));
+    EXPECT_EQ(m[kCompUpKeyNum].slot[kPrimarySlot], Binding::key(Key::T));
+    EXPECT_EQ(m[kCompDownKeyNum].slot[kPrimarySlot], Binding::key(Key::G));
+    EXPECT_EQ(m[kCompAcceptKeyNum].slot[kPrimarySlot], Binding::key(Key::B));
+    EXPECT_EQ(m[kCompCancelKeyNum].slot[kPrimarySlot], Binding::key(Key::V));
+    EXPECT_EQ(m[kMessageNextKeyNum].slot[kPrimarySlot], Binding::key(Key::BACKTICK));
+    EXPECT_EQ(m[kAttackMoveKeyNum].slot[kPrimarySlot], Binding::key(Key::A));
+    EXPECT_EQ(m[kPatrolKeyNum].slot[kPrimarySlot], Binding::key(Key::W));
+
+    const Key::Value left[] = {
+            Key::BACKTICK, Key::K1, Key::K2, Key::K3, Key::K4, Key::K5, Key::TAB, Key::Q,
+            Key::W,        Key::E,  Key::R,  Key::T,  Key::A,  Key::S,  Key::D,   Key::F,
+            Key::G,        Key::Z,  Key::X,  Key::C,  Key::V,  Key::B,  Key::SPACE, Key::SHIFT,
+            Key::F1,       Key::F2, Key::F3, Key::F4, Key::F5, Key::F6,
+    };
+    for (int a = 0; a < ACTION_COUNT; ++a) {
+        const bool right_hand = (a <= kRightKeyNum) ||                                // steering
+                                ((kScale121KeyNum <= a) && (a <= kScaleAllKeyNum)) ||  // views
+                                ((kHotKey6Num <= a) && (a <= kHotKey10Num));           // 6-0
+        const Binding& b = m[a].slot[kPrimarySlot];
+        bool           on_left = false;
+        for (Key::Value k : left) {
+            on_left = on_left || (b == Binding::key(Key(k)));
+        }
+        EXPECT_EQ(on_left, !right_hand) << "action " << a;
+        for (int s = 0; s < kBindingSlots; ++s) {
+            for (Key::Value k : {Key::CONTROL, Key::OPTION, Key::COMMAND, Key::R_CONTROL,
+                                 Key::R_OPTION, Key::R_COMMAND}) {
+                EXPECT_NE(m[a].slot[s], Binding::key(Key(k))) << "action " << a;
+            }
+        }
+    }
+    EXPECT_EQ(m[kUpKeyNum].slot[kGamepadSlot], Binding::gamepad(Pad::A));  // same pad as Classic
+}
+
+// Configs saved with the one Modern preset of stage 4 ("modern") load as Modern (WASD), the layout
+// it had.
+TEST_F(BindingsTest, OldModernIdIsWasd) {
+    auto p = preset_with_id("modern");
+    ASSERT_TRUE(p.has_value());
+    EXPECT_TRUE(*p == ControlPreset::MODERN_WASD);
 }
 
 TEST_F(BindingsTest, PresetsAreValid) {
@@ -175,14 +231,14 @@ TEST_F(BindingsTest, Version2RoundTrip) {
     std::remove(kV2Config);  // start from defaults
     {
         FilePrefsDriver prefs(kV2Config);
-        prefs.set_controls_preset(ControlPreset::MODERN);
+        prefs.set_controls_preset(ControlPreset::MODERN_WASD);
         prefs.set_binding(kOneKeyNum, kSecondarySlot, Binding::mouse(3));
         prefs.set_binding(kEnterKeyNum, kGamepadSlot, Binding::gamepad(Pad::Y));
         prefs.set_binding(kHelpKeyNum, kPrimarySlot, Binding::none());
         prefs.set_volume(5);
     }
     FilePrefsDriver prefs(kV2Config);
-    EXPECT_EQ(prefs.controls_preset(), ControlPreset::MODERN);
+    EXPECT_TRUE(prefs.controls_preset() == ControlPreset::MODERN_WASD);
     EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::W));
     EXPECT_EQ(prefs.binding(kOneKeyNum, kSecondarySlot), Binding::mouse(3));
     EXPECT_EQ(prefs.binding(kEnterKeyNum, kGamepadSlot), Binding::gamepad(Pad::Y));
@@ -208,12 +264,28 @@ TEST_F(BindingsTest, Version1LoadsAsClassic) {
         out.format("sound: {{volume: 7}}\nkeys: {{\"ship accel\": 26, \"fire 1\": 20}}\n");
     }
     FilePrefsDriver prefs(kV2Config);
-    EXPECT_EQ(prefs.controls_preset(), ControlPreset::CLASSIC);
+    EXPECT_TRUE(prefs.controls_preset() == ControlPreset::CLASSIC);
     EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::W));
     EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::Q));
     EXPECT_EQ(prefs.binding(kDownKeyNum, kPrimarySlot), Binding::key(Key::N5));
     EXPECT_EQ(prefs.binding(kZoomInKeyNum, kSecondarySlot), Binding::wheel(+1));
     EXPECT_EQ(prefs.binding(kUpKeyNum, kGamepadSlot), Binding::gamepad(Pad::A));
+}
+
+// A version 2 config saved with the stage 4 "modern" preset loads as Modern (WASD), keeping its
+// bindings.
+TEST_F(BindingsTest, Version2OldModernLoadsAsWasd) {
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 2\ncontrols: {{preset: \"modern\", bindings: {{"
+                "\"patrol\": {{primary: {{key: 19}}}}}}}}\n");  // P, as stage 4 saved it
+    }
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_TRUE(prefs.controls_preset() == ControlPreset::MODERN_WASD);
+    EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::W));
+    EXPECT_EQ(prefs.binding(kPatrolKeyNum, kPrimarySlot), Binding::key(Key::P));  // as saved
 }
 
 // Bindings a file shouldn't hold (a reserved input, a gamepad button in a key slot) are ignored.

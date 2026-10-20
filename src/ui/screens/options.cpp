@@ -305,11 +305,12 @@ namespace {
 const ActionGroup* const kPages     = kActionGroups;
 const int                kPageCount = sizeof(kActionGroups) / sizeof(kActionGroups[0]);
 
+const int         kPresetLeft                 = 132;  // after "PRESET:" and the first box
 const int         kRowTop                     = 122;
 const int         kRowStep                    = 16;
 const int         kLabelLeft                  = 60;
-const int         kCellLeft[kBindingSlots]    = {236, 352, 468};
-const int         kCellWidth                  = 108;
+const int         kCellLeft[kBindingSlots]    = {250, 362, 474};  // labels fit 25 characters
+const int         kCellWidth                  = 104;
 const char* const kSlotNames[kBindingSlots]   = {"PRIMARY", "SECONDARY", "GAMEPAD"};
 const char* const kAddedActionNames[]         = {"Attack Move", "Patrol"};
 static_assert(KEY_COUNT + 2 == ACTION_COUNT, "a name for each added action");
@@ -381,18 +382,19 @@ KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
                 });
     }
 
-    // The presets. Choosing one replaces every binding with that preset's; Cancel restores the
-    // bindings from when Options was opened.
-    left = 56;
+    // The presets, after a "PRESET:" label drawn in overlay(). Choosing one replaces every binding
+    // with that preset's; Cancel restores the bindings from when Options was opened.
+    left = kPresetLeft;
     for (ControlPreset preset : kControlPresets) {
+        const int width = 24 + 8 * static_cast<int>(preset_label(preset).size());
         CheckboxButtonData data;
         data.id     = pn::format("preset-{0}", preset_id(preset));
         data.type   = WidgetDataBase::CHECKBOX;
-        data.bounds = {left, 84, left + 150, 94};
-        data.label  = pn::format("PRESET: {0}", preset_label(preset));
+        data.bounds = {left, 84, left + width, 94};
+        data.label  = preset_label(preset).copy();
         data.hue    = Hue::PALE_PURPLE;
         data.style  = InterfaceStyle::SMALL;
-        left += 170;
+        left += width + 11;
         dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
                 ->bind({
                         [preset] { return sys.prefs->controls_preset() == preset; },
@@ -428,7 +430,7 @@ KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
         PlainButtonData data;
         data.id     = "clear-binding";
         data.type   = WidgetDataBase::BUTTON;
-        data.bounds = {468, 404, 576, 414};
+        data.bounds = {474, 404, 578, 414};
         data.label  = "CLEAR";
         data.hue    = Hue::PALE_PURPLE;
         data.style  = InterfaceStyle::SMALL;
@@ -641,8 +643,9 @@ void KeyControlScreen::overlay() const {
         draw_text_in_rect(r, s, InterfaceStyle::SMALL, hue);
     };
 
+    text({56, 84, 112, 94}, "PRESET:", Hue::PALE_PURPLE);  // checkbox boxes draw left of bounds
     if (!sys.prefs->get().bindings_match_preset()) {
-        text({396, 84, 584, 94}, "(CHANGED)", Hue::PALE_PURPLE);
+        text({478, 84, 584, 94}, "(CHANGED)", Hue::PALE_PURPLE);
     }
     for (int s = 0; s < kBindingSlots; ++s) {
         text({kCellLeft[s], 106, kCellLeft[s] + kCellWidth, 116}, kSlotNames[s], Hue::TAN);

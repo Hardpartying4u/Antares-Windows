@@ -107,9 +107,65 @@ const PresetRow kClassic[] = {
         {kPatrolKeyNum, kNone, kNone, kNone},
 };
 
-// Flight on WASD, weapons and selection around it, zoom on the main row and the wheel; the rest
-// as Classic. Attack move on G (Ctrl+right-click will also give it), patrol on P.
-const PresetRow kModern[] = {
+// Modern (Ares-style): the right hand steers on the arrow keys, like Ares' keypad 8-4-5-6; everything
+// else is under the left hand (fingers on A S D F, thumb on Space). Fire on Space, F and D; select
+// on Q, E and R; order on S; the minicomputer on the column T, G, B with V as cancel (mirroring the
+// arrows); attack move A (then click), patrol W. Ctrl, Alt and the Windows key are left free: Ctrl
+// is the Modern group and attack-move modifier, and Alt+Tab, Alt+Enter and the Windows key belong
+// to Windows. The zoom shortcuts stay on the keys above the arrows and the function keys.
+const PresetRow kModernAres[] = {
+        {kUpKeyNum, K(Key::UP_ARROW), kNone, P(Pad::A)},
+        {kDownKeyNum, K(Key::DOWN_ARROW), kNone, P(Pad::B)},
+        {kLeftKeyNum, K(Key::LEFT_ARROW), kNone, kNone},
+        {kRightKeyNum, K(Key::RIGHT_ARROW), kNone, kNone},
+        {kOneKeyNum, K(Key::SPACE), kNone, P(Pad::RT)},
+        {kTwoKeyNum, K(Key::F), kNone, P(Pad::RT)},
+        {kEnterKeyNum, K(Key::D), kNone, P(Pad::LT)},
+        {kWarpKeyNum, K(Key::TAB), kNone, P(Pad::LSB)},
+        {kSelectFriendKeyNum, K(Key::Q), kNone, kNone},
+        {kSelectFoeKeyNum, K(Key::E), kNone, kNone},
+        {kSelectBaseKeyNum, K(Key::R), kNone, kNone},
+        {kDestinationKeyNum, K(Key::SHIFT), kNone, kNone},
+        {kOrderKeyNum, K(Key::S), kNone, kNone},
+        {kZoomInKeyNum, K(Key::X), kWheelUp, P(Pad::Y)},
+        {kZoomOutKeyNum, K(Key::Z), kWheelDown, P(Pad::X)},
+        {kCompUpKeyNum, K(Key::T), kNone, P(Pad::UP)},
+        {kCompDownKeyNum, K(Key::G), kNone, P(Pad::DOWN)},
+        {kCompAcceptKeyNum, K(Key::B), kNone, P(Pad::RIGHT)},
+        {kCompCancelKeyNum, K(Key::V), kNone, P(Pad::LEFT)},
+        {kTransferKeyNum, K(Key::C), kNone, kNone},
+        {kScale121KeyNum, K(Key::F9), kNone, kNone},
+        {kScale122KeyNum, K(Key::F10), kNone, kNone},
+        {kScale124KeyNum, K(Key::F11), kNone, kNone},
+        {kScale1216KeyNum, K(Key::F12), kNone, kNone},
+        {kScaleHostileKeyNum, K(Key::END), kNone, kNone},
+        {kScaleObjectKeyNum, K(Key::HOME), kNone, kNone},
+        {kScaleAllKeyNum, K(Key::PAGE_UP), kNone, kNone},
+        {kMessageNextKeyNum, K(Key::BACKTICK), kNone, P(Pad::BACK)},
+        {kHelpKeyNum, K(Key::F1), kNone, kNone},
+        {kVolumeDownKeyNum, K(Key::F2), kNone, kNone},
+        {kVolumeUpKeyNum, K(Key::F3), kNone, kNone},
+        {kActionMusicKeyNum, K(Key::F4), kNone, kNone},
+        {kNetSettingsKeyNum, K(Key::F5), kNone, kNone},
+        {kFastMotionKeyNum, K(Key::F6), kNone, kNone},
+        {kHotKey1Num, K(Key::K1), kNone, kNone},
+        {kHotKey2Num, K(Key::K2), kNone, kNone},
+        {kHotKey3Num, K(Key::K3), kNone, kNone},
+        {kHotKey4Num, K(Key::K4), kNone, kNone},
+        {kHotKey5Num, K(Key::K5), kNone, kNone},
+        {kHotKey6Num, K(Key::K6), kNone, kNone},
+        {kHotKey7Num, K(Key::K7), kNone, kNone},
+        {kHotKey8Num, K(Key::K8), kNone, kNone},
+        {kHotKey9Num, K(Key::K9), kNone, kNone},
+        {kHotKey10Num, K(Key::K0), kNone, kNone},
+        {kAttackMoveKeyNum, K(Key::A), kNone, kNone},
+        {kPatrolKeyNum, K(Key::W), kNone, kNone},
+};
+
+// Modern (WASD): flight on WASD, weapons and selection around it, zoom on the main row and the
+// wheel; the rest as Classic. Attack move on G (Ctrl+right-click will also give it), patrol on T,
+// so the mouse hand never needs the keyboard for them.
+const PresetRow kModernWasd[] = {
         {kUpKeyNum, K(Key::W), kNone, P(Pad::A)},
         {kDownKeyNum, K(Key::S), kNone, P(Pad::B)},
         {kLeftKeyNum, K(Key::A), kNone, kNone},
@@ -155,11 +211,14 @@ const PresetRow kModern[] = {
         {kHotKey9Num, K(Key::K9), kNone, kNone},
         {kHotKey10Num, K(Key::K0), kNone, kNone},
         {kAttackMoveKeyNum, K(Key::G), kNone, kNone},
-        {kPatrolKeyNum, K(Key::P), kNone, kNone},
+        {kPatrolKeyNum, K(Key::T), kNone, kNone},
 };
 
 static_assert(sizeof(kClassic) / sizeof(kClassic[0]) == ACTION_COUNT, "Classic covers every action");
-static_assert(sizeof(kModern) / sizeof(kModern[0]) == ACTION_COUNT, "Modern covers every action");
+static_assert(
+        sizeof(kModernAres) / sizeof(kModernAres[0]) == ACTION_COUNT, "Ares-style covers every action");
+static_assert(
+        sizeof(kModernWasd) / sizeof(kModernWasd[0]) == ACTION_COUNT, "WASD covers every action");
 
 bool is_weapon(int action) {
     return (action == kOneKeyNum) || (action == kTwoKeyNum) || (action == kEnterKeyNum);
@@ -247,11 +306,19 @@ bool slot_accepts(BindingSlot slot, const Binding& b) {
 }
 
 pn::string_view preset_id(ControlPreset p) {
-    return (p == ControlPreset::MODERN) ? "modern" : "classic";
+    switch (p) {
+        case ControlPreset::MODERN_ARES: return "modern-ares";
+        case ControlPreset::MODERN_WASD: return "modern-wasd";
+        default: return "classic";
+    }
 }
 
 pn::string_view preset_label(ControlPreset p) {
-    return (p == ControlPreset::MODERN) ? "MODERN" : "CLASSIC";
+    switch (p) {
+        case ControlPreset::MODERN_ARES: return "MODERN: ARES";
+        case ControlPreset::MODERN_WASD: return "MODERN: WASD";
+        default: return "CLASSIC";
+    }
 }
 
 sfz::optional<ControlPreset> preset_with_id(pn::string_view id) {
@@ -261,11 +328,19 @@ sfz::optional<ControlPreset> preset_with_id(pn::string_view id) {
             found.emplace(p);
         }
     }
+    if (id == "modern") {  // saved 2026-10-20, before the Modern presets split: the WASD layout
+        found.emplace(ControlPreset::MODERN_WASD);
+    }
     return found;
 }
 
 void apply_preset(ControlPreset p, ActionBindings out[ACTION_COUNT]) {
-    const PresetRow* rows = (p == ControlPreset::MODERN) ? kModern : kClassic;
+    const PresetRow* rows = kClassic;
+    switch (p) {
+        case ControlPreset::MODERN_ARES: rows = kModernAres; break;
+        case ControlPreset::MODERN_WASD: rows = kModernWasd; break;
+        default: break;
+    }
     for (int i = 0; i < ACTION_COUNT; ++i) {
         const PresetRow& r                = rows[i];
         out[r.action].slot[kPrimarySlot]   = r.primary;

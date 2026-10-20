@@ -52,6 +52,17 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Inputs the game keeps for itself can't be bound: Esc, Return, Caps Lock; left and right mouse;
     the pad's bumpers and Start.
   - See `docs/current-state.md` §1.1.
+- **Decision (2026-10-20): three presets.**
+  - Classic is unchanged.
+  - **Modern: Ares** (Ares-style) is the default Modern layout: the arrows steer, as Ares'
+    keypad 8-4-5-6 did; fire and action keys are under the left hand; attack-move is A, then click
+    (plus Ctrl+right-click). Ctrl, Alt and the Windows keys are left unbound.
+  - **Modern: WASD** is the alternative, with Patrol moved from P to T.
+  - Labels: "CLASSIC", "MODERN: ARES", "MODERN: WASD". A config saved with stage 4's "modern"
+    preset loads as Modern: WASD.
+  - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
+    is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
+    for steering while using the mouse.
 - **Investigation (2026-10-20, revised the same day):** `docs/modern-controls.md` covers how orders and ship behaviour work, the detailed behaviour of control groups, drag selection with context-sensitive right-click, attack-move and patrol, and the proposed build order (toggle, right-click orders, attack-move, multi-select, groups, two-point patrol, then multi-point patrol routes). Findings:
   - Ctrl orders to an object fly straight there; a ship only fights after being hit or on arrival.
   - Point orders (Hold Position, Go To My Position) engage enemies met on the way, giving up after 15 s of fighting a target that doesn't fire back.
@@ -168,4 +179,5 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - M2 Modern: should tutorials always run Classic, since their text and checks teach the Classic keys? (Proposed: yes; `docs/modern-controls.md` §2.4.)
 - ~~M2 Modern: A then click for attack-move, or WASD flight?~~ Decided 2026-10-20: flight stays on WASD; attack-move is Ctrl+right-click plus a rebindable key (G).
 - ~~M2 Modern: is a pointer to the group enough for a double-tapped group number?~~ Decided 2026-10-20: yes, until the camera work.
+- M2 Classic: Left Alt (fire 1) + Tab (warp) opens Windows' app switcher and switches away, and the left Windows key (fire 2) opens the Start menu on release; fullscreen, both minimize the game (tested 2026-10-20, `docs/current-state.md` §1.2). Proposed: move fire 1 to X and fire 2 to Z, the keys just above Left Alt and the Windows key, and move saved configs still on the old keys. Awaiting a decision.
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.

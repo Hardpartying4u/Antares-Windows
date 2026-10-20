@@ -580,3 +580,77 @@ This replaces M2 stages 6 (Modern mouse actions) and 8 (multi-select) of
 `docs/controls-investigation.md` §6 with steps A–G above. Stage 4 (the binding model) is still
 needed to make the Modern gestures rebindable. A–G hard-wire them (A, P, Ctrl+right-click,
 Ctrl+number) until then.
+
+## 8. The Modern presets (approved 2026-10-20)
+
+There are three presets: Classic, unchanged; **Modern: Ares**, the default Modern layout; and
+**Modern: WASD**.
+
+- Inputs no preset can bind: Esc, Return and Caps Lock; the left and right mouse buttons; the
+  gamepad's LB, RB and Start.
+- Both Modern presets keep Classic's gamepad mapping.
+- "L" is the left hand, "R" the right.
+
+### Modern: Ares (Ares-style)
+
+The right hand steers on the arrow keys, the PC equivalent of Ares' keypad 8-4-5-6. Everything else
+is under the left hand: fingers on A S D F, thumb on Space.
+
+| # | Action | Keys | Hand | Clash / note |
+|---|---|---|---|---|
+| 0–3 | Accelerate / decelerate / turn counter-clockwise / turn clockwise | ↑ / ↓ / ← / → | R | Classic's minicomputer arrows move to T G B V |
+| 4 | Fire weapon 1 | Space | L thumb | |
+| 5 | Fire weapon 2 | F | L index | |
+| 6 | Fire / special | D | L middle | |
+| 7 | Warp | Tab | L pinky | Shift+Tab = autopilot. Alt is unbound, so firing while warping can't make Alt+Tab |
+| 8 | Select friendly | Q | L | Shift+Q targets a friendly |
+| 9 | Select hostile | E | L | |
+| 10 | Select base | R | L | Shift+R targets any base |
+| 11 | Target (modifier) | Left Shift | L pinky | Modern also uses Shift for: Shift+click (add to the selection), Shift+number (add a group) and patrol waypoints. Held alone for 0.75 s then released, it targets your own ship; clicks cancel that, and box drags must too |
+| 12 | Order (go to target) | S | L ring | Ctrl isn't Order here, so it is only a modifier |
+| 13 | Zoom in | X, wheel up | L / mouse | |
+| 14 | Zoom out | Z, wheel down | L / mouse | |
+| 15–18 | Minicomputer up / down / accept / cancel | T / G / B / V | L | Mirrors ↑ ↓ → ← |
+| 19 | Transfer control | C | L | |
+| 20–26 | Zoom shortcuts | F9–F12, End, Home, Page Up | R | Exception: rarely used view shortcuts; End, Home and Page Up sit just above the arrows |
+| 27 | Next message | ` | L | |
+| 28–33 | Help, volume down, volume up, music, net settings, fast motion | F1–F6 | L (stretch) | As Classic |
+| 34–38 | Groups / hotkeys 1–5 | 1–5 | L | Ctrl+number assigns, the number selects, Shift+number adds |
+| 39–43 | Groups / hotkeys 6–0 | 6–0 | R | Tradeoff: the steering hand leaves the arrows |
+| 44 | Attack move | A, then click; also Ctrl+right-click | L pinky | Caps Lock (pause) is next to A |
+| 45 | Patrol | W, then click; Shift+click adds waypoints | L | |
+
+Modifiers:
+- **Ctrl:** only Ctrl+number (assign a group) and Ctrl+right-click (attack-move).
+- **Shift:** the target modifier, as in the table.
+- **Alt and the Windows keys:** unbound.
+
+**Tradeoff:** the right hand can't steer and use the mouse at once. Ships coast; autopilot
+(Shift+Tab) flies the flagship; Modern orders go to the other ships. Nothing more is added for now,
+and WASD is the choice for steering while using the mouse.
+
+### Modern: WASD
+
+| # | Action | Keys | Hand | Clash / note |
+|---|---|---|---|---|
+| 0–3 | Accelerate / decelerate / turn counter-clockwise / turn clockwise | W / S / A / D | L | A steers, so attack-move can't be A-then-click |
+| 4 | Fire weapon 1 | Space | L | |
+| 5 | Fire weapon 2 | F | L | |
+| 6 | Fire / special | R | L | |
+| 7 | Warp | Tab | L | Shift+Tab = autopilot |
+| 8 | Select friendly | Q | L | |
+| 9 | Select hostile | E | L | |
+| 10 | Select base | B | L | |
+| 11 | Target (modifier) | Left Shift | L | As Ares-style |
+| 12 | Order (go to target) | Ctrl | L | Clash: Ctrl is also the group modifier and part of Ctrl+right-click. Needs the planned rule: Order fires on Ctrl's release only if nothing else was pressed |
+| 13 | Zoom in | =, wheel up | R / mouse | |
+| 14 | Zoom out | −, wheel down | R / mouse | |
+| 15–18 | Minicomputer up / down / accept / cancel | Arrows | R | The minicomputer can also be clicked |
+| 19 | Transfer control | F8 | R | |
+| 20–26 | Zoom shortcuts | F9–F12, End, Home, Page Up | R | |
+| 27 | Next message | Backspace | R | |
+| 28–33 | Help, volume down, volume up, music, net settings, fast motion | F1–F6 | L | |
+| 34–38 | Groups / hotkeys 1–5 | 1–5 | L | |
+| 39–43 | Groups / hotkeys 6–0 | 6–0 | R | The hand leaves the mouse |
+| 44 | Attack move | G; also Ctrl+right-click | L | |
+| 45 | Patrol | T | L | Moved from P (2026-10-20), so the mouse hand never needs the keyboard |

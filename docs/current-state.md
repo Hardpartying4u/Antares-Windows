@@ -49,12 +49,29 @@ GLFW (src/glfw/video-driver.cpp)
   - **Classic** (the default) is the game as it was: the keys below, the wheel as the secondary
     binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move and patrol are
     unbound.
-  - **Modern** flies on W A S D, with:
+  - **Modern: Ares** (Modern (Ares-style), the default Modern layout since 2026-10-20). The arrow
+    keys steer, the PC equivalent of Ares' keypad 8-4-5-6. Every other fire and action key is under
+    the left hand:
+    - fire 1 Space, fire 2 F, special D, warp Tab;
+    - select friendly Q, select hostile E, select base R; target Shift; order S;
+    - zoom X and Z, as well as the wheel;
+    - minicomputer T (up), G (down), B (accept), V (cancel); transfer C; next message `;
+    - attack move A (A, then click, once the Modern mode exists), patrol W.
+
+    The exceptions on the right hand are the zoom shortcuts (F9–F12, End, Home, Page Up, as
+    Classic) and hotkeys 6–0. Ctrl, Alt and the Windows keys are left unbound: Ctrl will be the
+    Modern group and attack-move modifier, and Alt+Tab, Alt+Enter and the Windows key belong to
+    Windows. The tradeoff: the right hand can't steer and use the mouse at once; ships coast, and
+    autopilot (Shift+Tab) flies the flagship while the hand is on the mouse.
+  - **Modern: WASD** flies on W A S D, with:
     - fire 1 Space, fire 2 F, special R;
-    - select friendly Q, select hostile E, select base B;
+    - select friendly Q, select hostile E, select base B; order Ctrl;
     - zoom = and −, as well as the wheel;
-    - attack move G, patrol P;
-    - everything else, and the gamepad, as Classic.
+    - attack move G, patrol T;
+    - everything else as Classic.
+  - All three presets bind the gamepad as Ares did.
+  - The full key tables, with hands and clashes, are in `docs/modern-controls.md` §8.
+  - A config saved with stage 4's single "modern" preset loads as Modern: WASD, the layout it had.
 - **Where bindings are edited:** **Options › Key Controls**, the rebinding screen (2026-10-20, §3.3).
   - It shows every action's three bindings, a page at a time.
   - The preset choice (Preset: Classic / Preset: Modern) replaces every binding with that preset's,
@@ -157,6 +174,19 @@ GLFW (src/glfw/video-driver.cpp)
 > A saved `config.pn` still holding one of the old keys is moved to the new one when loaded, unless
 > another action already uses it (`migrate_unreachable_defaults`, `src/config/preferences.cpp`);
 > every other saved binding is kept. `prefs-test` covers the defaults and the move.
+
+**Classic's fire keys and Windows (tested 2026-10-20, in a level, windowed and fullscreen; keys
+sent as real key presses).** Both break play:
+- **Left Alt (fire 1) held, then Tab (warp):**
+  - While Alt was held, Windows' Task Switching opened.
+  - On release, Windows switched to another program, and the game lost focus.
+  - Fullscreen, the game minimized as soon as the switcher opened.
+- **Left Windows key (fire 2):**
+  - Nothing happened while it was held.
+  - On release, the Start menu (Search) opened and took focus.
+  - Fullscreen, the game minimized.
+
+The Modern presets bind neither key. Classic is unchanged pending a decision (`docs/design.md` §10).
 
 ### 1.3 Mouse
 

@@ -59,14 +59,20 @@ struct ActionBindings {
 // buttons in the gamepad slot; never a reserved input.
 bool slot_accepts(BindingSlot slot, const Binding& b);
 
-// The built-in sets of bindings. Classic is Ares' layout (with the PC keys of 2026-10-20); Modern
-// flies on WASD and adds keys for the Modern commands.
-enum class ControlPreset { CLASSIC, MODERN };
-const ControlPreset kControlPresets[] = {ControlPreset::CLASSIC, ControlPreset::MODERN};
+// The built-in sets of bindings:
+//  * Classic: Ares' layout (with the PC keys of 2026-10-20).
+//  * Modern (Ares-style), the default Modern layout: the arrow keys steer (the PC equivalent of
+//    Ares' keypad 8-4-5-6); every fire and action key is under the left hand.
+//  * Modern (WASD): flies on W A S D, leaving the right hand on the mouse.
+enum class ControlPreset { CLASSIC, MODERN_ARES, MODERN_WASD };
+const ControlPreset kControlPresets[] = {
+        ControlPreset::CLASSIC, ControlPreset::MODERN_ARES, ControlPreset::MODERN_WASD};
 
-pn::string_view                preset_id(ControlPreset p);    // "classic", "modern" (config)
-pn::string_view                preset_label(ControlPreset p);  // "CLASSIC", "MODERN" (screen)
-sfz::optional<ControlPreset>   preset_with_id(pn::string_view id);
+// Config ids "classic", "modern-ares", "modern-wasd". preset_with_id() also reads "modern", the
+// one Modern preset of 2026-10-20, which had the WASD layout.
+pn::string_view              preset_id(ControlPreset p);
+pn::string_view              preset_label(ControlPreset p);  // "CLASSIC", "MODERN: ARES", ...
+sfz::optional<ControlPreset> preset_with_id(pn::string_view id);
 void apply_preset(ControlPreset p, ActionBindings out[ACTION_COUNT]);
 
 // Two actions clash when they share an input, except that the weapon actions (fire 1, fire 2,
