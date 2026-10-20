@@ -37,4 +37,39 @@
 1125	  selected	Cruiser #4 heading for 1073734241, 1073748947
 1125	  selected	Heavy Cruiser #10 heading for 1073734401, 1073748947
 1125	  selected	Gunship #8 heading for 1073734241, 1073749107
-10140	end	Fighter #17 heading for Castaway Crew Member #16
+1164	Carrier #5	attack-move	to 1073736116, 1073745282
+1164	Cruiser #4	attack-move	to 1073736276, 1073745282
+1164	Heavy Cruiser #10	attack-move	to 1073736116, 1073745442
+1164	Gunship #8	attack-move	to 1073736276, 1073745442
+1167	selection	4 ships
+1167	  selected	Carrier #5 heading for 1073736116, 1073745282
+1167	  selected	Cruiser #4 heading for 1073736276, 1073745282
+1167	  selected	Heavy Cruiser #10 heading for 1073736116, 1073745442
+1167	  selected	Gunship #8 heading for 1073736276, 1073745442
+1254	Carrier #5	attack-move	to 1073737161, 1073745530
+1254	Cruiser #4	attack-move	to 1073737321, 1073745530
+1254	Heavy Cruiser #10	attack-move	to 1073737161, 1073745690
+1254	Gunship #8	attack-move	to 1073737321, 1073745690
+1263	selection	4 ships
+1263	  selected	Carrier #5 heading for 1073737161, 1073745530
+1263	  selected	Cruiser #4 heading for 1073737321, 1073745530
+1263	  selected	Heavy Cruiser #10 heading for 1073737161, 1073745690
+1263	  selected	Gunship #8 heading for 1073737321, 1073745690
+1287	selection	4 ships
+1287	  selected	Carrier #5 heading for 1073737161, 1073745530
+1287	  selected	Cruiser #4 heading for 1073737321, 1073745530
+1287	  selected	Heavy Cruiser #10 heading for 1073737161, 1073745690
+1287	  selected	Gunship #8 heading for 1073737321, 1073745690
+1308	Heavy Cruiser #10	patrol	between 1073737433, 1073747274 and 1073737410, 1073745910
+1308	Gunship #8	patrol	between 1073739125, 1073745231 and 1073737570, 1073745910
+1311	selection	2 ships
+1311	  selected	Heavy Cruiser #10 heading for 1073737410, 1073745910
+1311	  selected	Gunship #8 heading for 1073737570, 1073745910
+1938	Heavy Cruiser #10	patrol	leg to 1073737433, 1073747274
+3816	Heavy Cruiser #10	patrol	leg to 1073737410, 1073745910
+5865	Heavy Cruiser #10	patrol	leg to 1073737433, 1073747274
+6825	Heavy Cruiser #10	patrol	leg to 1073737410, 1073745910
+7182	Heavy Cruiser #10	patrol	leg to 1073737433, 1073747274
+8058	Heavy Cruiser #10	patrol	leg to 1073737410, 1073745910
+8553	Heavy Cruiser #10	patrol	leg to 1073737433, 1073747274
+10140	end	nothing

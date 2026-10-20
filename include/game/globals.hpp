@@ -121,6 +121,7 @@ struct GlobalState {
     std::vector<std::pair<Handle<SpaceObject>, int32_t>> modern_selection;
     Handle<SpaceObject>                                  modern_selection_control;
     ControlGroups modern_groups;  // Ctrl+number groups (game/control-groups.hpp)
+    std::vector<PatrolRecord> modern_patrols;  // patrolling ships (game/modern-orders.cpp)
 
     miniComputerDataType mini;
 

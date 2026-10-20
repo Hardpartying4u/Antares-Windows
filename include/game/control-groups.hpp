@@ -8,6 +8,8 @@
 #include <functional>
 #include <vector>
 
+#include "math/geometry.hpp"
+
 namespace antares {
 
 // The Modern mode's control groups (docs/modern-controls.md step E): ten groups of the player's
@@ -41,6 +43,15 @@ class ControlGroups {
 
   private:
     std::vector<GroupEntry> _groups[kCount];
+};
+
+// A patrolling ship (docs/modern-controls.md step F): it flies between `a` (where it was ordered)
+// and `b` (the clicked point), heading for `b` when `to_b`. Kept in the game state.
+struct PatrolRecord {
+    int32_t number;
+    int32_t id;
+    Point   a, b;
+    bool    to_b;
 };
 
 }  // namespace antares

@@ -534,6 +534,52 @@ replays, the demo and the tutorials are unchanged.
 The double-tap check failed only because the test pressed the keys about 560 ms apart, outside the
 window. The window was then widened from 0.4 to 0.5 s, and the replay tool confirmed the pointer.
 
+### 2.4d Modern attack-move and patrol (2026-10-21)
+
+Steps C and F of `docs/modern-controls.md` (plan in §5b), in the Modern mode only. Both are built
+from the engine's existing point order (`SetObjectLocationDestination`); there is no new order
+type and no AI change.
+
+**Keys** (rebindable actions 44 and 45, `docs/modern-controls.md` §8):
+- **Attack-move:** A (Modern: Ares) or G (Modern: WASD) arms it; the next left-click in the play
+  area gives it. **Ctrl+right-click** gives it at once (Ctrl as the raw key; Order's release then
+  gives nothing).
+- **Patrol:** W (Ares) or T (WASD) arms it; the next left-click gives it.
+- While armed the crosshair is red (attack-move) or sky blue (patrol). A right-click disarms
+  without an order. A level that disables orders (`kOrderKey` masked) disables both.
+
+**Attack-move:** each selected ship gets a point order to its grid formation point (the
+group-move grid) with the 15 s engage clock left at 0, the Classic Hold Position order. So it
+turns aside to fight enemies within engage range, then carries on. A click on an enemy gives the
+normal attack order instead. A plain Modern move still sets the clock to 15 s and doesn't turn
+aside.
+
+**Patrol:** each selected ship gets the same point order to its formation point B and a patrol
+record (object number, id, A = where it was, B, which end it heads for) in `g.modern_patrols`.
+`modern_patrol_step()` (`src/game/modern-orders.cpp`) runs once a major tick right after the
+player's input (`src/game/main.cpp`):
+- within max(the ship's arrive distance, 200 units) of the end it heads for → a point order to the
+  other end (this also restarts the engage clock);
+- its destination isn't that point any more (any other order, a script's order) → the record is
+  dropped;
+- dead, captured, locked or a reused object slot → the record is dropped.
+- Records are dropped when the ship gets any other Modern order, and clear at level start.
+- Selected patrolling ships show their route as a dashed sky-blue line.
+Patrolling ships engage enemies on the way like attack-move. Game state only, record order, no
+wall time: deterministic.
+
+**Tests:**
+- `controls-test` `PatrolStep`: keep, switch (least 200 units, the ship's larger arrive distance),
+  drop when the destination changed, and no overflow on far coordinates.
+- `modern-multi` replay test, extended: the attack-move key + left-click (four ships), Ctrl+right-
+  click, patrol key + right-click (disarmed, no order), and the patrol key + left-click on group 1;
+  the Heavy Cruiser then switches legs seven times. Two runs are identical; `modern-orders` is
+  unchanged.
+
+**In game (ch05, Modern: Ares, windowed, UI 2× and 4×, from the timing log):** all passed: the
+drag selected both Engineers; A + click and Ctrl+right-click each gave two attack-moves (no other
+order); W + right-click gave no order; W + click started two patrols and a leg switch followed.
+
 ### 2.5 Timing
 
 60 ticks per second; every 3rd tick is a "major" tick when collisions, AI and actions run

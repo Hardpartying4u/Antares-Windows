@@ -554,12 +554,17 @@ whose point moves along a route.
     moves and brackets on every selected ship.
   - The selection is a list in the game state whose first ship is the control object.
   - Orders are unchanged in kind: each selected ship gets the step B order.
-  - Attack-move (C) and patrol (F, G) are not started.
 - **Step E, control groups: done 2026-10-20** (`docs/current-state.md` §2.4c).
   - Ctrl+number saves, the number recalls, Shift+number adds, and a double tap shows a pointer.
   - In the Modern mode the number keys are groups, not hotkeys, and the Order key fires on release
     unless a number was pressed while it was held. That resolves the Ctrl clash in Modern: WASD.
   - Group digits beside the markers (§4) are not drawn yet.
+- **Steps C and F, attack-move and two-point patrol: done 2026-10-21** (`docs/current-state.md`
+  §2.4d), as planned in §5b.
+  - Attack-move key + click, or Ctrl+right-click: point orders with the engage clock at 0.
+  - Patrol key + click: point orders plus records that `modern_patrol_step()` turns at each end.
+  - Not built: the optional "don't give up after 15 s" flag for attack-move, and multi-point
+    patrol (step G).
 
 ## 5b. Attack-move and patrol: how they can be built (investigation, 2026-10-21)
 

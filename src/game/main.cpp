@@ -216,6 +216,7 @@ void MainPlay::become_front() {
             g.modern_selection.clear();
             g.modern_selection_control = SpaceObject::none();
             g.modern_groups.clear();
+            g.modern_patrols.clear();
 
             set_up_instruments();
 
@@ -495,6 +496,7 @@ void GamePlay::fire_timer() {
                 g.game_over_at = g.time;
             }
             _player_ship.update();
+            modern_patrol_step();  // patrolling ships turn at the ends (Modern only)
 
             CollideSpaceObjects();
             if ((g.time.time_since_epoch() % kConditionTick) == ticks(0)) {

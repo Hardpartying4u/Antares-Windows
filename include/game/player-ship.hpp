@@ -153,6 +153,7 @@ class PlayerShip : public EventReceiver {
     bool      _ctrl_held  = false;  // either Ctrl key, whatever it is bound to (group modifier)
     bool      _order_held = false;  // Modern: the Order key is down, its order waiting for release
     bool      _order_used = false;  // ... and a number was pressed meanwhile (Ctrl+number)
+    int       _armed      = 0;      // the attack-move (1) or patrol (2) key: the next click
     int       _last_group = -1;     // for the double tap
     wall_time _last_group_time;
 

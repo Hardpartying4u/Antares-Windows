@@ -318,5 +318,26 @@ TEST_F(ControlsTest, ControlGroupsDropLostShips) {
     EXPECT_TRUE(groups.recall(5, [](const GroupEntry&) { return true; }).empty());
 }
 
+// The patrol step's rule (docs/modern-controls.md step F).
+TEST_F(ControlsTest, PatrolStep) {
+    const Point   end(1000, 2000);
+    const int64_t small = 50 * 50, big = 600 * 600;
+    // Far from the end: keep flying.
+    EXPECT_EQ(patrol_step_for(Point(0, 0), end, true, small), PatrolStep::KEEP);
+    // Within the least arrive distance (200), even when the ship's own is smaller: switch.
+    EXPECT_EQ(patrol_step_for(Point(1000 + 199, 2000), end, true, small), PatrolStep::SWITCH);
+    EXPECT_EQ(patrol_step_for(Point(1000 + 120, 2000 - 160), end, true, small), PatrolStep::SWITCH);
+    EXPECT_EQ(patrol_step_for(Point(1000 + 201, 2000), end, true, small), PatrolStep::KEEP);
+    // A larger arrive distance switches sooner.
+    EXPECT_EQ(patrol_step_for(Point(1000 + 500, 2000), end, true, big), PatrolStep::SWITCH);
+    // The destination isn't the patrol point any more (a script or another order): drop, even
+    // at the end.
+    EXPECT_EQ(patrol_step_for(Point(0, 0), end, false, small), PatrolStep::DROP);
+    EXPECT_EQ(patrol_step_for(end, end, false, small), PatrolStep::DROP);
+    // Far coordinates don't overflow.
+    EXPECT_EQ(patrol_step_for(Point(-2000000000, 0), Point(2000000000, 0), true, small),
+              PatrolStep::KEEP);
+}
+
 }  // namespace
 }  // namespace antares

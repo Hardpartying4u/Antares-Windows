@@ -464,7 +464,15 @@ void PlayerShip::action_on(int action) {
         // (docs/modern-controls.md). A level that disables orders (the "order" key mask) will
         // disable them too.
         case kAttackMoveKeyNum:
-        case kPatrolKeyNum: return;
+        case kPatrolKeyNum:
+            // Modern: arms the command for the next left-click. A level that disables orders
+            // disables these too.
+            if (g.modern_controls && !(g.key_mask & kOrderKey)) {
+                _armed = (action == kAttackMoveKeyNum) ? 1 : 2;
+                modern_arm(
+                        (_armed == 1) ? ModernCommand::ATTACK_MOVE : ModernCommand::PATROL);
+            }
+            return;
 
         default: return;
     }
@@ -573,12 +581,30 @@ void PlayerShip::mouse_down(const MouseDownEvent& event) {
                 MiniComputerHandleClick(where);
             }
             if (g.modern_controls && viewport().contains(where) && !(g.key_mask & kMouseMask)) {
+                if (_armed) {  // the click that gives an armed attack-move or patrol
+                    modern_command_click(
+                            (_armed == 1) ? ModernCommand::ATTACK_MOVE : ModernCommand::PATROL,
+                            where);
+                    _armed = 0;
+                    modern_arm(ModernCommand::NONE);
+                    return;
+                }
                 modern_left_down(where);
                 return;
             }
             break;
         case 1:
             if (g.modern_controls) {
+                if (_armed) {  // a right-click disarms an armed command without an order
+                    _armed = 0;
+                    modern_arm(ModernCommand::NONE);
+                    return;
+                }
+                if (_ctrl_held) {  // Ctrl+right-click: attack-move
+                    _order_used = true;
+                    modern_command_click(ModernCommand::ATTACK_MOVE, where);
+                    return;
+                }
                 // Modern: target what is under the cursor and order the selected ship there.
                 modern_right_click(where);
                 return;

@@ -47,6 +47,8 @@ Hue order_hue(ModernOrder o) {
         case ModernOrder::FOLLOW: return Hue::AQUA;
         case ModernOrder::GUARD: return Hue::GOLD;
         case ModernOrder::MOVE: return Hue::GREEN;
+        case ModernOrder::ATTACK_MOVE: return Hue::RED;
+        case ModernOrder::PATROL: return Hue::SKY_BLUE;
         default: return Hue::SKY_BLUE;
     }
 }
@@ -57,6 +59,8 @@ const char* order_name(ModernOrder o) {
         case ModernOrder::FOLLOW: return "follow";
         case ModernOrder::GUARD: return "guard";
         case ModernOrder::MOVE: return "move";
+        case ModernOrder::ATTACK_MOVE: return "attack-move";
+        case ModernOrder::PATROL: return "patrol";
         default: return "none";
     }
 }
@@ -139,6 +143,17 @@ void draw_brackets(const Rects& rects, Rect r, int min_half, int arm, const RgbC
         rects.fill(Rect(std::min(x, x + dx), y, std::max(x, x + dx) + 1, y + 1), color);
         rects.fill(Rect(x, std::min(y, y + dy), x + 1, std::max(y, y + dy) + 1), color);
     }
+}
+
+// The command armed by the attack-move or patrol key (view only: the crosshair's colour).
+ModernCommand gArmed = ModernCommand::NONE;
+
+void drop_patrol(Handle<SpaceObject> o) {
+    auto& p = g.modern_patrols;
+    p.erase(std::remove_if(
+                    p.begin(), p.end(),
+                    [o](const PatrolRecord& r) { return r.number == o.number(); }),
+            p.end());
 }
 
 // The group pointer being shown (view only, wall time).
@@ -267,6 +282,118 @@ void modern_select(const std::vector<Handle<SpaceObject>>& ships, bool add) {
     }
 }
 
+bool give_attack_move(Handle<Admiral> admiral, Point world) {
+    auto ships = modern_selection();
+    if (ships.empty()) {
+        return false;
+    }
+    for (int i = 0; i < ships.size(); ++i) {
+        const Point offset = formation_offset(i, ships.size(), kFormationSpacing);
+        Point       p(world.h + offset.h, world.v + offset.v);
+        drop_patrol(ships[i]);
+        // The Classic point order: the 15 s clock is left at 0, so the ship engages enemies it
+        // meets within engage range, then carries on to the point.
+        SetObjectLocationDestination(ships[i], &p);
+        log_order(ships[i], ModernOrder::ATTACK_MOVE, pn::format("to {0}, {1}", p.h, p.v));
+    }
+    if (admiral == g.admiral) {
+        sys.sound.order();
+        show_marker(ModernOrder::ATTACK_MOVE, world, SpaceObject::none());
+    }
+    return true;
+}
+
+bool give_patrol(Handle<Admiral> admiral, Point world) {
+    auto ships = modern_selection();
+    if (ships.empty()) {
+        return false;
+    }
+    for (int i = 0; i < ships.size(); ++i) {
+        const Point offset = formation_offset(i, ships.size(), kFormationSpacing);
+        Point       b(world.h + offset.h, world.v + offset.v);
+        const Point a = ships[i]->location;
+        drop_patrol(ships[i]);
+        SetObjectLocationDestination(ships[i], &b);  // engages on the way, as attack-move
+        g.modern_patrols.push_back(PatrolRecord{ships[i].number(), ships[i]->id, a, b, true});
+        log_order(
+                ships[i], ModernOrder::PATROL,
+                pn::format("between {0}, {1} and {2}, {3}", a.h, a.v, b.h, b.v));
+    }
+    if (admiral == g.admiral) {
+        sys.sound.order();
+        show_marker(ModernOrder::PATROL, world, SpaceObject::none());
+    }
+    return true;
+}
+
+void modern_arm(ModernCommand command) { gArmed = command; }
+
+ModernOrder modern_command_click(ModernCommand command, Point where) {
+    if (!g.ship.get() || (g.key_mask & (kMouseMask | kOrderKey)) || !viewport().contains(where)) {
+        return ModernOrder::NONE;
+    }
+    if (command == ModernCommand::ATTACK_MOVE) {
+        auto object = object_at(where);
+        if (object.get() && (object->owner != g.admiral)) {
+            PlayerShipHandleClick(where, 1);  // a click on an enemy: target and attack it
+            return give_object_order(g.admiral, object) ? ModernOrder::ATTACK : ModernOrder::NONE;
+        }
+        return give_attack_move(g.admiral, screen_to_world(where)) ? ModernOrder::ATTACK_MOVE
+                                                                    : ModernOrder::NONE;
+    } else if (command == ModernCommand::PATROL) {
+        return give_patrol(g.admiral, screen_to_world(where)) ? ModernOrder::PATROL
+                                                               : ModernOrder::NONE;
+    }
+    return ModernOrder::NONE;
+}
+
+PatrolStep patrol_step_for(
+        Point location, Point heading_for, bool destination_is_that_point, int64_t arrive_squared) {
+    if (!destination_is_that_point) {
+        return PatrolStep::DROP;
+    }
+    const int64_t dh = int64_t(location.h) - heading_for.h;
+    const int64_t dv = int64_t(location.v) - heading_for.v;
+    if ((std::abs(dh) > (1 << 30)) || (std::abs(dv) > (1 << 30))) {
+        return PatrolStep::KEEP;  // far away; squaring would overflow
+    }
+    const int64_t arrive =
+            std::max<int64_t>(arrive_squared, int64_t(kPatrolArrive) * kPatrolArrive);
+    return ((dh * dh + dv * dv) <= arrive) ? PatrolStep::SWITCH : PatrolStep::KEEP;
+}
+
+// Once a major tick, after the player's input: each patrolling ship that reached the end it was
+// heading for gets the other end as a new point order (which also restarts the engage clock).
+// Game state only, in record order, no wall time: deterministic.
+void modern_patrol_step() {
+    auto& records = g.modern_patrols;
+    for (auto it = records.begin(); it != records.end();) {
+        Handle<SpaceObject> o(it->number);
+        if ((it->number < 0) || (it->number >= kMaxSpaceObject) || (o->id != it->id) ||
+            !selectable(o)) {
+            it = records.erase(it);  // lost: died, captured or locked
+            continue;
+        }
+        const Point heading = it->to_b ? it->b : it->a;
+        const bool  same    = !o->destObject.get() && (o->destinationLocation == heading);
+        switch (patrol_step_for(o->location, heading, same, o->base->arrive.distance.squared)) {
+            case PatrolStep::DROP:
+                log_order(o, ModernOrder::PATROL, "ended: given another order");
+                it = records.erase(it);
+                continue;
+            case PatrolStep::SWITCH: {
+                it->to_b   = !it->to_b;
+                Point next = it->to_b ? it->b : it->a;
+                SetObjectLocationDestination(o, &next);
+                log_order(o, ModernOrder::PATROL, pn::format("leg to {0}, {1}", next.h, next.v));
+                break;
+            }
+            case PatrolStep::KEEP: break;
+        }
+        ++it;
+    }
+}
+
 void modern_group_save(int group) {
     auto                    ships = modern_selection();
     std::vector<GroupEntry> entries;
@@ -333,6 +460,7 @@ bool give_object_order(Handle<Admiral> admiral, Handle<SpaceObject> object) {
             true, true, object->owner != admiral, object->attributes & kIsDestination, false);
     admiral->set_target(object);
     for (auto o : ships) {
+        drop_patrol(o);
         SetObjectDestination(o);  // the Classic order: go to the admiral's target
         log_order(o, order, pn::format("{0} #{1}", object->long_name(), object.number()));
     }
@@ -352,6 +480,7 @@ bool give_move_order(Handle<Admiral> admiral, Point world) {
         // A small grid around the point, so a group doesn't stack on one spot.
         const Point offset = formation_offset(i, ships.size(), kFormationSpacing);
         Point       p(world.h + offset.h, world.v + offset.v);
+        drop_patrol(ships[i]);
         SetObjectLocationDestination(ships[i], &p);
         // A move flies straight there, like an object order: the 15 s clock starts used up, so
         // the ship doesn't turn aside to fight unless it is hit (docs/modern-controls.md §3).
@@ -483,6 +612,27 @@ void draw_modern_markers() {
         }
     }
 
+    // Patrol routes of the selected patrolling ships: a dashed sky-blue line between the ends.
+    for (const auto& r : g.modern_patrols) {
+        bool selected = false;
+        for (const auto& sel : current_selection()) {
+            selected = selected || (sel.first.number() == r.number);
+        }
+        if (!selected) {
+            continue;
+        }
+        const Point    a = scale_to_viewport(r.a), b = scale_to_viewport(r.b);
+        const int      len = std::max(std::abs(b.h - a.h), std::abs(b.v - a.v));
+        const RgbColor color = GetRGBTranslateColorShade(Hue::SKY_BLUE, MEDIUM);
+        for (int d = 0; d + 4 <= len; d += 8) {  // 4 px on, 4 px off
+            const Point p(a.h + (b.h - a.h) * d / len, a.v + (b.v - a.v) * d / len);
+            const Point q(a.h + (b.h - a.h) * (d + 4) / len, a.v + (b.v - a.v) * (d + 4) / len);
+            if (clip.contains(p) && clip.contains(q)) {
+                Lines().draw(p, q, color);
+            }
+        }
+    }
+
     // The group pointer (a double-tapped number): for 1.5 s, brackets around the group's middle
     // if it is on screen, else a line from the middle of the play area toward it.
     if ((gPointer.group >= 0) && (now() - gPointer.since < secs(1) + std::chrono::milliseconds(500))) {
@@ -536,6 +686,11 @@ void draw_modern_markers() {
 bool modern_cursor_color(Point where, RgbColor* color) {
     if (!g.modern_controls || !g.ship.get() || !viewport().contains(where)) {
         return false;
+    }
+    if (gArmed != ModernCommand::NONE) {
+        *color = GetRGBTranslateColorShade(
+                (gArmed == ModernCommand::PATROL) ? Hue::SKY_BLUE : Hue::RED, LIGHT);
+        return true;
     }
     const ModernOrder order = order_for(object_at(where));
     if (order == ModernOrder::NONE) {

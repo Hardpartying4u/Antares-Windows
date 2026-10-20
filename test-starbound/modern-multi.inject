@@ -36,3 +36,23 @@
 1113 key 34
 1122 keyup 11
 1125 log-selection
+# Attack-move: the attack-move key (action 44) arms it, and a left-click on empty space gives the
+# four selected ships point orders that engage on the way (the 15 s clock left at 0).
+1160 key 44
+1163 lclick 260 300
+1166 log-selection
+# Ctrl (raw key 224) + right-click: attack-move too; the Order key's release gives no order.
+1250 keyevent-down 224
+1253 rclick 300 330
+1260 keyevent-up 224
+1263 log-selection
+# The patrol key (action 45) armed, then a right-click: disarmed, no order.
+1280 key 45
+1283 rclick 320 330
+1286 log-selection
+# Patrol: recall group 1 (three ships), arm patrol, click: each ship flies between where it is and
+# its formation point, switching legs at each end (logged in orders.log).
+1300 key 34
+1303 key 45
+1306 lclick 250 280
+1309 log-selection
