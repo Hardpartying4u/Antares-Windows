@@ -51,6 +51,11 @@ python scripts/test.py --type=data
 python scripts/test.py --type=replay
 ```
 
+### In-game UI-scale checks
+- Only when a change involves mouse input or on-screen drawing, and then at UI 2× only.
+- Add 4× only for new drawn elements or new sizes/positions.
+- Key-only changes rely on unit and replay tests; no in-game scale check.
+
 ## Package & run
 - `python scripts/dist.py win zip` → `dist\antares-win-git.zip`; expand it into `dist\` to get
   `dist\Antares\{Antares.exe, data\, art\, COPYING, COPYING.LESSER, ASSETS.md, CREDITS.md}` — a
