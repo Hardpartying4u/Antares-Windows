@@ -18,27 +18,36 @@ namespace {
 
 using ControlsTest = ::testing::Test;
 
-TEST_F(ControlsTest, WheelZoomInSteps) {
-    EXPECT_EQ(wheel_zoom(Zoom::SIXTEENTH, true), Zoom::QUARTER);
-    EXPECT_EQ(wheel_zoom(Zoom::QUARTER, true), Zoom::HALF);
-    EXPECT_EQ(wheel_zoom(Zoom::HALF, true), Zoom::ACTUAL);
-    EXPECT_EQ(wheel_zoom(Zoom::ACTUAL, true), Zoom::DOUBLE);
-    EXPECT_EQ(wheel_zoom(Zoom::DOUBLE, true), Zoom::DOUBLE);  // closest zoom: stays
-}
+// The wheel and the zoom keys step through the same full list, in the zoom keys' order: 2:1, 1:1,
+// 1:2, 1:4, 1:16, nearest hostile, nearest object, all (zoom_step(), player-ship.cpp).
+const Zoom kZoomOrder[] = {Zoom::DOUBLE,    Zoom::ACTUAL, Zoom::HALF,   Zoom::QUARTER,
+                           Zoom::SIXTEENTH, Zoom::FOE,    Zoom::OBJECT, Zoom::ALL};
 
-TEST_F(ControlsTest, WheelZoomOutStopsAtSixteenth) {
-    EXPECT_EQ(wheel_zoom(Zoom::DOUBLE, false), Zoom::ACTUAL);
-    EXPECT_EQ(wheel_zoom(Zoom::ACTUAL, false), Zoom::HALF);
-    EXPECT_EQ(wheel_zoom(Zoom::HALF, false), Zoom::QUARTER);
-    EXPECT_EQ(wheel_zoom(Zoom::QUARTER, false), Zoom::SIXTEENTH);
-    EXPECT_EQ(wheel_zoom(Zoom::SIXTEENTH, false), Zoom::SIXTEENTH);  // never into the auto zooms
-}
-
-TEST_F(ControlsTest, WheelFromAutomaticZoom) {
-    for (Zoom z : {Zoom::FOE, Zoom::OBJECT, Zoom::ALL}) {
-        EXPECT_EQ(wheel_zoom(z, true), Zoom::SIXTEENTH);  // in: to the widest fixed zoom
-        EXPECT_EQ(wheel_zoom(z, false), z);               // out: stays
+TEST_F(ControlsTest, WheelZoomOutReachesEveryLevel) {
+    Zoom z = Zoom::DOUBLE;
+    for (int i = 1; i < 8; ++i) {
+        z = zoom_step(z, false);
+        EXPECT_EQ(z, kZoomOrder[i]) << i;
     }
+    EXPECT_EQ(zoom_step(Zoom::ALL, false), Zoom::ALL);  // the widest: stays
+}
+
+TEST_F(ControlsTest, WheelZoomInReachesEveryLevel) {
+    Zoom z = Zoom::ALL;
+    for (int i = 6; i >= 0; --i) {
+        z = zoom_step(z, true);
+        EXPECT_EQ(z, kZoomOrder[i]) << i;
+    }
+    EXPECT_EQ(zoom_step(Zoom::DOUBLE, true), Zoom::DOUBLE);  // the closest: stays
+}
+
+// The automatic zooms are steps like the others: out from 1:16 to nearest hostile, in from all to
+// nearest object (not a jump back to 1:16, as the wheel did from 2026-10-20 to 2026-10-21).
+TEST_F(ControlsTest, WheelZoomThroughAutomaticZooms) {
+    EXPECT_EQ(zoom_step(Zoom::SIXTEENTH, false), Zoom::FOE);
+    EXPECT_EQ(zoom_step(Zoom::FOE, false), Zoom::OBJECT);
+    EXPECT_EQ(zoom_step(Zoom::OBJECT, true), Zoom::FOE);
+    EXPECT_EQ(zoom_step(Zoom::FOE, true), Zoom::SIXTEENTH);
 }
 
 // Records the events a poller sends.
@@ -316,27 +325,6 @@ TEST_F(ControlsTest, ControlGroupsDropLostShips) {
     groups.save(5, {a});
     groups.clear();  // a new level
     EXPECT_TRUE(groups.recall(5, [](const GroupEntry&) { return true; }).empty());
-}
-
-// The patrol step's rule (docs/modern-controls.md step F).
-TEST_F(ControlsTest, PatrolStep) {
-    const Point   end(1000, 2000);
-    const int64_t small = 50 * 50, big = 600 * 600;
-    // Far from the end: keep flying.
-    EXPECT_EQ(patrol_step_for(Point(0, 0), end, true, small), PatrolStep::KEEP);
-    // Within the least arrive distance (200), even when the ship's own is smaller: switch.
-    EXPECT_EQ(patrol_step_for(Point(1000 + 199, 2000), end, true, small), PatrolStep::SWITCH);
-    EXPECT_EQ(patrol_step_for(Point(1000 + 120, 2000 - 160), end, true, small), PatrolStep::SWITCH);
-    EXPECT_EQ(patrol_step_for(Point(1000 + 201, 2000), end, true, small), PatrolStep::KEEP);
-    // A larger arrive distance switches sooner.
-    EXPECT_EQ(patrol_step_for(Point(1000 + 500, 2000), end, true, big), PatrolStep::SWITCH);
-    // The destination isn't the patrol point any more (a script or another order): drop, even
-    // at the end.
-    EXPECT_EQ(patrol_step_for(Point(0, 0), end, false, small), PatrolStep::DROP);
-    EXPECT_EQ(patrol_step_for(end, end, false, small), PatrolStep::DROP);
-    // Far coordinates don't overflow.
-    EXPECT_EQ(patrol_step_for(Point(-2000000000, 0), Point(2000000000, 0), true, small),
-              PatrolStep::KEEP);
 }
 
 }  // namespace

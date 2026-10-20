@@ -274,7 +274,7 @@ void options_controls(EventScheduler& scheduler) {
     scheduler.schedule_mouse(0, Point(414, 89), 1320, 1380);
     scheduler.schedule_snapshot(1380);
 
-    // The rebinding list: the MODERN page (attack move, patrol), then the COMMAND page.
+    // The rebinding list: the MODERN page (attack move), then the COMMAND page.
     scheduler.schedule_mouse(0, Point(547, 67), 1440, 1500);
     scheduler.schedule_snapshot(1500);
     scheduler.schedule_mouse(0, Point(163, 67), 1560, 1620);

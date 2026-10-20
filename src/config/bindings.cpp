@@ -40,7 +40,7 @@ const char* const kActionConfigNames[ACTION_COUNT] = {
         "hotkey 1",        "hotkey 2",       "hotkey 3",    "hotkey 4",     "hotkey 5",
         "hotkey 6",        "hotkey 7",       "hotkey 8",    "hotkey 9",     "hotkey 10",
 
-        "attack move",     "patrol",
+        "attack move",
 };
 
 // The presets, as data: for each action its primary, secondary and gamepad binding.
@@ -56,7 +56,7 @@ const Binding kWheelUp   = Binding::wheel(+1);
 const Binding kWheelDown = Binding::wheel(-1);
 
 // Ares' layout, with the PC keys chosen on 2026-10-20 for the three it had on keys PC keyboards
-// lack, the wheel zoom of 2026-10-20 and the Ares gamepad mapping. Attack move and patrol are
+// lack, the wheel zoom of 2026-10-20 and the Ares gamepad mapping. Attack move is
 // unbound: they belong to the Modern mode. The fire keys are X and Z, just above where Ares had
 // them (Option and Command, Left Alt and the Windows key on a PC): Left Alt with Tab (warp) opens
 // Windows' app switcher and the Windows key opens the Start menu, both taking the game out of focus.
@@ -106,13 +106,12 @@ const PresetRow kClassic[] = {
         {kHotKey9Num, K(Key::K9), kNone, kNone},
         {kHotKey10Num, K(Key::K0), kNone, kNone},
         {kAttackMoveKeyNum, kNone, kNone, kNone},
-        {kPatrolKeyNum, kNone, kNone, kNone},
 };
 
 // Modern (Ares-style): the right hand steers on the arrow keys, like Ares' keypad 8-4-5-6; everything
 // else is under the left hand (fingers on A S D F, thumb on Space). Fire on Space, F and D; select
 // on Q, E and R; order on S; the minicomputer on the column T, G, B with V as cancel (mirroring the
-// arrows); attack move A (then click), patrol W. Ctrl, Alt and the Windows key are left free: Ctrl
+// arrows); attack move A (then click). Ctrl, Alt and the Windows key are left free: Ctrl
 // is the Modern group and attack-move modifier, and Alt+Tab, Alt+Enter and the Windows key belong
 // to Windows. The zoom shortcuts stay on the keys above the arrows and the function keys.
 const PresetRow kModernAres[] = {
@@ -161,12 +160,11 @@ const PresetRow kModernAres[] = {
         {kHotKey9Num, K(Key::K9), kNone, kNone},
         {kHotKey10Num, K(Key::K0), kNone, kNone},
         {kAttackMoveKeyNum, K(Key::A), kNone, kNone},
-        {kPatrolKeyNum, K(Key::W), kNone, kNone},
 };
 
 // Modern (WASD): flight on WASD, weapons and selection around it, zoom on the main row and the
-// wheel; the rest as Classic. Attack move on G (Ctrl+right-click will also give it), patrol on T,
-// so the mouse hand never needs the keyboard for them.
+// wheel; the rest as Classic. Attack move on G (Ctrl+right-click will also give it), so
+// the mouse hand never needs the keyboard for it.
 const PresetRow kModernWasd[] = {
         {kUpKeyNum, K(Key::W), kNone, P(Pad::A)},
         {kDownKeyNum, K(Key::S), kNone, P(Pad::B)},
@@ -213,7 +211,6 @@ const PresetRow kModernWasd[] = {
         {kHotKey9Num, K(Key::K9), kNone, kNone},
         {kHotKey10Num, K(Key::K0), kNone, kNone},
         {kAttackMoveKeyNum, K(Key::G), kNone, kNone},
-        {kPatrolKeyNum, K(Key::T), kNone, kNone},
 };
 
 static_assert(sizeof(kClassic) / sizeof(kClassic[0]) == ACTION_COUNT, "Classic covers every action");

@@ -46,6 +46,7 @@
 #include "game/starfield.hpp"
 #include "game/sys.hpp"
 #include "game/time.hpp"
+#include "game/timing.hpp"
 #include "lang/defines.hpp"
 #include "math/fixed.hpp"
 #include "math/macros.hpp"
@@ -147,6 +148,9 @@ static void zoom_to(Zoom zoom) {
         g.zoom = zoom;
         sys.sound.click();
         Messages::zoom(g.zoom);
+        if (timing_on()) {
+            timing_mark(pn::format("zoom\t{0}", static_cast<int>(zoom)));  // 0 = 2:1 ... 7 = all
+        }
     }
 }
 
@@ -163,35 +167,32 @@ static void zoom_shortcut(Zoom zoom) {
     }
 }
 
-Zoom wheel_zoom(Zoom current, bool in) {
-    if (current > Zoom::SIXTEENTH) {
-        return in ? Zoom::SIXTEENTH : current;
-    } else if (in) {
+// One zoom step, for the zoom keys and the mouse wheel alike, through the full list in order:
+// 2:1, 1:1, 1:2, 1:4, 1:16, nearest hostile, nearest object, all. Stops at either end.
+Zoom zoom_step(Zoom current, bool in) {
+    if (in) {
         return (current > Zoom::DOUBLE) ? static_cast<Zoom>(static_cast<int>(current) - 1) : current;
     }
-    return (current < Zoom::SIXTEENTH) ? static_cast<Zoom>(static_cast<int>(current) + 1) : current;
+    return (current < Zoom::ALL) ? static_cast<Zoom>(static_cast<int>(current) + 1) : current;
 }
 
-// `wheel`: the step came from the mouse wheel (see wheel_zoom()), not a zoom key.
-static void zoom_in(bool wheel) {
+static void zoom_in() {
     if (g.key_mask & kZoomInKey) {
         return;
     }
-    if (wheel) {
-        zoom_to(wheel_zoom(g.zoom, true));
-    } else if (g.zoom > Zoom::DOUBLE) {
-        zoom_to(static_cast<Zoom>(static_cast<int>(g.zoom) - 1));
+    const Zoom next = zoom_step(g.zoom, true);
+    if (next != g.zoom) {
+        zoom_to(next);
     }
 }
 
-static void zoom_out(bool wheel) {
+static void zoom_out() {
     if (g.key_mask & kZoomOutKey) {
         return;
     }
-    if (wheel) {
-        zoom_to(wheel_zoom(g.zoom, false));
-    } else if (g.zoom < Zoom::ALL) {
-        zoom_to(static_cast<Zoom>(static_cast<int>(g.zoom) + 1));
+    const Zoom next = zoom_step(g.zoom, false);
+    if (next != g.zoom) {
+        zoom_to(next);
     }
 }
 
@@ -464,13 +465,11 @@ void PlayerShip::action_on(int action) {
         // (docs/modern-controls.md). A level that disables orders (the "order" key mask) will
         // disable them too.
         case kAttackMoveKeyNum:
-        case kPatrolKeyNum:
-            // Modern: arms the command for the next left-click. A level that disables orders
-            // disables these too.
+            // Modern: arms attack-move for the next left-click. A level that disables orders
+            // disables it too.
             if (g.modern_controls && !(g.key_mask & kOrderKey)) {
-                _armed = (action == kAttackMoveKeyNum) ? 1 : 2;
-                modern_arm(
-                        (_armed == 1) ? ModernCommand::ATTACK_MOVE : ModernCommand::PATROL);
+                _armed = 1;
+                modern_arm(ModernCommand::ATTACK_MOVE);
             }
             return;
 
@@ -581,10 +580,8 @@ void PlayerShip::mouse_down(const MouseDownEvent& event) {
                 MiniComputerHandleClick(where);
             }
             if (g.modern_controls && viewport().contains(where) && !(g.key_mask & kMouseMask)) {
-                if (_armed) {  // the click that gives an armed attack-move or patrol
-                    modern_command_click(
-                            (_armed == 1) ? ModernCommand::ATTACK_MOVE : ModernCommand::PATROL,
-                            where);
+                if (_armed) {  // the click that gives an armed attack-move
+                    modern_command_click(ModernCommand::ATTACK_MOVE, where);
                     _armed = 0;
                     modern_arm(ModernCommand::NONE);
                     return;
@@ -720,21 +717,27 @@ void PlayerShip::modern_left_up(Point where) {
     modern_selection_matches_control();
 }
 
-// Each notch runs the actions bound to its direction. On a zoom action a notch is a zoom step (data
-// 1 marks it as the wheel's: it doesn't step into the automatic zooms); on any other action it is a
-// press and release. It counts as that action, not as a mouse click: the masks levels set for the
+// Each notch runs the actions bound to its direction. On a zoom action a notch is one zoom step,
+// the same as the zoom key's (zoom_step()); on any other action it is a press and release. It counts as that action, not as a mouse click: the masks levels set for the
 // action apply when it runs (tutorial 1 enables zooming while the mouse is still off).
 void PlayerShip::mouse_wheel(const MouseWheelEvent& event) {
     if (!active() || (event.steps() == 0)) {
         return;
     }
     const std::vector<int> actions = sys.prefs->actions_for(Binding::wheel(event.steps()));
+    if (timing_on()) {  // the notches as the game sees them, and the actions they run
+        pn::string names;
+        for (int a : actions) {
+            names += pn::format(" {0}", a);
+        }
+        timing_mark(pn::format("wheel\t{0}\t{1}", event.steps(), names));
+    }
     for (int i = 0; i < std::abs(event.steps()); ++i) {
         for (int a : actions) {
             if (a == kZoomInKeyNum) {
-                _player_events.push_back(PlayerEvent{PlayerEventType::ZOOM_IN, 1});
+                _player_events.push_back(PlayerEvent{PlayerEventType::ZOOM_IN});
             } else if (a == kZoomOutKeyNum) {
-                _player_events.push_back(PlayerEvent{PlayerEventType::ZOOM_OUT, 1});
+                _player_events.push_back(PlayerEvent{PlayerEventType::ZOOM_OUT});
             } else {
                 press(a);
                 release(a);
@@ -1016,8 +1019,8 @@ void PlayerShip::update() {
             case PlayerEventType::FIRE_S_OFF: gTheseKeys &= ~(kSpecialKey & ~g.key_mask); break;
             case PlayerEventType::WARP_OFF: gTheseKeys &= ~(kWarpKey & ~g.key_mask); break;
 
-            case PlayerEventType::ZOOM_OUT: zoom_out(e.data == 1); break;
-            case PlayerEventType::ZOOM_IN: zoom_in(e.data == 1); break;
+            case PlayerEventType::ZOOM_OUT: zoom_out(); break;
+            case PlayerEventType::ZOOM_IN: zoom_in(); break;
             case PlayerEventType::ZOOM_1X: zoom_shortcut(Zoom::ACTUAL); break;
             case PlayerEventType::ZOOM_2X: zoom_shortcut(Zoom::HALF); break;
             case PlayerEventType::ZOOM_4X: zoom_shortcut(Zoom::QUARTER); break;

@@ -31,8 +31,9 @@ GLFW (src/glfw/video-driver.cpp)
   for modifiers: **Option = Alt**, **Command = Windows/Super key**.
 - **Actions.** The rebindable actions are the `KeyNum` enum (`include/config/keys.hpp`):
   - the original 44 (0–43), whose numbers replays and old configs store and which never change;
-  - since 2026-10-20, two added after them: Attack move (44) and Patrol (45). They can be bound
-    but do nothing until the Modern mode is built (`docs/modern-controls.md`).
+  - since 2026-10-20, Attack move (44), added after them; it works in the Modern mode only
+    (§2.4d). Patrol (45) was added the same day and removed on 2026-10-21; a saved config's
+    `patrol` binding is ignored.
 - **Bindings** (since 2026-10-20, `include/config/bindings.hpp`). Each action has:
   - a **primary** and a **secondary** binding, each a key, a mouse button (middle and extra
     buttons) or a wheel direction;
@@ -47,7 +48,7 @@ GLFW (src/glfw/video-driver.cpp)
   may, because the Ares gamepad fires both weapons with RT.
 - **Presets** (data tables in `src/config/bindings.cpp`):
   - **Classic** (the default) is the game as it was: the keys below, the wheel as the secondary
-    binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move and patrol are
+    binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move is
     unbound. One exception: since 2026-10-20 the fire keys are X and Z, not Left Alt and the
     Windows key (§1.2).
   - **Modern: Ares** (Modern (Ares-style), the default Modern layout since 2026-10-20). The arrow
@@ -57,7 +58,7 @@ GLFW (src/glfw/video-driver.cpp)
     - select friendly Q, select hostile E, select base R; target Shift; order S;
     - zoom X and Z, as well as the wheel;
     - minicomputer T (up), G (down), B (accept), V (cancel); transfer C; next message `;
-    - attack move A (A, then click, once the Modern mode exists), patrol W.
+    - attack move A (A, then click).
 
     The exceptions on the right hand are the zoom shortcuts (F9–F12, End, Home, Page Up, as
     Classic) and hotkeys 6–0. Ctrl, Alt and the Windows keys are left unbound: Ctrl will be the
@@ -68,7 +69,7 @@ GLFW (src/glfw/video-driver.cpp)
     - fire 1 Space, fire 2 F, special R;
     - select friendly Q, select hostile E, select base B; order Ctrl;
     - zoom = and −, as well as the wheel;
-    - attack move G, patrol T;
+    - attack move G;
     - everything else as Classic.
   - All three presets bind the gamepad as Ares did.
   - The full key tables, with hands and clashes, are in `docs/modern-controls.md` §8.
@@ -222,16 +223,21 @@ the fire keys, so its output matches the recorded test data (`src/bin/replay.cpp
 
 Double-click window is 30 ticks (0.5 s, `kDoubleClickInterval`).
 
-**Mouse wheel (2026-10-20):** zooms in a mission. Up steps toward 2:1, down toward 1:16 and stops
-there (unlike the zoom keys it doesn't step into the automatic zooms); from an automatic zoom (nearest
-foe or object, all), up goes to 1:16. The GLFW driver turns scrolling into whole notches
+**Mouse wheel (2026-10-20; full list since 2026-10-21):** zooms in a mission, through the same
+list as the zoom keys, in the same order: 2:1, 1:1, 1:2, 1:4, 1:16, nearest hostile, nearest
+object, all. It stops at either end; up zooms in, down zooms out. From 2026-10-20 to 2026-10-21
+the wheel stopped at 1:16 and skipped the three automatic zooms. That was a deliberate rule in the
+first wheel commit (`d7ddff19`), not a later break. The GLFW driver turns scrolling into whole notches
 (`GLFWVideoDriver::scroll`; touchpad fractions add up), sends a `MouseWheelEvent`, and `GamePlay`
 queues it in the input source like a key, so it reaches `PlayerShip` at a major tick and becomes the
-same `ZOOM_IN`/`ZOOM_OUT` player event as the zoom keys (marked as the wheel's) — deterministic, and
+same `ZOOM_IN`/`ZOOM_OUT` player event as the zoom keys — deterministic, and
 `ZoomCondition`s fire as for the keys. Levels' zoom-in/zoom-out masks apply to it; the mouse mask
 doesn't (tutorial 1 enables zooming while the mouse is still off). Replays don't record or react to
-it; no action numbers changed. The rule is `wheel_zoom()` (`player-ship.cpp`), tested by
-`controls-test`. Menus ignore the wheel.
+it; no action numbers changed. The rule is `zoom_step()` (`player-ship.cpp`), shared with the
+zoom keys and tested by `controls-test`. With `--timing`, each notch is logged as `wheel` with its direction
+(+1 up, −1 down) and the actions it runs, and each zoom change as `zoom` with the level (0 = 2:1 …
+7 = all). In game (ch05, UI 2×, Classic, Modern: Ares and Modern: WASD, 2026-10-21) the wheel
+stepped in 7 → 0 and out 0 → 7 through every level, in order, in all three presets. Menus ignore the wheel.
 The OS cursor is hidden; the game draws its own (`GLFW_CURSOR_HIDDEN`). All mouse positions are
 in logical pixels: the driver converts window coordinates through the UI scale and border
 (`GLFWVideoDriver::to_screen`), so clicks stay exact at every scale.
@@ -550,19 +556,20 @@ replays, the demo and the tutorials are unchanged.
 The double-tap check failed only because the test pressed the keys about 560 ms apart, outside the
 window. The window was then widened from 0.4 to 0.5 s, and the replay tool confirmed the pointer.
 
-### 2.4d Modern attack-move and patrol (2026-10-21)
+### 2.4d Modern attack-move (2026-10-21)
 
-Steps C and F of `docs/modern-controls.md` (plan in §5b), in the Modern mode only. Both are built
-from the engine's existing point order (`SetObjectLocationDestination`); there is no new order
-type and no AI change.
+Step C of `docs/modern-controls.md` (plan in §5b), in the Modern mode only. It is built from the
+engine's existing point order (`SetObjectLocationDestination`); there is no new order type and no
+AI change. **Two-point patrol (step F) was built the same day and then removed by decision**: it
+didn't work in play and isn't needed for now (`docs/modern-controls.md` §5a). Git history has it
+(`807c90ba`).
 
-**Keys** (rebindable actions 44 and 45, `docs/modern-controls.md` §8):
+**Keys** (rebindable action 44, `docs/modern-controls.md` §8):
 - **Attack-move:** A (Modern: Ares) or G (Modern: WASD) arms it; the next left-click in the play
   area gives it. **Ctrl+right-click** gives it at once (Ctrl as the raw key; Order's release then
   gives nothing).
-- **Patrol:** W (Ares) or T (WASD) arms it; the next left-click gives it.
-- While armed the crosshair is red (attack-move) or sky blue (patrol). A right-click disarms
-  without an order. A level that disables orders (`kOrderKey` masked) disables both.
+- While armed the crosshair is red. A right-click disarms without an order. A level that
+  disables orders (`kOrderKey` masked) disables it.
 
 **Attack-move:** each selected ship gets a point order to its grid formation point (the
 group-move grid) with the 15 s engage clock left at 0, the Classic Hold Position order. So it
@@ -570,31 +577,19 @@ turns aside to fight enemies within engage range, then carries on. A click on an
 normal attack order instead. A plain Modern move still sets the clock to 15 s and doesn't turn
 aside.
 
-**Patrol:** each selected ship gets the same point order to its formation point B and a patrol
-record (object number, id, A = where it was, B, which end it heads for) in `g.modern_patrols`.
-`modern_patrol_step()` (`src/game/modern-orders.cpp`) runs once a major tick right after the
-player's input (`src/game/main.cpp`):
-- within max(the ship's arrive distance, 200 units) of the end it heads for → a point order to the
-  other end (this also restarts the engage clock);
-- its destination isn't that point any more (any other order, a script's order) → the record is
-  dropped;
-- dead, captured, locked or a reused object slot → the record is dropped.
-- Records are dropped when the ship gets any other Modern order, and clear at level start.
-- Selected patrolling ships show their route as a dashed sky-blue line.
-Patrolling ships engage enemies on the way like attack-move. Game state only, record order, no
-wall time: deterministic.
-
 **Tests:**
-- `controls-test` `PatrolStep`: keep, switch (least 200 units, the ship's larger arrive distance),
-  drop when the destination changed, and no overflow on far coordinates.
-- `modern-multi` replay test, extended: the attack-move key + left-click (four ships), Ctrl+right-
-  click, patrol key + right-click (disarmed, no order), and the patrol key + left-click on group 1;
-  the Heavy Cruiser then switches legs seven times. Two runs are identical; `modern-orders` is
-  unchanged.
+- `modern-multi` replay test: the attack-move key + left-click (four ships), Ctrl+right-click, and
+  the attack-move key + right-click (disarmed, no order). Two runs are identical. The disarm step
+  used the patrol key until 2026-10-21, and the patrol steps after it were removed. So only
+  `test-starbound/modern-multi` changed: its orders log lost the patrol lines, and its screens
+  from tick 1801 on, where the patrolling ships no longer fly.
+- `options-controls` offscreen test: the MODERN page has one row (Attack Move), so
+  `test-starbound/options-controls` changed in its MODERN-page snapshots (1500, and 1620, which
+  still shows that page's cells as the page switches).
 
-**In game (ch05, Modern: Ares, windowed, UI 2× and 4×, from the timing log):** all passed: the
-drag selected both Engineers; A + click and Ctrl+right-click each gave two attack-moves (no other
-order); W + right-click gave no order; W + click started two patrols and a leg switch followed.
+**In game (ch05, Modern: Ares, windowed, UI 2× and 4×, from the timing log, before patrol was
+removed):** the drag selected both Engineers. A + click and Ctrl+right-click each gave two
+attack-moves (no other order).
 
 ### 2.5 Timing
 

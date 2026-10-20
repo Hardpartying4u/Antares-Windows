@@ -312,8 +312,8 @@ const int         kLabelLeft                  = 60;
 const int         kCellLeft[kBindingSlots]    = {250, 362, 474};  // labels fit 25 characters
 const int         kCellWidth                  = 104;
 const char* const kSlotNames[kBindingSlots]   = {"PRIMARY", "SECONDARY", "GAMEPAD"};
-const char* const kAddedActionNames[]         = {"Attack Move", "Patrol"};
-static_assert(KEY_COUNT + 2 == ACTION_COUNT, "a name for each added action");
+const char* const kAddedActionNames[]         = {"Attack Move"};
+static_assert(KEY_COUNT + 1 == ACTION_COUNT, "a name for each added action");
 
 pn::string cell_id(int action, int slot) { return pn::format("cell-{0}-{1}", action, slot); }
 

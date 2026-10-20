@@ -42,7 +42,7 @@ class PlayerShip;
 // if hit, and holds there on arrival. Nothing else is stored, so a level's scripted orders replace
 // a Modern order exactly as they replace a Classic one.
 
-enum class ModernOrder { NONE, ATTACK, FOLLOW, GUARD, MOVE, ATTACK_MOVE, PATROL };
+enum class ModernOrder { NONE, ATTACK, FOLLOW, GUARD, MOVE, ATTACK_MOVE };
 
 // Multi-select (step D). The selection is a list of the player's ships (g.modern_selection) whose
 // first ship is the admiral's control object, so everything built on the single control object
@@ -91,29 +91,15 @@ void                             modern_group_save(int group);
 std::vector<Handle<SpaceObject>> modern_group_ships(int group);
 void                             modern_group_pointer(int group);
 
-// Attack-move and patrol (steps C and F, docs/modern-controls.md §5b), from existing orders:
-//  * Attack-move (the attack-move key then a click, or Ctrl+right-click): each selected ship gets a
-//    point order to its formation point with the 15 s clock left at 0, the Classic point order
-//    (Hold Position's), so it turns aside to fight enemies it meets, then carries on. A click on an
-//    enemy attacks it.
-//  * Patrol (the patrol key then a click): each selected ship gets the same point order to its
-//    formation point and a patrol record; modern_patrol_step() (once a major tick) gives it the
-//    other end when it arrives. The record is dropped when the ship's destination is no longer the
-//    patrol point (a script's order, any other order) or the ship is lost.
-enum class ModernCommand { NONE, ATTACK_MOVE, PATROL };
+// Attack-move (step C, docs/modern-controls.md §5b), from an existing order: the attack-move key
+// then a click, or Ctrl+right-click. Each selected ship gets a point order to its formation point
+// with the 15 s clock left at 0, the Classic point order (Hold Position's), so it turns aside to
+// fight enemies it meets, then carries on. A click on an enemy attacks it. (Patrol was removed on
+// 2026-10-21; see §5a.)
+enum class ModernCommand { NONE, ATTACK_MOVE };
 void        modern_arm(ModernCommand command);  // the crosshair's colour while armed (view only)
 ModernOrder modern_command_click(ModernCommand command, Point where);
 bool        give_attack_move(Handle<Admiral> admiral, Point world);
-bool        give_patrol(Handle<Admiral> admiral, Point world);
-
-// The patrol step's rule, pure for the tests: KEEP flying, SWITCH to the other end (arrived:
-// within the arrive distance), or DROP the record (the destination isn't the patrol point any
-// more).
-enum class PatrolStep { KEEP, SWITCH, DROP };
-PatrolStep    patrol_step_for(
-           Point location, Point heading_for, bool destination_is_that_point, int64_t arrive_squared);
-const int32_t kPatrolArrive = 200;  // the least arrive distance: ships brake before the point
-void          modern_patrol_step();
 
 // The drag box, drawn from where the left button went down to the mouse while it is held.
 void modern_drag(bool active, Point start);

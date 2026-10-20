@@ -35,9 +35,8 @@ TEST_F(BindingsTest, OriginalActionsKeepTheirNumbers) {
     EXPECT_TRUE(action_config_name(kFastMotionKeyNum) == pn::string_view{"fast motion"}) << "fast motion";
     EXPECT_TRUE(action_config_name(kHotKey10Num) == pn::string_view{"hotkey 10"}) << "hotkey 10";
     EXPECT_GE(kAttackMoveKeyNum, KEY_COUNT);
-    EXPECT_GE(kPatrolKeyNum, KEY_COUNT);
     EXPECT_TRUE(action_config_name(kAttackMoveKeyNum) == pn::string_view{"attack move"}) << "attack move";
-    EXPECT_TRUE(action_config_name(kPatrolKeyNum) == pn::string_view{"patrol"}) << "patrol";
+    EXPECT_EQ(ACTION_COUNT, KEY_COUNT + 1);  // patrol (45) was removed on 2026-10-21
 }
 
 // Classic is today's game: the keys of 2026-10-20, the wheel on zoom, Ares' gamepad mapping, and
@@ -88,7 +87,6 @@ TEST_F(BindingsTest, ClassicMatchesTodaysControls) {
     }
     for (int s = 0; s < kBindingSlots; ++s) {
         EXPECT_TRUE(c[kAttackMoveKeyNum].slot[s].empty());
-        EXPECT_TRUE(c[kPatrolKeyNum].slot[s].empty());
     }
 }
 
@@ -100,7 +98,6 @@ TEST_F(BindingsTest, ModernWasdFliesOnWasd) {
     EXPECT_EQ(m[kRightKeyNum].slot[kPrimarySlot], Binding::key(Key::D));
     EXPECT_EQ(m[kOrderKeyNum].slot[kPrimarySlot], Binding::key(Key::CONTROL));
     EXPECT_EQ(m[kAttackMoveKeyNum].slot[kPrimarySlot], Binding::key(Key::G));
-    EXPECT_EQ(m[kPatrolKeyNum].slot[kPrimarySlot], Binding::key(Key::T));  // not P: left hand
     EXPECT_EQ(m[kZoomInKeyNum].slot[kSecondarySlot], Binding::wheel(+1));
     EXPECT_EQ(m[kUpKeyNum].slot[kGamepadSlot], Binding::gamepad(Pad::A));  // same pad as Classic
 }
@@ -124,7 +121,6 @@ TEST_F(BindingsTest, ModernAresStyleLayout) {
     EXPECT_EQ(m[kCompCancelKeyNum].slot[kPrimarySlot], Binding::key(Key::V));
     EXPECT_EQ(m[kMessageNextKeyNum].slot[kPrimarySlot], Binding::key(Key::BACKTICK));
     EXPECT_EQ(m[kAttackMoveKeyNum].slot[kPrimarySlot], Binding::key(Key::A));
-    EXPECT_EQ(m[kPatrolKeyNum].slot[kPrimarySlot], Binding::key(Key::W));
 
     const Key::Value left[] = {
             Key::BACKTICK, Key::K1, Key::K2, Key::K3, Key::K4, Key::K5, Key::TAB, Key::Q,
@@ -294,12 +290,13 @@ TEST_F(BindingsTest, Version2OldModernLoadsAsWasd) {
         pn::output out{kV2Config, pn::text};
         out.format(
                 "version: 2\ncontrols: {{preset: \"modern\", bindings: {{"
-                "\"patrol\": {{primary: {{key: 19}}}}}}}}\n");  // P, as stage 4 saved it
+                "\"attack move\": {{primary: {{key: 19}}}}, "
+                "\"patrol\": {{primary: {{key: 23}}}}}}}}\n");  // patrol: removed, ignored
     }
     FilePrefsDriver prefs(kV2Config);
     EXPECT_TRUE(prefs.controls_preset() == ControlPreset::MODERN_WASD);
     EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::W));
-    EXPECT_EQ(prefs.binding(kPatrolKeyNum, kPrimarySlot), Binding::key(Key::P));  // as saved
+    EXPECT_EQ(prefs.binding(kAttackMoveKeyNum, kPrimarySlot), Binding::key(Key::P));  // as saved
 }
 
 // Configs saved before 2026-10-20's fire-key change (version 1 and 2) still on Classic's old fire

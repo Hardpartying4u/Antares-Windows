@@ -273,9 +273,8 @@ enum KeyNum {
     // Actions added by Star Bound, after the original 44 (never stored in replays). They can be
     // bound, but do nothing until the Modern control mode is built (docs/modern-controls.md).
     kAttackMoveKeyNum = 44,
-    kPatrolKeyNum     = 45,
 
-    ACTION_COUNT = 46,  // Every bindable action.
+    ACTION_COUNT = 45,  // Every bindable action.
 };
 
 enum {

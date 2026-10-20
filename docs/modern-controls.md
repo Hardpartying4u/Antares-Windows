@@ -9,6 +9,10 @@ default) that gives C&C-style control in Modern:
 - an **attack-move** command: move to a point but engage any enemy met on the way, unlike a plain
   move.
 
+**Patrol was removed on 2026-10-21, by decision** (§5a). It didn't work in play and isn't
+needed for now. The code is in git history (`807c90ba`); the sections below are the original
+investigation and plan, kept as written.
+
 Mouse-wheel zoom already works in both modes (M2 stage 2, `d7ddff19`).
 
 Code references are to `windows-working-build` at `96488bf2`. `docs/controls-investigation.md` covers
@@ -565,6 +569,18 @@ whose point moves along a route.
   - Patrol key + click: point orders plus records that `modern_patrol_step()` turns at each end.
   - Not built: the optional "don't give up after 15 s" flag for attack-move, and multi-point
     patrol (step G).
+- **Patrol (steps F and G): removed 2026-10-21, by decision.** It didn't work in play, and it
+  isn't needed for now. Everything was removed:
+  - the action (45; `ACTION_COUNT` is 45 again) and its keys (W in Modern: Ares, T in Modern:
+    WASD);
+  - its Key Controls row;
+  - the armed sky-blue crosshair and the dashed route line;
+  - the patrol records and per-tick step;
+  - its unit test and replay steps.
+
+  A saved config's `patrol` binding is ignored. Attack-move, drag-select, groups and right-click
+  are unchanged. The code is in git history (`807c90ba`, "Modern attack-move and two-point
+  patrol"), if it is ever wanted back.
 
 ## 5b. Attack-move and patrol: how they can be built (investigation, 2026-10-21)
 
@@ -720,7 +736,7 @@ is under the left hand: fingers on A S D F, thumb on Space.
 | 34–38 | Groups / hotkeys 1–5 | 1–5 | L | Ctrl+number assigns, the number selects, Shift+number adds |
 | 39–43 | Groups / hotkeys 6–0 | 6–0 | R | Tradeoff: the steering hand leaves the arrows |
 | 44 | Attack move | A, then click; also Ctrl+right-click | L pinky | Caps Lock (pause) is next to A |
-| 45 | Patrol | W, then click; Shift+click adds waypoints | L | |
+| 45 | ~~Patrol~~ | Removed 2026-10-21 (§5a) | | |
 
 Modifiers:
 - **Ctrl:** only Ctrl+number (assign a group) and Ctrl+right-click (attack-move).
@@ -755,4 +771,4 @@ and WASD is the choice for steering while using the mouse.
 | 34–38 | Groups / hotkeys 1–5 | 1–5 | L | |
 | 39–43 | Groups / hotkeys 6–0 | 6–0 | R | The hand leaves the mouse |
 | 44 | Attack move | G; also Ctrl+right-click | L | |
-| 45 | Patrol | T | L | Moved from P (2026-10-20), so the mouse hand never needs the keyboard |
+| 45 | ~~Patrol~~ | Removed 2026-10-21 (§5a) | | |

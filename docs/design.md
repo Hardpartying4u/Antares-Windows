@@ -21,7 +21,7 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
 
 - Two built-in presets:
   - **Classic:** the original scheme, unchanged.
-  - **Modern:** C&C-style fleet control with the mouse: select several ships (box, shift-click, Ctrl+number groups), right-click to move or attack, patrol and attack-move commands; flight and firing stay on keys. Mouse-wheel zoom works in both presets.
+  - **Modern:** C&C-style fleet control with the mouse: select several ships (box, shift-click, Ctrl+number groups), right-click to move or attack, an attack-move command (patrol was dropped on 2026-10-21); flight and firing stay on keys. Mouse-wheel zoom works in both presets.
 - A rebinding screen so every action can be reassigned to keyboard keys or mouse buttons.
 - Bindings are saved in the player's config and survive updates.
 - Gamepad: the game logic and a fixed mapping exist (see `docs/current-state.md` §1.4), but **only the macOS driver reads gamepads; on Windows no gamepad input arrives** (finding, 2026-10-19). Both presets and the rebinding screen must cover gamepad as well as keyboard and mouse.
@@ -52,6 +52,8 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Inputs the game keeps for itself can't be bound: Esc, Return, Caps Lock; left and right mouse;
     the pad's bumpers and Start.
   - See `docs/current-state.md` §1.1.
+- **Decided (2026-10-21): patrol removed from the Modern presets.** It didn't work in play, and it isn't needed for now. The action, keys, Key Controls row, crosshair tint, route line, code, tests and replay steps are gone; git history keeps it (`807c90ba`). Attack-move, drag-select, groups and right-click are unchanged (`docs/modern-controls.md` §5a).
+- **Done (2026-10-21): the mouse wheel zooms through the full list.** It steps through the same levels as the zoom keys, in the same order, including nearest hostile, nearest object and all, in every preset. Since the first wheel commit (`d7ddff19`) it had stopped at 1:16 by design; that rule is gone (`docs/current-state.md` §1.3).
 - **Done (2026-10-21): Controller detection off the startup path** (`docs/startup-timing.md`). A start sometimes took about 30 s, likely in GLFW's DirectInput enumeration inside `glfwInit()`. Windows now builds GLFW with an altered joystick file in our tree (the submodule is unchanged): XInput is detected at startup, and DirectInput is scanned on a worker thread after the main menu shows, with the found pads opened on the main thread. New `--timing` marks cover sound, `glfwInit`, the window and the scan.
 - **Done (2026-10-21): Modern attack-move and patrol** (`docs/current-state.md` §2.4d). Built from the engine's existing point order, with no new order type: attack-move leaves the 15 s engage clock at 0 (the Classic point order), and two-point patrol keeps per-ship records in the game state that a per-tick step turns at each end, dropping a record when anything else (a script or another order) changes the ship's destination (`docs/modern-controls.md` §5b).
 - **Done (2026-10-20): Modern control groups** (`docs/current-state.md` §2.4c). In the Modern mode the number keys are control groups (Ctrl+number saves, number recalls, Shift+number adds, double tap shows a pointer) and Classic keeps its hotkeys. The Order key fires on release unless a number was pressed while it was held, which resolves the Ctrl clash in Modern: WASD (the approved plan, `docs/modern-controls.md` §5.1).

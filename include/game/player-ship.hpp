@@ -90,7 +90,7 @@ enum class PlayerEventType {
 // The zoom one wheel notch moves to: in (away from the player) steps toward 2:1, out steps toward
 // 1:16 and stops there; from an automatic zoom (nearest foe or object, all) a notch in goes to 1:16.
 // Unlike the zoom keys, the wheel doesn't step into the automatic zooms.
-Zoom wheel_zoom(Zoom current, bool in);
+Zoom zoom_step(Zoom current, bool in);
 
 struct PlayerEvent {
     PlayerEventType type;
@@ -153,7 +153,7 @@ class PlayerShip : public EventReceiver {
     bool      _ctrl_held  = false;  // either Ctrl key, whatever it is bound to (group modifier)
     bool      _order_held = false;  // Modern: the Order key is down, its order waiting for release
     bool      _order_used = false;  // ... and a number was pressed meanwhile (Ctrl+number)
-    int       _armed      = 0;      // the attack-move (1) or patrol (2) key: the next click
+    int       _armed      = 0;      // the attack-move key (1): the next click gives it
     int       _last_group = -1;     // for the double tap
     wall_time _last_group_time;
 

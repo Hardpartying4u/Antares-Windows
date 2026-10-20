@@ -46,13 +46,8 @@
 1253 rclick 300 330
 1260 keyevent-up 224
 1263 log-selection
-# The patrol key (action 45) armed, then a right-click: disarmed, no order.
-1280 key 45
+# The attack-move key (action 44) armed, then a right-click: disarmed, no order. (Patrol's steps
+# were removed with patrol on 2026-10-21.)
+1280 key 44
 1283 rclick 320 330
 1286 log-selection
-# Patrol: recall group 1 (three ships), arm patrol, click: each ship flies between where it is and
-# its formation point, switching legs at each end (logged in orders.log).
-1300 key 34
-1303 key 45
-1306 lclick 250 280
-1309 log-selection

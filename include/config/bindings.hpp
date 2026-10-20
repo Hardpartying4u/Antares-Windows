@@ -93,7 +93,7 @@ struct ActionGroup {
 extern const ActionGroup kActionGroups[6];
 const int                kMaxGroupSize = 11;  // rows on a Key Controls page
 
-// The config file's name for each action ("ship accel", ... "attack move", "patrol").
+// The config file's name for each action ("ship accel", ... "attack move").
 pn::string_view action_config_name(int action);
 
 // Config file form: null, {key: 96}, {mouse: 2}, {wheel: "up"}, or a gamepad token ("rt").
