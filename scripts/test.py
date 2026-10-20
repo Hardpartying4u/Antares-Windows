@@ -188,6 +188,8 @@ def main():
         (offscreen_test, opts, queue, "mission-briefing", ["--text"]),
         # Star Bound rebuilt Options > Key Controls (rebinding screen), so options has its own output.
         (offscreen_test, opts, queue, "options", ["--text"], "test-starbound"),
+        # Star Bound's own script for the current Key Controls screen (presets, pages, a capture).
+        (offscreen_test, opts, queue, "options-controls", ["--text"], "test-starbound"),
         (offscreen_test, opts, queue, "pause", ["--text"]),
         (replay_test, opts, queue, "and-it-feels-so-good"),
         (replay_test, opts, queue, "astrotrash-plus"),

@@ -42,6 +42,7 @@ namespace {
 void fast_motion(EventScheduler& scheduler);
 void main_screen(EventScheduler& scheduler);
 void options(EventScheduler& scheduler);
+void options_controls(EventScheduler& scheduler);
 void mission_briefing(EventScheduler& scheduler, Ledger& ledger);
 void pause(EventScheduler& scheduler);
 
@@ -55,6 +56,7 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "\n       main-screen"
             "\n       fast-motion"
             "\n       options"
+            "\n       options-controls"
             "\n       mission-briefing"
             "\n       pause"
             "\n"
@@ -135,6 +137,8 @@ void main(int argc, char* const* argv) {
         main_screen(scheduler);
     } else if (*script == "options") {
         options(scheduler);
+    } else if (*script == "options-controls") {
+        options_controls(scheduler);
     } else if (*script == "mission-briefing") {
         mission_briefing(scheduler, ledger);
     } else if (*script == "pause") {
@@ -249,6 +253,48 @@ void options(EventScheduler& scheduler) {
 
     scheduler.schedule_key(Key::Q, 1800, 1860);
     scheduler.schedule_snapshot(1800);
+}
+
+// Star Bound's own script for Options > Key Controls, the rebinding screen that replaced the
+// tabbed one `options` was written for (its clicks on the old tab row now hit nothing). Layout:
+// src/ui/screens/options.cpp (pages at y 62-72, presets at y 84-94, binding cells from y 122) and
+// data/interfaces/options/keys.pn (Cancel).
+void options_controls(EventScheduler& scheduler) {
+    scheduler.schedule_key(Key::Q, 899, 900);
+
+    // Options, then Key Controls (Classic, the SHIP page).
+    scheduler.schedule_key(Key::O, 960, 1020);
+    scheduler.schedule_snapshot(1020);
+    scheduler.schedule_key(Key::K, 1080, 1140);
+    scheduler.schedule_snapshot(1140);
+
+    // Switch presets: Modern: Ares, then Modern: WASD.
+    scheduler.schedule_mouse(0, Point(283, 89), 1200, 1260);
+    scheduler.schedule_snapshot(1260);
+    scheduler.schedule_mouse(0, Point(414, 89), 1320, 1380);
+    scheduler.schedule_snapshot(1380);
+
+    // The rebinding list: the MODERN page (attack move, patrol), then the COMMAND page.
+    scheduler.schedule_mouse(0, Point(547, 67), 1440, 1500);
+    scheduler.schedule_snapshot(1500);
+    scheduler.schedule_mouse(0, Point(163, 67), 1560, 1620);
+    scheduler.schedule_snapshot(1620);
+
+    // Select the first action's primary binding (waits for an input), then Escape cancels the
+    // capture.
+    scheduler.schedule_mouse(0, Point(300, 128), 1680, 1740);
+    scheduler.schedule_snapshot(1740);
+    scheduler.schedule_key(Key::ESCAPE, 1800, 1860);
+    scheduler.schedule_snapshot(1860);
+
+    // Back to Classic, then back out: Cancel restores the bindings and returns to the main menu.
+    scheduler.schedule_mouse(0, Point(172, 89), 1920, 1980);
+    scheduler.schedule_snapshot(1980);
+    scheduler.schedule_mouse(0, Point(86, 432), 2040, 2100);
+    scheduler.schedule_snapshot(2100);
+
+    scheduler.schedule_key(Key::Q, 2160, 2220);
+    scheduler.schedule_snapshot(2160);
 }
 
 void mission_briefing(EventScheduler& scheduler, Ledger& ledger) {

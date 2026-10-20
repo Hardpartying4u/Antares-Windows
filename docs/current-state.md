@@ -663,6 +663,11 @@ among the 28 standard tests):
   presets; the y-50 clicks now hit nothing, so the old four select beeps are gone. That is the
   intended screen, so its expected output is Star Bound's own, `test-starbound/options`
   (2026-10-21); upstream's `test/options` is left as it is.
+- `options-controls` (Star Bound's own script, 2026-10-21; upstream's `options` script is
+  unchanged) covers the current screen. It goes Options → Key Controls, chooses Modern: Ares then
+  Modern: WASD, opens the MODERN and COMMAND pages, selects a binding cell (capture) and cancels
+  it with Esc, goes back to Classic, then Cancel returns to the main menu. Every snapshot differs
+  from the one before. Expected output: `test-starbound/options-controls`; two runs are identical.
 - `main-screen` can't pass on Windows and never has: it needs the OpenGL offscreen driver, which
   upstream leaves out of Windows builds (`#ifndef _WIN32` in `offscreen.cpp`), so it writes an
   empty `sound.log` and no screens. Upstream's Windows CI doesn't run offscreen tests either.

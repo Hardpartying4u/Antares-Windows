@@ -1,0 +1,12 @@
+0	3	quiet
+0	3	loop	music	255	doomtroopers-unite
+960	0	play	sound	192	gui/beep/select
+1080	0	play	sound	192	gui/beep/select
+1200	0	play	sound	192	gui/beep/select
+1320	0	play	sound	192	gui/beep/select
+1440	0	play	sound	192	gui/beep/select
+1560	0	play	sound	192	gui/beep/select
+1680	0	play	sound	192	gui/beep/select
+1920	0	play	sound	192	gui/beep/select
+2040	0	play	sound	192	gui/beep/select
+2160	0	play	sound	192	gui/beep/select
