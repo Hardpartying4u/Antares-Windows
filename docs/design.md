@@ -36,17 +36,22 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - right-click orders;
   - a patrol command;
   - an attack-move command.
-- **Investigation (2026-10-20):** `docs/modern-controls.md` covers how orders and ship behaviour work and the proposed build order (toggle, right-click orders, attack-move, multi-select, groups, patrol). Findings:
+- **Investigation (2026-10-20, revised the same day):** `docs/modern-controls.md` covers how orders and ship behaviour work, the detailed behaviour of control groups, drag selection with context-sensitive right-click, attack-move and patrol, and the proposed build order (toggle, right-click orders, attack-move, multi-select, groups, two-point patrol, then multi-point patrol routes). Findings:
   - Ctrl orders to an object fly straight there; a ship only fights after being hit or on arrival.
   - Point orders (Hold Position, Go To My Position) engage enemies met on the way, giving up after 15 s of fighting a target that doesn't fire back.
   - So move reuses existing behaviour, attack-move is that point order without the 15 s limit, and patrol is new.
   - Nothing in `data/` needs to change, provided the admiral keeps a single primary control object (tutorials test it) and scripted orders cancel Modern orders.
   - Replays, the demo and tutorials should always run Classic.
+  - Right-click on a friendly ship or base maps to the existing escort and guard behaviours.
+  - The camera is locked to the flagship, so a double-tapped group number can only point to the group (an off-screen label pointer and radar highlight), not jump to it.
+  - A group member that dies or is captured drops out. A group whose ships are all gone selects nothing and plays the warning sound.
+  - Newly built ships head for the player's current target, as they always have.
   - Antares doesn't enforce the tutorials' masks for the select, target, order and minicomputer-navigation keys (an existing gap).
   - Proposed for review, not yet decided:
     - tutorials always run Classic;
-    - attack-move is Ctrl+right-click and patrol is P then right-click, until rebinding exists;
-    - formations, patrol routes of more than two points, and mouse control of the flagship are left out.
+    - attack-move is A then left-click, with Ctrl+right-click as a second gesture;
+    - patrol is P then left-click, with Shift+click adding waypoints (up to 8, built after two-point patrol);
+    - formations, queued move orders, and mouse control of the flagship are left out.
 
 ## 5. User interface
 
@@ -145,4 +150,6 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - M2: may Modern move the camera away from the flagship (edge or drag scrolling)? The original always centres on it.
 - ~~M2: in Modern, do the mouse buttons fire weapons or select and give orders?~~ Answered 2026-10-20 by the Modern goal: they select and give orders; firing stays on keys.
 - M2 Modern: should tutorials always run Classic, since their text and checks teach the Classic keys? (Proposed: yes; `docs/modern-controls.md` §2.4.)
+- M2 Modern: A then click for attack-move needs A to be free, but the planned Modern flight keys are WASD. Keep flight off WASD, or move attack-move to another key? (`docs/modern-controls.md` §5.2.)
+- M2 Modern: until the camera can leave the flagship, is a pointer to the group enough for a double-tapped group number? (`docs/modern-controls.md` §5.1.)
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.

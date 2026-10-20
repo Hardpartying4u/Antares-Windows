@@ -1,7 +1,7 @@
 # Modern control mode: investigation (2026-10-20)
 
 Read-only investigation, before any code. The goal is an **Options toggle** (Classic is the
-default). In Modern it gives C&C-style control:
+default) that gives C&C-style control in Modern:
 
 - select several ships: drag a box, shift-click to add, Ctrl+number control groups;
 - right-click to move them;
@@ -11,35 +11,43 @@ default). In Modern it gives C&C-style control:
 
 Mouse-wheel zoom already works in both modes (M2 stage 2, `d7ddff19`).
 
-Code references are to `windows-working-build` at `f306a8ec`. `docs/controls-investigation.md` covers
-the input path; this document covers orders, ship behaviour and what Modern needs.
+Code references are to `windows-working-build` at `96488bf2`. `docs/controls-investigation.md` covers
+the input path; this document covers orders, ship behaviour and what Modern needs. First version
+`d27574a2`; this revision adds the detailed behaviours in §5 (groups, drag and right-click, patrol,
+and each in the original design's terms).
 
 ## Summary
 
-- **The engine already has two kinds of move.**
-  - An order to an **object** (the Ctrl key) flies straight there. On the way the ship doesn't divert
-    to fight, but it fires at anything in its arcs and fights back once it is hit.
-  - An order to a **point** (Hold Position, Go To My Position) diverts to engage any enemy within
-    about two subsectors. It then gives up after 15 s of fighting a target that doesn't hit back.
-  - So a plain **move** reuses the object-order behaviour and needs no new AI. **Attack-move** is
-    the point order with the 15 s give-up switched off: a one-flag change. **Patrol** is new: a small
-    waypoint loop on top of attack-move.
+- **The engine already has two kinds of move.** Neither is new behaviour Modern has to invent:
+  - an order to an **object** (the Ctrl key) flies straight there and fights only when hit or on
+    arrival;
+  - an order to a **point** (Hold Position, Go To My Position) engages enemies it meets, but gives
+    up after 15 s of fighting a target that doesn't fire back.
+- **What each command needs:**
+  - **Move** reuses the object-order behaviour. No AI change.
+  - **Attack-move** is the point order with the 15 s give-up switched off: a one-flag AI change.
+  - **Patrol** is new: a waypoint loop on top of attack-move.
+  - **Right-click on a friend** is the existing **escort** (on a ship) or **guard** (on a base),
+    unchanged.
 - **The scenario data doesn't get in the way.** Orders live in engine state (`SpaceObject`,
   `Admiral`), not in `data/`. Level scripts only read the single **control** and **target**
   objects (tutorials) and give scripted orders (`target` actions). New orders need no data change,
   provided the admiral's single control object stays meaningful.
-- **Multi-select fits as a selection list beside the existing control object.** The list is
-  changed only by queued input, at a major tick. Its first ship stays the admiral's `control()`, so
-  the minicomputer, labels and tutorial conditions keep working.
+- **Multi-select fits as a list beside the original single control object.** The list is changed
+  only by queued input, at a major tick. Its first ship stays `control()`, so the minicomputer,
+  labels and tutorial conditions are unchanged.
+- **The camera can't jump to a group.** It is locked to your flagship, so a double-tap can only
+  *point* to the group until the separate camera work (M2 stage 7) is decided.
 - **Recommended order:**
   1. the toggle;
-  2. right-click orders for the current ship;
+  2. right-click orders;
   3. attack-move;
   4. multi-select;
   5. control groups;
-  6. patrol.
+  6. two-point patrol;
+  7. multi-point patrol routes, optional.
 
-  Leave out formations, multi-point patrol queues, ordering the flagship by mouse, and mouse firing.
+  Leave out formations, ordering the flagship by mouse, mouse firing and camera moves.
 
 ## 1. Orders and ship behaviour today
 
@@ -58,14 +66,22 @@ order:
 3. Queued input reaches `PlayerShip` (keys, clicks, wheel, gamepad), then `PlayerShip::update()`.
 4. Collisions, then level conditions.
 
-**The flagship** (`kIsPlayerShip`) is flown by the player's keys. On autopilot (Shift+Tab) the AI
-flies it to the admiral's target.
+**In the original design each side has:**
 
-**Every other ship** runs the same AI as the enemy's ships, steered by its destination:
+- **one flagship**, flown by the player's own keys;
+- **one control object** (`Admiral::control()`), the ship or base that orders, Build and Special
+  Orders apply to;
+- **one target object** (`Admiral::target()`), where orders send things and what the flagship
+  aims at.
 
-- `destObject`: an object to go to; it follows the object as it moves.
-- or `destinationLocation`: a point.
+Every other ship you own is **not flown by you**. It runs the same AI as the enemy's ships, steered
+only by its destination:
+
+- `destObject`: an object to go to; it follows the object as it moves;
+- or `destinationLocation`: a point;
 - or neither: the ship stays where it is.
+
+"Giving an order" means setting that destination on the one control object.
 
 ### 1.2 Player orders that exist
 
@@ -75,8 +91,8 @@ flies it to the admiral's target.
 | Hold position | minicomputer › Special Orders | `hold_position` (`minicomputer.cpp` ~857) → `SetObjectLocationDestination` (`admiral.cpp` ~375) | destination **point** = its own location; `timeFromOrigin` = 0 |
 | Go to my position | minicomputer › Special Orders | `come_to_me` (~867) | destination **point** = the flagship's location at that moment; `timeFromOrigin` = 0 |
 | Fire weapon 1 / 2 / special | minicomputer › Special Orders | `fire_weapon` (~845) | one shot with `kManualOverrideFlag` |
-| Transfer control | F8; minicomputer | `transfer_control` (~815) | you fly the control ship instead |
-| Build | minicomputer › Build | `build_ship` → `Admiral::build` | builds at the selected base |
+| Transfer control | F8; minicomputer | `transfer_control` (~815) | you fly the control ship instead; the camera follows it |
+| Build | minicomputer › Build | `build_ship` → `Admiral::build` | builds at the selected base. **A new ship heads for the player's current target** (`AdmiralBuildAtObject` calls `SetObjectDestination`, `admiral.cpp` ~577) |
 | Autopilot | Shift+Tab | `TogglePlayerAutoPilot` (`player-ship.cpp` ~1129) | the flagship flies to the target |
 
 - **Who can be ordered:** ships with `kCanAcceptDestination` and without `kStaticDestination`. The
@@ -88,12 +104,15 @@ flies it to the admiral's target.
   - anything hostile: **assault** (`eAssaultDuty`).
   - a planet, for a transport or engineer: the ship's **arrive** action (land, capture) runs on
     arrival. These actions are filtered on the object arrived at, so they do nothing at a bare point.
-- **Selection is single.** Each admiral has one **control** (`_considerShip`, `Admiral::control()`)
-  and one **target** (`_destinationObject`, `Admiral::target()`), set by `select_object`
-  (`player-ship.cpp` ~214).
+- **Selection is single.** `select_object` (`player-ship.cpp` ~214) sets control or target.
   - Click picking is `PlayerShipHandleClick` (~1052) with `GetSpritePointSelectObject`. It searches
     ±16 logical px around the click, using where each sprite was drawn.
-  - The 10 hotkeys (`globals()->hotKey`) hold one object each.
+  - The 10 hotkeys (`globals()->hotKey`, keys 1–0) each hold **one** object: tap to select (or
+    target with Shift), hold 0.85 s to assign.
+  - A hotkey whose object has died is cleared the next time it is pressed (`handle_hotkeys` ~749).
+- **Ownership changes keep the destination.** When a ship is captured, `set_owner` (`space-object.cpp`
+  ~595) leaves its destination alone. `control()` stops returning it, because control is only a
+  ship the admiral owns.
 
 ### 1.3 How a ship flies and fights (`ThinkObjectNormalPresence`)
 
@@ -199,14 +218,14 @@ Two smaller data facts:
   - The handle and id pair is the same check hotkeys use, so a destroyed and reused object slot
     drops out.
   - Its first entry is always `control()`. Single-selection code then needs no change.
-  - Invalid entries (dead, recaptured by the enemy, id changed) are pruned whenever the list is
-    read.
-- **Groups beside the hotkeys** in `globals()`: 10 lists of the same pairs.
+  - Invalid entries (dead, captured, id changed) are pruned whenever the list is read.
+- **Groups beside the hotkeys** in `globals()`: 10 lists of the same pairs (§5.1).
 - **Per-ship order state in `SpaceObject`:**
   - an order mode (none, move, attack-move, patrol);
-  - up to 2 patrol points and the index of the next one.
+  - a patrol route of up to 8 points and the index of the next one.
 
-  About 24 bytes; the default constructor already clears new objects.
+  About 70 bytes, or 24 for two-point patrol only. The default constructor already clears new
+  objects.
 
 ### 2.2 Staying deterministic
 
@@ -222,8 +241,9 @@ that tick's sprite positions. Modern does the same:
     nothing.
 - **Right-click on empty space:** the click is converted to world coordinates at its tick with the
   inverse of `scale_to_viewport` (`motion.cpp` ~139), from `scaled_screen.bounds` and `.scale`.
-- **Modifiers:** mouse events carry none. Shift and Ctrl state comes from the queued key events
-  delivered earlier in the same tick; the multimap keeps them in arrival order.
+- **Modifiers:** mouse events carry none. Shift, Ctrl and Alt state, and an armed command key
+  (A, P), come from the queued key events delivered earlier in the same tick; the multimap keeps
+  them in arrival order.
 
 This keeps a local game deterministic. Like today's clicks, though, the result depends on the
 window size and zoom. If replay recording or network play ever return, the queue should carry
@@ -275,10 +295,8 @@ but the keys still work. This is an existing gap; Modern doesn't need to fix it 
   - they still use the shared ship AI;
   - an attack-move or patrol ship still evades when outgunned (faithful);
   - with no order, ships keep today's behaviour: stay put and fight what comes within range.
-- **What can be selected.** Box select takes only own ships that can accept orders: not the
-  flagship, not bases, not `kStaticDestination` ships.
-  - Clicking a base still selects it alone, since Build needs a base as `control()`.
-  - Clicking the flagship selects it alone. Orders to it do nothing; autopilot stays on Shift+Tab.
+- **New ships head for your current target** (§1.2). In Modern a right-click on an enemy sets the
+  target, so ships you build afterwards also go there. That is today's behaviour, carried over.
 
 ## 3. Engaging on the move (attack-move and patrol)
 
@@ -294,14 +312,13 @@ at the limit, so the ship only fights after being hit or on arrival.
 2. **Attack-move:** call `SetObjectLocationDestination` (which leaves the clock at 0) and set order
    mode = attack-move.
    - One AI edit: in `ThinkObjectEngageTarget` (~1244), don't advance `timeFromOrigin` while the
-     mode is attack-move. The ship then fights each enemy it meets until it dies or leaves range,
-     and resumes the move.
+     mode is attack-move or patrol. The ship then fights each enemy it meets until it dies or leaves
+     range, and resumes the move.
    - Everything else (which enemy, approach, firing, evading) is the existing code.
-3. **Patrol:** attack-move plus two points.
+3. **Patrol:** attack-move plus a route.
    - In `NonplayerShipThink`, before `ThinkObjectNormalPresence`, a ship in patrol mode that is
-     within `max(arrive distance, 1/4 subsector)` of its current point gets the other point as its
-     destination. The patrol state is kept.
-   - "Point A" is the ship's position when the order is given.
+     within `max(arrive distance, 1/4 subsector)` of its current waypoint gets the next waypoint as
+     its destination. The patrol state is kept.
 4. **Cancelling:** any other destination (a new player order, a scripted `target` action, a
    creation action) clears the mode through the two setters (§1.6, rule 2).
 
@@ -309,7 +326,7 @@ All of this sits behind `order mode != none`. Classic never sets it, so Classic 
 tests run the original code path. The patrol switch and the clock exception are each a few lines in
 the hot loop, and cost nothing when the mode is none.
 
-## 4. What the player sees and does
+## 4. What the player sees, at every scale
 
 All drawing is in logical pixels, like the rest of the game. At UI N× it is magnified with crisp
 nearest-neighbour pixels, so a 1 px line is N physical pixels and sizes stay in proportion to
@@ -317,37 +334,209 @@ sprites. On the wide window the play area is wider (2400×720 logical at 5120×1
 cover more ships and right-click points can be further to the sides; both use the same mapping.
 Mouse coordinates are already exact at every scale (M1).
 
-| Feature | Player does | Player sees | Draw notes |
-|---|---|---|---|
-| Mode toggle | Options › Key Controls: **Controls: Classic / Modern** (built in code next to Reset to Defaults), saved in `config.pn` | Takes effect from the next level; a tutorial notes it runs Classic | Built in code like Video options; not in data |
-| Click select | Left-click an own ship | Yellow CONTROL label (as now) plus a selection marker | |
-| Shift-click | Adds or removes a ship | Marker appears or disappears | Shift is Classic's target modifier, so Modern's Shift means "add" with the mouse only |
-| Box select | Left-drag from empty space in the play area; a drag starting over the panels is ignored | Thin yellow rubber-band rectangle while dragging; markers on release | Clipped to the viewport; drawn after sprites, before the panels |
-| Selection markers | n/a | Four small yellow corner brackets around each selected ship, at least 5 px so 1:16 blips still read; the primary is brighter | Sprite size × current scale, from `sprite->where`; off-screen ships aren't marked (radar highlighting is optional) |
-| Right-click | On empty space: move. On an enemy: attack. On a friend or base: escort or guard. On a planet: capture (transports) | A short-lived marker at the point (a green ring for move); the target gets the sky-blue TARGET label, as a Classic right-click does | Order sound `sys.sound.order()` |
-| Attack-move | **Ctrl + right-click** on empty space or an enemy | Red ring at the point | Ctrl is free with the mouse in Modern (§5, groups) |
-| Patrol | **P**, then right-click the far point (left-click cancels) | While armed, the crosshair is tinted; then a blue dashed line between the two points for selected patrolling ships, with a small diamond at each end | World points converted with `scale_to_viewport` each frame |
-| Order cursor | Hover in the play area | The existing crosshair, tinted by what a right-click would do (red over an enemy, green over empty space, blue while patrol is armed) | Today's cursor is drawn as lines (`GameCursor::draw`), so no new art |
-| Control groups | **Ctrl+1…0** assigns the selection; **1…0** selects it; Shift+number adds to the selection | A small digit beside each member's marker; the CONTROL line reads the primary's name plus "+N" | Digits in the tactical font |
-| Wheel zoom | Wheel | As now (both modes) | Done |
+| Element | Looks like | Draw notes |
+|---|---|---|
+| Mode toggle | Options › Key Controls: **Controls: Classic / Modern**, next to Reset to Defaults; saved in `config.pn`, takes effect from the next level | Built in code like Video options; not in data |
+| Selection box | Thin yellow rubber-band rectangle while dragging | Clipped to the viewport; drawn after sprites, before the panels; a drag starting over the panels is ignored |
+| Selected-ship markers | Four small yellow corner brackets around each selected ship, at least 5 px so 1:16 blips still read; the primary (the control object) is brighter and keeps the yellow CONTROL label | Sprite size × current scale, from `sprite->where`; off-screen ships aren't marked (optionally highlighted on the radar) |
+| Order feedback | A short-lived ring at the clicked point: green for move, red for attack-move, blue for a patrol point. The order sound plays (`sys.sound.order()`). A right-clicked object gets the sky-blue TARGET label as in Classic | |
+| Order cursor | The existing crosshair, tinted by what a right-click would do: red over an enemy (attack), green over empty space (move), cyan over a friend (escort or guard); red while attack-move is armed, blue while patrol is armed | Today's cursor is drawn as lines (`GameCursor::draw`), so no new art |
+| Patrol route | For selected patrolling ships: a dashed blue line through the waypoints, a small diamond at each, the next waypoint brighter, the closing leg dimmer | World points converted with `scale_to_viewport` each frame and clipped to the viewport; dashes 4 px on, 4 px off at every UI scale |
+| Group numbers | A small digit in the tactical font beside each member's marker. The CONTROL line reads the primary's name plus "+N" | |
 
 **Things the game doesn't have yet:**
 
-- a control-mode preference and the toggle;
+- the control-mode preference and toggle;
 - the mode captured per level, with Classic forced for replays, demos and tutorials;
 - a selection list in `Admiral`, and group lists;
 - a screen-to-world inverse of `scale_to_viewport`;
 - per-ship order state, the move/attack-move/patrol setters, the clock exception and the patrol
   step;
-- Modern mouse handling in `PlayerShip` (drag tracking, modifier tracking from key events, the P
-  arming state);
-- drawing: rubber band, markers, order rings, patrol lines, group digits, cursor tint;
+- Modern mouse handling in `PlayerShip`:
+  - drag tracking;
+  - modifier tracking from key events;
+  - the armed A and P command states;
+  - double-tap timing for groups;
+- drawing: rubber band, markers, order rings, patrol routes, group digits, cursor tint;
 - minicomputer Special Orders (Hold, Come To Me, Fire) applied to every selected ship;
-- Ctrl handled differently in Modern. The Order key is Ctrl and fires on key-down, which would
-  collide with Ctrl+number and Ctrl+right-click. In Modern, Order fires on Ctrl **release** only if
-  nothing else was pressed meanwhile; a rebindable Modern preset is M2 stage 4.
+- Ctrl handled differently in Modern. The Order key is Ctrl and fires on key-down, which collides
+  with Ctrl+number. In Modern, Order fires on Ctrl **release** only if nothing else was pressed
+  meanwhile; a rebindable Modern preset is M2 stage 4.
 
-## 5. Effort, risk, order and "done when"
+## 5. The requested behaviours in detail
+
+Each subsection says what the player does, what the engine does, and what it means in the original
+design's terms: one flagship you fly, one control object, one target, and AI-flown ships steered
+only by their destinations.
+
+### 5.1 Control groups
+
+**What the player does**
+
+- **Assign:** select ships, then press **Ctrl+1…9 or 0**.
+  - The group becomes exactly the current selection, replacing what it held, and the digits
+    appear on the members.
+  - Assigning an empty selection clears the group.
+- **Select:** press the number. The group's live members become the selection; the first one is
+  the primary.
+  - **Shift+number** adds the group to the current selection.
+- **Double-tap the number** (two presses within 0.4 s). C&C jumps the camera to the group, but
+  **the camera is locked to your flagship** (`scaled_screen` is centred on `g.ship`, `motion.cpp`
+  ~421), so it can't jump. Until the camera work (M2 stage 7) is decided, a double-tap:
+  - shows the CONTROL label's off-screen pointer (`keepOnScreenAnyway` and its hint line, already
+    used for off-screen labels) at the group's primary for 2 s;
+  - brackets the group on the radar.
+
+  Two alternatives, both not recommended: Transfer Control (F8) to the primary moves the camera
+  but changes which ship you fly; a view-only "fit the group" zoom would mean a zoom level outside
+  `g.zoom`, which levels test.
+
+**When ships are destroyed or captured**
+
+- **A member is destroyed:** it drops out of the group the next time the group is used, by the
+  same handle and id check that clears dead hotkeys today. The other members stay.
+- **A member is captured:** it drops out, because a group only holds ships you own (§1.2).
+- **The primary dies:** the next live member becomes the primary when the group is selected.
+- **The whole group is gone:**
+  - the number selects nothing;
+  - a short warning sound plays (`sys.sound.warning()`, as Classic does for an impossible order);
+  - the digit is free to assign again;
+  - the current selection is left as it was, not emptied.
+- **The flagship in a group:** it can be a member, and it is selected with the group, but group
+  orders skip it, because you fly it yourself.
+
+**In the original design's terms**
+
+- Today's hotkeys 1–0 hold one object each, which can be your own ship, a base or an enemy; tapping
+  selects or targets it.
+- In Modern the same 10 keys hold groups of your **own** ships. Enemies and bases can't be grouped:
+  you target them by right-clicking, and you select a base for Build by clicking it.
+- Classic keeps the original hotkeys unchanged.
+
+### 5.2 Drag selection and right-click orders
+
+**Selecting**
+
+- **Left-click** an own ship: select it alone. It becomes the control object, as in Classic.
+- **Left-drag** from empty space: a box. Releasing it selects every own ship inside that can take
+  orders: `kCanAcceptDestination`, not `kStaticDestination`, not a base, not the flagship.
+  - The ship nearest the box's centre becomes the primary.
+- **Shift+click** adds a ship, or removes one already selected.
+- **Shift+drag** adds the box's ships to the selection.
+- Clicking a base or the flagship selects it alone. A base still needs to be the control object
+  for Build.
+
+**Right-click is context-sensitive**
+
+What a right-click does depends on what's under the cursor, picked with the same ±16 px search as
+today's clicks:
+
+| Under the cursor | Order | Engine | Behaviour |
+|---|---|---|---|
+| Enemy ship or base | **Attack it** | Set target, then the object order (as Ctrl): `eAssaultDuty` | Flies at it and engages; fights back if hit on the way |
+| Friendly ship | **Follow (escort)** | Object order on a friendly ship: `eEscortDuty` | Flies to it, then matches its heading and warps when it warps: the game's own follow |
+| Friendly base | **Guard** | Object order on a friendly base: `eGuardDuty` | Flies to it and stays, fighting anything that comes within engage range |
+| Planet (with a transport or engineer) | **Capture or land** | Object order; the ship's arrive action | As Classic |
+| Empty space | **Move there** | New: point destination with the clock started at 15 s | Flies there; fights only if hit; stops and holds there |
+
+With several ships selected, every orderable one gets the same order; the flagship is skipped.
+With nothing but the flagship selected, a right-click only targets, as a Classic right-click does.
+
+**Plain move against attack-move**
+
+| | Move (right-click empty space) | Attack-move |
+|---|---|---|
+| Gesture | Right-click | See below |
+| On the way | Doesn't turn aside; fires only at what is in its arcs; fights back if hit | Turns aside to engage every enemy within engage range, fights it until it is dead or out of range, then goes on |
+| 15 s give-up | Starts used up, so the ship doesn't turn aside to fight | Never grows, so the ship doesn't break off a fight |
+| Engine | Existing point order with `timeFromOrigin` set to 15 s | Existing point order, `timeFromOrigin` 0, plus an order-mode flag that stops it growing (`ThinkObjectEngageTarget` ~1244) |
+
+**The attack-move gesture**
+
+- **A, then left-click** (the RTS convention): A arms attack-move, the cursor turns red, the next
+  left-click gives the order, and Esc or a right-click disarms it.
+  - It needs A to be free. The planned Modern flight keys are WASD (`controls-investigation.md`
+    §5), where A turns left.
+  - So Modern flight must stay on the keypad or arrows, or attack-move moves to another letter.
+- **Alt+right-click.** Alt is Fire 1 in the Classic defaults (Left Alt), so in Modern it would
+  also fire weapon 1 unless Modern moves Fire 1 off Alt.
+- **Ctrl+right-click.** Conflict-free in both presets once Ctrl acts as a modifier in Modern (§4).
+- **Recommendation:** build it as **A, then left-click**, with **Ctrl+right-click** as an
+  always-available second gesture. Decide WASD against A when the Modern preset is set (M2 stage
+  4). Both reach the same order.
+
+**What the engine must do for attack-move to engage on the way**
+
+- A point destination, and `timeFromOrigin` left at 0.
+- The order-mode flag that keeps the 15 s clock from growing, so the first-branch engage condition
+  (`timeFromOrigin < 15 s`, ~454) stays true.
+- Nothing else. Choosing the nearest enemy, closing in, firing, evading and resuming the
+  destination are all existing code.
+- "Met on the way" means within engage range: about two subsectors, or the ship's longest weapon
+  range if that is longer. Only enemies its data says it engages count (`ai.combat.engages` tags).
+  That is how every AI ship already picks fights.
+
+### 5.3 Patrol
+
+**What the player does**
+
+- **P, then left-click a point.** Each selected ship patrols back and forth between where it is
+  now and that point.
+- **Shift+left-click** while patrol is still armed adds more waypoints, up to 8. The route then
+  loops through them: here → 1 → 2 → … → here → 1 …
+- Esc or a right-click disarms P without giving an order.
+- **Shift+right-click on empty space while ships are patrolling** appends a waypoint to their
+  route. Outside a patrol it queues nothing; move queues are left out (§6).
+- **Patrolling ships keep going until given another order.** Any new order replaces the patrol:
+  a right-click, a minicomputer order, or a scripted order from the level.
+- **They engage enemies they meet, then resume.** Between waypoints they behave as on attack-move.
+  When a fight ends, the ship returns to its destination, which is still the current waypoint.
+
+**What exists and what is new**
+
+| Part | Exists? |
+|---|---|
+| Flying to a point, braking, holding | Yes: point destinations |
+| Engaging enemies met, then resuming | Yes: the first-branch engage, plus the attack-move flag (§3) |
+| Evading a stronger enemy | Yes (faithful; a patrol ship may flee) |
+| A route of points, and moving on at each | **New:** the per-ship route (§2.1) and the step in `NonplayerShipThink` (§3) |
+| Cancel on any other order | **New:** cleared by the destination setters (§1.6) |
+
+**How the route is drawn**
+
+- When patrolling ships are selected: a dashed blue line through their waypoints, a small diamond
+  at each, the next waypoint brighter, and the closing leg back to the start dimmer.
+- Unselected patrolling ships show nothing, to keep the battle view clean.
+- Waypoints are world points converted to the screen each frame, so they stay put while the view
+  moves and zooms with the flagship. Legs that leave the viewport are clipped.
+- At 1:16 a route can span the screen; at 2:1 it is usually off screen. Then only the on-screen
+  part draws, and the radar shows nothing extra.
+
+**In the original design's terms:** a patrol is a destination that changes by itself. To the rest
+of the game, a patrolling ship is an AI ship with a point destination, like a Hold Position ship
+whose point moves along a route.
+
+### 5.4 What this means for ships you don't fly
+
+- **Every order goes to AI-flown ships.** You only ever give a ship a destination and, with the
+  new flag, permission to keep fighting. Its skill, weapon choice, evasion and fleeing come from
+  its data, exactly as for the enemy's ships. Modern changes what you can say to your fleet, not
+  how it flies.
+- **The single control object stays.** It is the primary of the selection. Everything built on it
+  keeps working:
+  - the CONTROL line;
+  - Build at a base;
+  - Transfer Control (F8);
+  - the tutorials' `{control: 0}` checks.
+- **The flagship stays yours.** It is never moved by Modern orders. Autopilot (Shift+Tab) still
+  flies it to the target.
+- **Ships with a static destination can't be ordered,** in Classic as in Modern. Box select leaves
+  them out.
+- **New ships head for your target** (§1.2).
+- **Scripted orders override Modern ones** (§1.6), so a level can still take a ship away for its
+  story.
+
+## 6. Effort, risk, order and "done when"
 
 Effort: **S** about a session, **M** two or three, **L** more. Each step is its own commit with
 tests.
@@ -355,36 +544,38 @@ tests.
 | # | Feature | Effort | Risk | Done when |
 |---|---|---|---|---|
 | A | **Toggle and plumbing:** preference, Options control, mode captured at level start, Classic forced for replays, demo and tutorials | S | Low | Toggle saves and survives a restart; with Modern on, all 26 tests pass and the 16 replays are identical; a tutorial started in Modern runs Classic |
-| B | **Right-click orders for the current control ship:** move to point, plus attack, escort, guard and capture via the existing order; order marker; cursor tint | S–M | Low–medium | Unit test: screen→world→screen round trip within 1 px at UI 1×–4× and on the 5120-wide window at every zoom. In game: a selected ship flies to the clicked point and stops there; right-clicking a planet with a transport captures it; Classic right-click still only targets; masks honoured |
-| C | **Attack-move** | S | Medium (touches the AI loop, guarded by the mode) | Test scenario (scratchpad override folder): a ship attack-moved past a non-firing enemy station destroys it before going on; the same ship plain-moved passes it; hit while plain-moving, it fights back; replays identical |
-| D | **Multi-select:** click, shift-click, box, markers, orders and minicomputer special orders to all selected | M–L | Medium | Box select at UI 1×–4× and wide picks exactly the own orderable ships inside (unit test on the selection filter, in-game check); a right-click moves all of them; dead ships drop out; tut2 and tutz `{control: 0}` checks still pass (in Classic) |
-| E | **Control groups** | M | Low–medium | Ctrl+n assigns, n reselects after other selections, dead members drop out, digits drawn; Ctrl alone still orders (on release); Classic hotkeys unchanged |
-| F | **Patrol** (two points) | M | Medium | Test scenario: a ship patrols A↔B for 3 loops, engages an enemy entering the route and resumes; a level `target` action on it cancels the patrol; a new order cancels it |
+| B | **Right-click orders for the current control ship:** move, attack, escort, guard, capture; order rings; cursor tint | S–M | Low–medium | Unit test: screen→world→screen round trip within 1 px at UI 1×–4× and on the 5120-wide window at every zoom. In game: a ship flies to the clicked point and holds there; right-clicking a friend makes it follow, an enemy makes it attack, a planet with a transport captures it; Classic right-click still only targets; masks honoured |
+| C | **Attack-move:** A then click, and Ctrl+right-click | S | Medium (touches the AI loop, guarded by the mode) | Test scenario (scratchpad override folder): a ship attack-moved past a non-firing enemy station destroys it before going on; plain-moved, it passes; hit while plain-moving, it fights back; replays identical |
+| D | **Multi-select:** click, shift-click, box, markers, orders and Special Orders to every selected ship | M–L | Medium | Box select at UI 1×–4× and wide picks exactly the own orderable ships inside (unit test on the selection filter, in-game check); a right-click moves all of them; dead and captured ships drop out; tut2 and tutz `{control: 0}` checks still pass (in Classic) |
+| E | **Control groups:** Ctrl+n, n, Shift+n, double-tap pointer, digits | M | Low–medium | n reselects after other selections; a destroyed member drops out and the rest stay; a fully destroyed group gives the warning sound and leaves the selection alone; Ctrl alone still orders (on release); Classic hotkeys unchanged |
+| F | **Patrol, two points:** P then click; route drawing | M | Medium | Test scenario: a ship patrols A↔B for 3 loops, engages an enemy entering the route and resumes; a level `target` action cancels the patrol; a new order cancels it |
+| G | **Patrol routes, up to 8 points:** Shift+click after P; Shift+right-click to append | S | Low (F's machinery) | A 4-point route loops in order; the route draws correctly at UI 1×–4× and on the wide window |
 
-**Order:** A → B → C → D → E → F.
+**Order:** A → B → C → D → E → F → G.
 
 - B and C give the biggest change in feel for little risk and work before multi-select.
 - D is the largest piece and needs B's orders.
 - E needs D's lists.
 - F needs C's engage rule.
+- G only extends F.
 
 **Advise leaving out:**
 
 - **Formations or spreading:** ships ordered to one point bunch up. The original never formed up,
   and spacing changes collisions and arrival logic. Revisit only if bunching looks bad in play.
-- **Patrol queues of more than two points, and shift-queued waypoints:** more UI and state for
-  little gain in Ares-sized battles.
+- **Queued move orders (shift-queued moves outside patrol):** more state and UI for little gain in
+  Ares-sized battles. Patrol routes cover the useful part.
 - **Ordering the flagship by mouse (autopilot to a point):** autopilot works with target objects
-  only; you fly the flagship yourself.
+  only, and you fly the flagship yourself.
 - **Mouse firing and aiming in Modern:** the mouse buttons select and order, so firing stays on
-  keys. This answers the open question in `design.md` §10.
-- **Camera panning or jump-to-group:** the view stays centred on the flagship. That is the separate
-  camera question (M2 stage 7).
+  keys.
+- **Camera jumps and panning:** the view stays centred on the flagship (M2 stage 7). The
+  double-tap pointer (§5.1) stands in until that is decided.
 - **Select all of a type (double-click):** cheap after D, but not asked for. Optional later.
 
-## 6. Relation to the M2 plan
+## 7. Relation to the M2 plan
 
 This replaces M2 stages 6 (Modern mouse actions) and 8 (multi-select) of
-`docs/controls-investigation.md` §6 with steps A–F above. Stage 4 (the binding model) is still
-needed to make the Modern gestures rebindable. A–F hard-wire them (P, Ctrl+right-click,
+`docs/controls-investigation.md` §6 with steps A–G above. Stage 4 (the binding model) is still
+needed to make the Modern gestures rebindable. A–G hard-wire them (A, P, Ctrl+right-click,
 Ctrl+number) until then.
