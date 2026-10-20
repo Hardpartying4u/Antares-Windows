@@ -39,7 +39,7 @@ Context: **battle** = in a mission; **menu** = interface screens; **any** = ever
 | Input (default) | Action | Context | Read in / decided in |
 |---|---|---|---|
 | Keypad 8 / 5 / 4 / 6 | Accelerate / decelerate / turn CCW / turn CW (held) | battle | `PlayerShip::key_down/up` → key bits → flagship `keysDown`, `player-ship.cpp` ~328–460 |
-| Left Alt / Left Win | Fire weapon 1 / 2 (held) | battle | same |
+| Left Alt / Left Win (X / Z since 2026-10-20) | Fire weapon 1 / 2 (held) | battle | same |
 | Space | Fire or activate special (held) | battle | same |
 | Tab | Warp (held); with Target held: autopilot to target | battle | same; `TogglePlayerAutoPilot` ~1102 |
 | Keypad Clear | Select friendly (cycle control in facing direction); with Target: target a friendly | battle | `select_object`/`pick_object` ~200–296 |

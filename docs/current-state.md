@@ -48,7 +48,8 @@ GLFW (src/glfw/video-driver.cpp)
 - **Presets** (data tables in `src/config/bindings.cpp`):
   - **Classic** (the default) is the game as it was: the keys below, the wheel as the secondary
     binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move and patrol are
-    unbound.
+    unbound. One exception: since 2026-10-20 the fire keys are X and Z, not Left Alt and the
+    Windows key (§1.2).
   - **Modern: Ares** (Modern (Ares-style), the default Modern layout since 2026-10-20). The arrow
     keys steer, the PC equivalent of Ares' keypad 8-4-5-6. Every other fire and action key is under
     the left hand:
@@ -111,8 +112,8 @@ GLFW (src/glfw/video-driver.cpp)
 | Decelerate | Keypad 5 | Brake while held (`kDownKey`) |
 | Turn counter-clockwise | Keypad 4 | Rotate while held (`kLeftKey`) |
 | Turn clockwise | Keypad 6 | Rotate while held (`kRightKey`) |
-| Fire weapon 1 | Option (Left Alt) | Fire pulse weapon while held (`kPulseKey`) |
-| Fire weapon 2 | Command (Left Win) | Fire beam weapon while held (`kBeamKey`) |
+| Fire weapon 1 | X (Ares and Classic until 2026-10-20: Option, i.e. Left Alt) | Fire pulse weapon while held (`kPulseKey`) |
+| Fire weapon 2 | Z (until 2026-10-20: Command, i.e. the left Windows key) | Fire beam weapon while held (`kBeamKey`) |
 | Fire/activate special | Space | Special weapon/device while held (`kSpecialKey`) |
 | Warp | Tab | Warp while held. **With Target (Shift) held: engage autopilot** toward the target |
 
@@ -186,7 +187,27 @@ sent as real key presses).** Both break play:
   - On release, the Start menu (Search) opened and took focus.
   - Fullscreen, the game minimized.
 
-The Modern presets bind neither key. Classic is unchanged pending a decision (`docs/design.md` §10).
+**Changed 2026-10-20:** Classic's fire 1 is now X and fire 2 Z, the keys just above Left Alt and
+the Windows key. Neither was used by another Classic action, and no preset binds Alt or the Windows
+keys any more.
+
+Saved configs move to the new keys only where both hold:
+- fire 1 is still on Left Alt, or fire 2 still on the left Windows key;
+- the new key isn't used by another action.
+
+This applies to configs written before the change (version 1 and 2) that are on the Classic preset
+(`migrate_classic_fire_keys`, `src/config/preferences.cpp`). Saves are now version 3, so a key chosen
+afterwards is never moved.
+
+**Checked in game (2026-10-20):**
+- Key Controls shows X and Z at UI 1×, 2× and 4×.
+- In a level, X, Z and Tab held together (both weapons while warping) kept the game in the
+  foreground and never minimized it: windowed at 1×, 2× and 4×, and fullscreen.
+- At 2× the pulse and the beam both fired as the warp started.
+- A config still on Left Alt and the Windows key was saved back with X and Z.
+
+Tutorial messages name the player's keys. The `replay` test tool keeps Ares' Option and Command for
+the fire keys, so its output matches the recorded test data (`src/bin/replay.cpp`).
 
 ### 1.3 Mouse
 

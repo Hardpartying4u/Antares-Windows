@@ -37,11 +37,15 @@ using sfz::path::dirname;
 
 namespace antares {
 
-// The config is version 2 since 2026-10-20: bindings for every action (two keyboard-and-mouse and
-// one gamepad) and the selected preset, under "controls". Version 1 (no version field) only had
-// "keys", one key per original action; it loads as the Classic preset with those keys. Version 2
-// also writes "keys", so an older build can still read the keys it knows.
-static const int64_t kConfigVersion = 2;
+// Config versions:
+//  1. (no version field) "keys": one key per original action. Loads as the Classic preset with
+//     those keys.
+//  2. (2026-10-20) bindings for every action (two keyboard-and-mouse and one gamepad) and the
+//     selected preset, under "controls". Still writes "keys", so an older build can read the keys
+//     it knows.
+//  3. (2026-10-20) the same as 2, written after Classic's fire keys moved to X and Z. Versions 1 and
+//     2 have the fire-key move applied on load (migrate_classic_fire_keys).
+static const int64_t kConfigVersion = 3;
 
 static const char* const kSlotNames[kBindingSlots] = {"primary", "secondary", "gamepad"};
 
@@ -95,6 +99,7 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
     set(_current.play_idle_music, sound.get("idle music"));
     set(_current.play_music_in_game, sound.get("game music"));
 
+    const int64_t version = m.get("version").is_int() ? m.get("version").as_int() : 1;
     if (m.get("controls").is_map()) {
         pn::map_cref controls = m.get("controls").as_map();
         if (controls.get("preset").is_string()) {
@@ -132,6 +137,11 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
             }
         }
         migrate_unreachable_defaults(&_current);
+    }
+    if ((version < 3) && (_current.controls_preset == ControlPreset::CLASSIC)) {
+        // Left Alt and the Windows key were Classic's defaults; on a Modern preset they are a
+        // player's own choice.
+        migrate_classic_fire_keys(&_current);
     }
 
     pn::map_cref video = m.get("video").as_map();

@@ -179,5 +179,5 @@ New factions or missions, multiplayer, moving to Unity or Unreal, real 3D gamepl
 - M2 Modern: should tutorials always run Classic, since their text and checks teach the Classic keys? (Proposed: yes; `docs/modern-controls.md` §2.4.)
 - ~~M2 Modern: A then click for attack-move, or WASD flight?~~ Decided 2026-10-20: flight stays on WASD; attack-move is Ctrl+right-click plus a rebindable key (G).
 - ~~M2 Modern: is a pointer to the group enough for a double-tapped group number?~~ Decided 2026-10-20: yes, until the camera work.
-- M2 Classic: Left Alt (fire 1) + Tab (warp) opens Windows' app switcher and switches away, and the left Windows key (fire 2) opens the Start menu on release; fullscreen, both minimize the game (tested 2026-10-20, `docs/current-state.md` §1.2). Proposed: move fire 1 to X and fire 2 to Z, the keys just above Left Alt and the Windows key, and move saved configs still on the old keys. Awaiting a decision.
+- ~~M2 Classic: Left Alt (fire 1) + Tab (warp) and the left Windows key (fire 2) take the game out of focus.~~ Decided 2026-10-20: Classic's fire 1 is X and fire 2 is Z. Saved Classic configs still on the old keys move, unless the new key is taken (`docs/current-state.md` §1.2).
 - Should new sprite art keep the original silhouettes exactly? Collision bounds come from the 1× frame sizes, so changing them changes gameplay.

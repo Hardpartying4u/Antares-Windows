@@ -58,6 +58,12 @@ struct Preferences {
 // action already uses the new key. Other bindings are left as saved. Returns how many were moved.
 int migrate_unreachable_defaults(Preferences* p);
 
+// Saved configs from before 2026-10-20 (version 1 and 2) have Classic's old fire keys: Left Alt
+// (Option) for fire 1 and the left Windows key (Command) for fire 2, which Windows takes over
+// (Alt+Tab with warp, the Start menu). Moves each primary binding still on that old key to X (fire
+// 1) or Z (fire 2), unless another action already uses the new key. Returns how many were moved.
+int migrate_classic_fire_keys(Preferences* p);
+
 class PrefsDriver {
   public:
     PrefsDriver();

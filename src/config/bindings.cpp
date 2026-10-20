@@ -57,14 +57,16 @@ const Binding kWheelDown = Binding::wheel(-1);
 
 // Ares' layout, with the PC keys chosen on 2026-10-20 for the three it had on keys PC keyboards
 // lack, the wheel zoom of 2026-10-20 and the Ares gamepad mapping. Attack move and patrol are
-// unbound: they belong to the Modern mode.
+// unbound: they belong to the Modern mode. The fire keys are X and Z, just above where Ares had
+// them (Option and Command, Left Alt and the Windows key on a PC): Left Alt with Tab (warp) opens
+// Windows' app switcher and the Windows key opens the Start menu, both taking the game out of focus.
 const PresetRow kClassic[] = {
         {kUpKeyNum, K(Key::N8), kNone, P(Pad::A)},
         {kDownKeyNum, K(Key::N5), kNone, P(Pad::B)},
         {kLeftKeyNum, K(Key::N4), kNone, kNone},
         {kRightKeyNum, K(Key::N6), kNone, kNone},
-        {kOneKeyNum, K(Key::OPTION), kNone, P(Pad::RT)},
-        {kTwoKeyNum, K(Key::COMMAND), kNone, P(Pad::RT)},
+        {kOneKeyNum, K(Key::X), kNone, P(Pad::RT)},
+        {kTwoKeyNum, K(Key::Z), kNone, P(Pad::RT)},
         {kEnterKeyNum, K(Key::SPACE), kNone, P(Pad::LT)},
         {kWarpKeyNum, K(Key::TAB), kNone, P(Pad::LSB)},
         {kSelectFriendKeyNum, K(Key::N_PERIOD), kNone, kNone},

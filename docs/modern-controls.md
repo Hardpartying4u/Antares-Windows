@@ -583,7 +583,8 @@ Ctrl+number) until then.
 
 ## 8. The Modern presets (approved 2026-10-20)
 
-There are three presets: Classic, unchanged; **Modern: Ares**, the default Modern layout; and
+There are three presets: Classic (unchanged, except that its fire keys are X and Z since 2026-10-20);
+**Modern: Ares**, the default Modern layout; and
 **Modern: WASD**.
 
 - Inputs no preset can bind: Esc, Return and Caps Lock; the left and right mouse buttons; the

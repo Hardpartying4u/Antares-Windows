@@ -245,6 +245,12 @@ void main(int argc, char* const* argv) {
 
     Preferences preferences;
     preferences.play_music_in_game = true;
+    // Replays play back actions, so bindings don't change the game, but tutorial messages name the
+    // player's keys. Use the fire keys these replays were recorded with (Ares' Option and Command,
+    // Classic's defaults until 2026-10-20) so the text matches the expected output in test/, which
+    // is upstream's test data.
+    preferences.bindings[kOneKeyNum].slot[kPrimarySlot] = Binding::key(Key::OPTION);
+    preferences.bindings[kTwoKeyNum].slot[kPrimarySlot] = Binding::key(Key::COMMAND);
     NullPrefsDriver prefs(preferences.copy());
 
     EventScheduler scheduler;

@@ -51,7 +51,21 @@ TEST_F(BindingsTest, ClassicMatchesTodaysControls) {
         }
     }
     EXPECT_EQ(c[kUpKeyNum].slot[kPrimarySlot], Binding::key(Key::N8));
-    EXPECT_EQ(c[kOneKeyNum].slot[kPrimarySlot], Binding::key(Key::OPTION));
+    EXPECT_EQ(c[kOneKeyNum].slot[kPrimarySlot], Binding::key(Key::X));  // not Left Alt (Alt+Tab)
+    EXPECT_EQ(c[kTwoKeyNum].slot[kPrimarySlot], Binding::key(Key::Z));  // not the Windows key
+    EXPECT_THAT(actions_for(c, Binding::key(Key::X)), ::testing::ElementsAre(int(kOneKeyNum)));
+    EXPECT_THAT(actions_for(c, Binding::key(Key::Z)), ::testing::ElementsAre(int(kTwoKeyNum)));
+    for (ControlPreset p : kControlPresets) {  // no preset binds Alt or the Windows keys any more
+        ActionBindings b[ACTION_COUNT];
+        apply_preset(p, b);
+        for (int a = 0; a < ACTION_COUNT; ++a) {
+            for (int s = 0; s < kBindingSlots; ++s) {
+                for (Key::Value k : {Key::OPTION, Key::COMMAND, Key::R_OPTION, Key::R_COMMAND}) {
+                    EXPECT_NE(b[a].slot[s], Binding::key(Key(k))) << a;
+                }
+            }
+        }
+    }
     EXPECT_EQ(c[kSelectFriendKeyNum].slot[kPrimarySlot], Binding::key(Key::N_PERIOD));
     EXPECT_EQ(c[kOrderKeyNum].slot[kPrimarySlot], Binding::key(Key::CONTROL));
     EXPECT_EQ(c[kVolumeDownKeyNum].slot[kPrimarySlot], Binding::key(Key::F2));
@@ -250,7 +264,7 @@ TEST_F(BindingsTest, Version2RoundTrip) {
     pn::value x;
     pn::input in{kV2Config, pn::text};
     ASSERT_TRUE(pn::parse(in, &x, nullptr));
-    EXPECT_EQ(x.as_map().get("version").as_int(), 2);
+    EXPECT_EQ(x.as_map().get("version").as_int(), 3);
     EXPECT_EQ(x.as_map().get("keys").as_map().get("ship accel").as_int(), Key(Key::W).value());
     EXPECT_EQ(x.as_map().get("keys").as_map().get("help").as_int(), 0);  // no key: 0
 }
@@ -286,6 +300,70 @@ TEST_F(BindingsTest, Version2OldModernLoadsAsWasd) {
     EXPECT_TRUE(prefs.controls_preset() == ControlPreset::MODERN_WASD);
     EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::W));
     EXPECT_EQ(prefs.binding(kPatrolKeyNum, kPrimarySlot), Binding::key(Key::P));  // as saved
+}
+
+// Configs saved before 2026-10-20's fire-key change (version 1 and 2) still on Classic's old fire
+// keys get X and Z; anything the player set is kept.
+void write_v2_classic(const char* bindings) {
+    sfz::makedirs("out/test", 0755);
+    pn::output out{kV2Config, pn::text};
+    out.format("version: 2\ncontrols: {{preset: \"classic\", bindings: {{{0}}}}}\n", bindings);
+}
+
+TEST_F(BindingsTest, OldClassicFireKeysMove) {
+    write_v2_classic(
+            "\"fire 1\": {primary: {key: 226}}, \"fire 2\": {primary: {key: 227}}");
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::X));
+    EXPECT_EQ(prefs.binding(kTwoKeyNum, kPrimarySlot), Binding::key(Key::Z));
+}
+
+TEST_F(BindingsTest, OldClassicFireKeysMoveFromVersion1) {
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format("keys: {{\"fire 1\": 226, \"fire 2\": 227, \"warp\": 43}}\n");
+    }
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::X));
+    EXPECT_EQ(prefs.binding(kTwoKeyNum, kPrimarySlot), Binding::key(Key::Z));
+}
+
+TEST_F(BindingsTest, FireKeysThePlayerChoseStay) {
+    // Fire 1 rebound to Q (as the developer's own config has), fire 2 still on the Windows key but
+    // Z already used by select base: neither moves.
+    write_v2_classic(
+            "\"fire 1\": {primary: {key: 20}}, \"fire 2\": {primary: {key: 227}}, "
+            "\"select base\": {primary: {key: 29}}");
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::Q));
+    EXPECT_EQ(prefs.binding(kTwoKeyNum, kPrimarySlot), Binding::key(Key::COMMAND));
+    EXPECT_EQ(prefs.binding(kSelectBaseKeyNum, kPrimarySlot), Binding::key(Key::Z));
+}
+
+TEST_F(BindingsTest, FireKeysMoveOnlyOnce) {
+    // A version 3 config was written after the change: Left Alt there is the player's choice.
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 3\ncontrols: {{preset: \"classic\", bindings: {{"
+                "\"fire 1\": {{primary: {{key: 226}}}}}}}}\n");
+    }
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::OPTION));
+}
+
+TEST_F(BindingsTest, ModernFireKeysNotMoved) {
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 2\ncontrols: {{preset: \"modern-wasd\", bindings: {{"
+                "\"fire 1\": {{primary: {{key: 226}}}}}}}}\n");
+    }
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::OPTION));
 }
 
 // Bindings a file shouldn't hold (a reserved input, a gamepad button in a key slot) are ignored.

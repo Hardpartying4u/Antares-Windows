@@ -57,15 +57,17 @@ Preferences::Preferences() {
     enhanced_graphics = true;
 }
 
-int migrate_unreachable_defaults(Preferences* p) {
-    static const struct {
-        int key_num;
-        Key old_default;
-    } kMoved[] = {
-            {kSelectFriendKeyNum, Key::N_CLEAR},
-            {kSelectFoeKeyNum, Key::N_EQUALS},
-            {kScaleHostileKeyNum, Key::HELP},
-    };
+namespace {
+
+struct MovedDefault {
+    int key_num;
+    Key old_default;
+};
+
+// Moves each action's primary binding from its old default to its Classic default, where it still
+// has the old one and no other action uses the new key.
+template <size_t N>
+int move_old_defaults(Preferences* p, const MovedDefault (&kMoved)[N]) {
     ActionBindings classic[ACTION_COUNT];
     apply_preset(ControlPreset::CLASSIC, classic);
     int moved = 0;
@@ -85,6 +87,25 @@ int migrate_unreachable_defaults(Preferences* p) {
         }
     }
     return moved;
+}
+
+}  // namespace
+
+int migrate_unreachable_defaults(Preferences* p) {
+    static const MovedDefault kMoved[] = {
+            {kSelectFriendKeyNum, Key::N_CLEAR},
+            {kSelectFoeKeyNum, Key::N_EQUALS},
+            {kScaleHostileKeyNum, Key::HELP},
+    };
+    return move_old_defaults(p, kMoved);
+}
+
+int migrate_classic_fire_keys(Preferences* p) {
+    static const MovedDefault kMoved[] = {
+            {kOneKeyNum, Key::OPTION},
+            {kTwoKeyNum, Key::COMMAND},
+    };
+    return move_old_defaults(p, kMoved);
 }
 
 Key Preferences::key(int action) const {
