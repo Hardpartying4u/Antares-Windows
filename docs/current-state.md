@@ -265,6 +265,18 @@ held. Gamepad input switches on-screen labels to gamepad names; a key or click s
 `controls-test` covers the mapping and checks that each stick direction steers the flagship that
 way. Not yet tried with a real controller (none was connected when it was written).
 
+**Controller detection on Windows (2026-10-21, `docs/startup-timing.md`).** GLFW is built from
+`BUILD.gn`'s `:libglfw-win`, with an altered copy of its joystick file
+(`src/glfw/win32-joystick.c`); the `ext/glfw` submodule is unchanged.
+- `glfwInit()` and device arrival detect XInput pads only, which is instant.
+- The DirectInput scan, which can stall for many seconds on some HID devices, runs on a worker
+  thread. It starts when the main menu first shows (`VideoDriver::start_controller_scan`).
+- `poll_gamepad` opens the devices the scan found, on the main thread.
+- So a DirectInput-only pad works from a moment after the main menu, and a stalled scan never
+  blocks the game.
+- `--timing` marks: `sound init done`, `glfwInit done`, `window created`, `controller scan start`
+  and `controller scan done` (with its time in ms).
+
 Handled in `PlayerShip::gamepad_*` (`player-ship.cpp` ~519–692) and `GamePlay::gamepad_button_down`.
 Left stick steers (turns toward stick direction); A thrust, B brake, RT fire 1+2, LT special,
 LSB warp toggle, X/Y zoom out/in, Back next message, D-pad drives the minicomputer, Start opens

@@ -65,6 +65,7 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
     void        mouse_button(int button, int action, int mods);
     void        mouse_move(double x, double y);
     void        poll_gamepad();
+    virtual void start_controller_scan();
     void        scroll(double x, double y);
     void        window_size(int width, int height);
     void        window_maximize(bool maximized);
@@ -100,6 +101,7 @@ class GLFWVideoDriver : public OpenGlVideoDriver {
     MainLoop*       _loop;
     wall_time       _last_click_usecs;
     int             _last_click_count;
+    bool            _controller_scan_started = false;
     TextReceiver*   _text;
 };
 

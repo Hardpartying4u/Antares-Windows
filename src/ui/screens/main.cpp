@@ -114,6 +114,7 @@ void MainScreen::become_front() {
         case NORMAL:
             InterfaceScreen::become_front();
             timing_mark("main menu shown");
+            sys.video->start_controller_scan();
             sys.music.play(Music::IDLE, Music::title_song);
             _next_timer = (now() + kMainDemoTimeOutTime);
             break;

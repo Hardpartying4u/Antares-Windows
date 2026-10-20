@@ -36,6 +36,12 @@
 #include "config/preferences.hpp"
 #include "game/timing.hpp"
 
+#ifdef _WIN32
+// GLFW's DirectInput detection on a worker thread (src/glfw/win32-joystick.c).
+extern "C" void glfwStarboundStartJoystickScan(void);
+extern "C" int  glfwStarboundPollJoystickScan(double* ms);
+#endif
+
 using sfz::range;
 
 namespace antares {
@@ -190,6 +196,7 @@ GLFWVideoDriver::GLFWVideoDriver()
     if (!glfwInit()) {
         throw std::runtime_error("glfwInit()");
     }
+    timing_mark("glfwInit done");
     glfwSetErrorCallback(throw_error);
 }
 
@@ -458,7 +465,23 @@ void GLFWVideoDriver::mouse_move(double x, double y) {
 // Reads the first connected gamepad with a standard mapping (XInput pads and others GLFW knows)
 // and sends the changes as the gamepad events the game handles (see GamepadPoller). Called once a
 // frame from loop().
+void GLFWVideoDriver::start_controller_scan() {
+#ifdef _WIN32
+    if (!_controller_scan_started) {
+        _controller_scan_started = true;
+        timing_mark("controller scan start");
+        glfwStarboundStartJoystickScan();
+    }
+#endif
+}
+
 void GLFWVideoDriver::poll_gamepad() {
+#ifdef _WIN32
+    double scan_ms;
+    if (glfwStarboundPollJoystickScan(&scan_ms)) {  // DirectInput pads the worker found
+        timing_mark(pn::format("controller scan done\t{0} ms", static_cast<int>(scan_ms)));
+    }
+#endif
     GamepadPoller::State state;
     bool                 connected = false;
     for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid) {
@@ -615,6 +638,7 @@ void GLFWVideoDriver::loop(Card* initial) {
     if (!_window) {
         throw std::runtime_error("glfwCreateWindow");
     }
+    timing_mark("window created");
 
     // GLFW_SCALE_TO_MONITOR may have resized the window, so read back its real size.
     glfwGetWindowSize(_window, &_window_size.width, &_window_size.height);

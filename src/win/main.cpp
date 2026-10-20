@@ -191,6 +191,7 @@ void main(int argc, char* const* argv) {
 #else
     NullSoundDriver sound;
 #endif
+    timing_mark("sound init done");
     GLFWVideoDriver video;
     video.loop(new Master(scenario, time(NULL)));
 }

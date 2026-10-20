@@ -58,6 +58,10 @@ class VideoDriver {
 
     virtual wall_time now() const = 0;
 
+    // Called when the main menu shows: start detecting controllers that are slow to find
+    // (DirectInput on Windows, docs/startup-timing.md). The default does nothing.
+    virtual void start_controller_scan() {}
+
     virtual Texture texture(
             pn::string_view name, const PixMap& content, int scale,
             TextureFilter filter = TextureFilter::PIXELS) = 0;

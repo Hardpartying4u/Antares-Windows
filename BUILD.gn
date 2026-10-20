@@ -644,6 +644,37 @@ executable("build-pix") {
   configs += [ ":antares_private" ]
 }
 
+# On Windows GLFW is built here with an altered joystick file (src/glfw/win32-joystick.c, see
+# docs/startup-timing.md): DirectInput controller detection runs on a worker thread, not in
+# glfwInit(). The ext/glfw submodule is unchanged.
+if (target_os == "win") {
+  glfw_dep = ":libglfw-win"
+  glfw_src = "ext/glfw/glfw-3.3.2/src"
+  static_library("libglfw-win") {
+    sources = [
+      "$glfw_src/context.c",
+      "$glfw_src/egl_context.c",
+      "$glfw_src/init.c",
+      "$glfw_src/input.c",
+      "$glfw_src/monitor.c",
+      "$glfw_src/osmesa_context.c",
+      "$glfw_src/vulkan.c",
+      "$glfw_src/wgl_context.c",
+      "$glfw_src/win32_init.c",
+      "$glfw_src/win32_monitor.c",
+      "$glfw_src/win32_thread.c",
+      "$glfw_src/win32_time.c",
+      "$glfw_src/win32_window.c",
+      "$glfw_src/window.c",
+      "src/glfw/win32-joystick.c",
+    ]
+    public_configs = [ "//ext/glfw:libglfw_public" ]
+    configs += [ "//ext/glfw:libglfw_private" ]
+  }
+} else {
+  glfw_dep = "//ext/glfw:libglfw"
+}
+
 executable("antares") {
   output_extension = exe
   sources = [
@@ -653,7 +684,7 @@ executable("antares") {
   deps = [
     ":libantares",
     ":libantares-real",
-    "//ext/glfw:libglfw",
+    glfw_dep,
   ]
   configs += [ ":antares_private" ]
   defines = []
@@ -682,7 +713,7 @@ if (target_os == "win") {
     deps = [
       ":libantares",
       ":libantares-real",
-      "//ext/glfw:libglfw",
+      glfw_dep,
     ]
     configs += [ ":antares_private" ]
     defines = []
