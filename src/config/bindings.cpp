@@ -313,6 +313,15 @@ std::vector<int> actions_for(const ActionBindings bindings[ACTION_COUNT], const 
     return actions;
 }
 
+const ActionGroup kActionGroups[6] = {
+        {"SHIP", kUpKeyNum, kSelectFriendKeyNum},
+        {"COMMAND", kSelectFriendKeyNum, kTransferKeyNum},
+        {"SHORTCUTS", kTransferKeyNum, kHelpKeyNum},
+        {"UTILITY", kHelpKeyNum, kFirstHotKeyNum},
+        {"HOT KEYS", kFirstHotKeyNum, KEY_COUNT},
+        {"MODERN", KEY_COUNT, ACTION_COUNT},
+};
+
 pn::string_view action_config_name(int action) {
     return ((0 <= action) && (action < ACTION_COUNT)) ? kActionConfigNames[action] : "";
 }

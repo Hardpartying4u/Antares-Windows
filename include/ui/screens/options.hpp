@@ -68,6 +68,8 @@ class VideoControlScreen : public InterfaceScreen {
     OptionsScreen::State* const _state;
 };
 
+// Options > Key Controls: every action's bindings (primary, secondary, gamepad), a page at a time,
+// with the preset choice, clash checking, Clear and Reset to Defaults.
 class KeyControlScreen : public InterfaceScreen {
   public:
     KeyControlScreen(OptionsScreen::State* state);
@@ -75,6 +77,10 @@ class KeyControlScreen : public InterfaceScreen {
 
     virtual void key_down(const KeyDownEvent& event);
     virtual void key_up(const KeyUpEvent& event);
+    virtual void mouse_down(const MouseDownEvent& event);
+    virtual void mouse_wheel(const MouseWheelEvent& event);
+    virtual void gamepad_button_down(const GamepadButtonDownEvent& event);
+    virtual void gamepad_button_up(const GamepadButtonUpEvent& event);
 
     virtual bool next_timer(wall_time& time);
     virtual void fire_timer();
@@ -82,21 +88,28 @@ class KeyControlScreen : public InterfaceScreen {
     virtual void overlay() const;
 
   private:
-    void adjust_interface();
+    pn::string_view action_name(int action) const;
 
-    void update_conflicts();
-    void flash_on(size_t key);
+    void rebuild();
+    void request_rebuild();
+    void bindings_changed();
+    void assign(const Binding& b);
+    void adjust_interface();
+    void update_clashes();
 
     OptionsScreen::State* const _state;
 
-    int32_t                                _selected_key;
-    std::vector<std::pair<size_t, size_t>> _conflicts;
+    int  _page            = 0;
+    int  _selected        = -1;  // action of the selected binding, or -1
+    int  _selected_slot   = 0;
+    bool _capturing       = false;  // waiting for an input for the selected binding
+    bool _rebuild_pending = false;
 
-    wall_time _next_flash;
-    bool      _flashed_on;
+    std::vector<std::pair<int, int>> _clashes;
+    wall_time                        _next_flash;
+    bool                             _flashed_on = false;
 
-    std::vector<pn::string> _tabs;
-    std::vector<pn::string> _keys;
+    std::vector<pn::string> _action_names;
 };
 
 }  // namespace antares

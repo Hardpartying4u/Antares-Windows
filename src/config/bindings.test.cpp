@@ -154,6 +154,18 @@ TEST_F(BindingsTest, ConfigValues) {
     EXPECT_TRUE(binding_from_value(pn::value{"rt"}).empty());  // must be a map
 }
 
+// Every action is on exactly one Key Controls page, in order, and each page fits the screen.
+TEST_F(BindingsTest, GroupsCoverEveryActionOnce) {
+    int next = 0;
+    for (const ActionGroup& g : kActionGroups) {
+        EXPECT_EQ(g.begin, next) << g.label;
+        EXPECT_LT(g.begin, g.end) << g.label;
+        EXPECT_LE(g.end - g.begin, kMaxGroupSize) << g.label;
+        next = g.end;
+    }
+    EXPECT_EQ(next, ACTION_COUNT);
+}
+
 const char kV2Config[] = "out/test/prefs-v2.pn";
 
 // Customised bindings and the preset survive a save and load; the file still has the version 1

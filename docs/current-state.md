@@ -55,9 +55,11 @@ GLFW (src/glfw/video-driver.cpp)
     - zoom = and −, as well as the wheel;
     - attack move G, patrol P;
     - everything else, and the gamepad, as Classic.
-- **Where bindings are edited:** **Options › Key Controls**. It has a preset choice (Preset: Classic /
-  Preset: Modern, which replaces every binding with that preset's) and **Reset to Defaults**, which
-  restores the chosen preset. Cancel undoes either.
+- **Where bindings are edited:** **Options › Key Controls**, the rebinding screen (2026-10-20, §3.3).
+  - It shows every action's three bindings, a page at a time.
+  - The preset choice (Preset: Classic / Preset: Modern) replaces every binding with that preset's,
+    and "(CHANGED)" shows when the bindings differ from it.
+  - **Reset to Defaults** restores the chosen preset. Cancel undoes any change.
 - **Config file** (`src/config/file-prefs-driver.cpp`):
   - Since 2026-10-20 it is version 2: `version: 2` and a `controls` section with the preset and,
     for each action, `{primary, secondary, gamepad}`. A binding is written as `{key: 96}`,
@@ -344,7 +346,7 @@ MainScreen
 | **Debriefing** | `ui/screens/debriefing.cpp` | — | Typed-out victory/defeat text plus score table: your time / losses / kills vs par; score = time(50) + losses(30) + kills(20) |
 | **Options › Sound** | `ui/screens/options.cpp` ~137 | `interfaces/options/sound.pn` | Checkboxes: Music During Action, Music During Interlude, Speak Network Messages; Volume Up/Down + volume bar; Key Controls (K), Video (V), Cancel (Esc), Done (Return) |
 | **Options › Video** | `options.cpp` ~231 | `interfaces/options/video.pn` + code | Fullscreen checkbox (applies next launch, or Alt+Enter); a column of **UI Scale** choices — Auto, 1x, 2x, 3x, 4x — that behave as radio buttons and apply immediately (added in code, `kUiScaleChoices`); below Fullscreen, **Graphics: Enhanced / Original** radio choices (`kGraphicsChoices`, saved as `enhanced graphics` in `config.pn`, default Enhanced; takes effect from the next level); Key Controls, Sound, Cancel (reverts), Done |
-| **Options › Key Controls** | `options.cpp` ~294 | `interfaces/options/keys.pn` | Tab box with 5 tabs (Ship, Command, Shortcuts, Utility, Hot Keys); each action is a button showing its key — click it, press a key to bind it, and selection advances to the next action (Esc/Return/Caps Lock cancel). Conflicting bindings are flagged in a "conflict" text area and block Done/Options until fixed. Cancel, Options, Done |
+| **Options › Key Controls** (rebinding screen, 2026-10-20) | `options.cpp` (`KeyControlScreen`) | `interfaces/options/keys.pn` for the frame, Cancel, Options, Done and the conflict line; the rest in code (the data's tab box and instructions are removed with `InterfaceScreen::remove_widget`) | Page choices (Ship, Command, Shortcuts, Utility, Hot Keys, Modern: `kActionGroups`); preset choice with "(CHANGED)"; for each action on the page, Primary, Secondary and Gamepad cells. Click a cell, then press a key, the middle or a side mouse button, the wheel (primary and secondary) or a gamepad button (gamepad cell); Esc cancels; an input the slot doesn't take, or a reserved one, sounds a warning. **Clear** empties the selected cell. Clashing cells flash gold, the conflict line names the first pair, and Done and Options wait until they are fixed. **Reset to Defaults** restores the chosen preset. Cell changes are rebuilt from the screen's timer, not from the clicked cell's own action |
 
 ### 3.4 In-game screen layout
 

@@ -249,4 +249,15 @@ unchanged: no action numbers moved).
 `docs/current-state.md` §1.2–1.4 describe the new behaviour; §1.4 now says the gamepad was read only
 on macOS until stage 3.
 
-Stages 4–8 are untouched.
+## 8. Outcome of stages 4–5 (2026-10-20)
+
+| Stage | Commit | What changed | Tested |
+|---|---|---|---|
+| 4 | `ae9b6f18` | **Binding model.** Each action has a primary and a secondary binding (key, middle or side mouse button, wheel direction) and a gamepad button. Two actions are added after the original 44 (Attack move 44, Patrol 45; they do nothing yet). Every device goes through one path: `PlayerShip` presses the actions bound to an input, counting held inputs per action; `GamePlay` does the same for help, volume, music and fast motion. Input still goes through the per-tick queue. **Presets** Classic (default; today's controls, the wheel and the Ares gamepad mapping) and Modern (WASD; attack move G, patrol P) are data tables; Key Controls got a preset choice. **Config version 2** (`controls` section), still writing version 1's `keys`; a version 1 file loads as Classic with its keys. **Replays** play back as action numbers, independent of bindings. Reserved: Esc, Return, Caps Lock, left and right mouse, the pad's bumpers and Start. | `prefs-test`: 10 new tests (presets, Classic = today, clashes, slots, reserved inputs, config values, version 2 round trip, version 1 load, invalid bindings ignored). All 26 tests pass; the 16 replays are unchanged. |
+| 5 | (this commit) | **Rebinding screen**, Options › Key Controls, built in code on the old screen's frame: six pages, the preset choice with "(CHANGED)", Primary / Secondary / Gamepad cells; click a cell and press an input; Esc cancels; Clear; clashes flash and block Done; Reset to Defaults restores the preset. | `prefs-test`: every action on exactly one page, each page fits (11 rows). In game (windowed, test configs), UI 1×, 2×, 3×, 4×: the screen draws the same at every scale. At UI 2×, starting from a version 1 config: Preset Modern filled in WASD; the Modern page shows G and P; Q on Accelerate clashed with Select friendly (gold cells, message, Done and Options disabled), W fixed it; wheel up on Decelerate clashed with Zoom in, and Clear removed it; the middle button on Lower volume showed as MOUSE 3; Done saved a version 2 config (preset modern, `{mouse: 2}`). In the level, two middle-button presses took the saved volume from 7 to 5, and Modern's "=" zoomed in. |
+
+**Not tested:** gamepad rebinding with a real pad (none is connected); the gamepad cells and the pad
+path are covered by the binding tests and the stage 3 poller tests only.
+
+Stages 6–8 are untouched; Modern behaviour (selection, orders, attack-move, patrol) is
+`docs/modern-controls.md`.

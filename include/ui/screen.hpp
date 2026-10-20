@@ -63,6 +63,10 @@ class InterfaceScreen : public Card {
     // Adds a widget that isn't in the screen's interface file.
     Widget* add_widget(const WidgetData& data);
 
+    // Removes a top-level widget (for screens that rebuild part of a data layout in code). Don't
+    // call it from the widget's own action.
+    void remove_widget(pn::string_view id);
+
   private:
     enum State {
         NORMAL,

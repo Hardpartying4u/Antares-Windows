@@ -18,6 +18,8 @@
 
 #include "ui/screens/options.hpp"
 
+#include <string.h>
+
 #include <algorithm>
 #include <pn/output>
 
@@ -59,57 +61,6 @@ static constexpr char kVolDownButton[] = "volume-down";
 static constexpr char kVolRect[]       = "volume";
 
 static constexpr char kFullscreenButton[] = "fullscreen";
-
-static constexpr char        kTabBox[] = "tabs";
-static constexpr const char* kTabs[]   = {
-        "ship", "command", "shortcuts", "utility", "hot-keys",
-};
-static constexpr const char* kKeys[] = {
-        "accelerate",
-        "decelerate",
-        "turn-counter-clockwise",
-        "turn-clockwise",
-        "fire-weapon-1",
-        "fire-weapon-2",
-        "fire-activate-special",
-        "warp",
-        "select-friendly",
-        "select-hostile",
-        "select-base",
-        "target",
-        "order-to-go",
-        "scale-in",
-        "scale-out",
-        "computer-previous",
-        "computer-next",
-        "computer-accept-select-do",
-        "computer-cancel-back-up",
-        "transfer-control",
-        "zoom-to-1-1",
-        "zoom-to-1-2",
-        "zoom-to-1-4",
-        "zoom-to-1-16",
-        "zoom-to-closest-hostile",
-        "zoom-to-closest-object",
-        "zoom-to-all",
-        "message-next-page-clear",
-        "help",
-        "lower-volume",
-        "raise-volume",
-        "mute-music",
-        "expert-net-settings",
-        "fast-motion",
-        "hotkey-1",
-        "hotkey-2",
-        "hotkey-3",
-        "hotkey-4",
-        "hotkey-5",
-        "hotkey-6",
-        "hotkey-7",
-        "hotkey-8",
-        "hotkey-9",
-        "hotkey-10",
-};
 
 static constexpr char kConflictTextRect[] = "conflict";
 
@@ -345,36 +296,46 @@ void VideoControlScreen::overlay() const {}
 
 static const usecs kFlashTime = ticks(12);
 
-// Indices of the keys controlled by each tab.  The "Ship" tab specifies keys 0..7, the "Command"
-// tab specifies keys 8..18, and so on.
-static const size_t kKeyIndices[] = {0, 8, 19, 28, 34, 44};
+// The rebinding screen (M2 stage 5). It keeps the Key Controls frame and buttons from
+// data/interfaces/options/keys.pn (Cancel, Options, Done and the conflict line), which belongs to
+// the separately licensed data, and builds the rest in code: page and preset choices, and for each
+// action on the page its primary, secondary and gamepad binding.
+namespace {
 
-static size_t get_tab_num(size_t key) {
-    for (size_t i = 1; i < 5; ++i) {
-        if (key < kKeyIndices[i]) {
-            return i - 1;
-        }
-    }
-    return 4;
-}
+const ActionGroup* const kPages     = kActionGroups;
+const int                kPageCount = sizeof(kActionGroups) / sizeof(kActionGroups[0]);
 
-static constexpr char kTabNameStrings[]     = "tabs";
+const int         kRowTop                     = 122;
+const int         kRowStep                    = 16;
+const int         kLabelLeft                  = 60;
+const int         kCellLeft[kBindingSlots]    = {236, 352, 468};
+const int         kCellWidth                  = 108;
+const char* const kSlotNames[kBindingSlots]   = {"PRIMARY", "SECONDARY", "GAMEPAD"};
+const char* const kAddedActionNames[]         = {"Attack Move", "Patrol"};
+static_assert(KEY_COUNT + 2 == ACTION_COUNT, "a name for each added action");
+
+pn::string cell_id(int action, int slot) { return pn::format("cell-{0}-{1}", action, slot); }
+
+pn::string binding_label(const Binding& b) { return b.empty() ? pn::string{"-"} : b.name(); }
+
+}  // namespace
+
 static constexpr char kControlNameStrings[] = "controls/long";
 
 KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
         : InterfaceScreen("options/keys", {0, 0, 640, 480}),
           _state(state),
-          _selected_key(-1),
-          _flashed_on(false),
-          _tabs(Resource::strings(kTabNameStrings)),
-          _keys(Resource::strings(kControlNameStrings)) {
+          _action_names(Resource::strings(kControlNameStrings)) {
+    remove_widget("tabs");          // one fixed button per key: replaced by the pages below
+    remove_widget("instructions");  // drawn in overlay(), with the capture prompt
+
     button(kDoneButton)
             ->bind({
                     [this] {
                         *_state = OptionsScreen::ACCEPT;
                         stack()->pop(this);
                     },
-                    [this] { return _conflicts.empty(); },
+                    [this] { return _clashes.empty(); },
             });
 
     button(kCancelButton)
@@ -391,19 +352,60 @@ KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
                         *_state = OptionsScreen::SOUND_CONTROL;
                         stack()->pop(this);
                     },
-                    [this] { return _conflicts.empty(); },
+                    [this] { return _clashes.empty(); },
             });
 
-    for (int key = kKeyIndices[0]; key < kKeyIndices[5]; ++key) {
-        button(kKeys[key])->bind({[this, key] {
-            _selected_key = key;
-            adjust_interface();
-        }});
+    // Pages, as radio-like checkboxes along the top, each as wide as its label needs.
+    int left = 56;
+    for (int i = 0; i < kPageCount; ++i) {
+        const int width = 24 + 8 * static_cast<int>(strlen(kPages[i].label));
+        CheckboxButtonData data;
+        data.id     = pn::format("page-{0}", i);
+        data.type   = WidgetDataBase::CHECKBOX;
+        data.bounds = {left, 62, left + width, 72};
+        data.label  = kPages[i].label;
+        data.hue    = Hue::AQUA;
+        data.style  = InterfaceStyle::SMALL;
+        left += width + 11;
+        dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
+                ->bind({
+                        [this, i] { return _page == i; },
+                        [this, i](bool on) {
+                            if (on) {
+                                _page      = i;
+                                _capturing = false;
+                                _selected  = -1;
+                                request_rebuild();
+                            }
+                        },
+                });
     }
 
-    // Reset to defaults: added in code (the layout is in data/interfaces/options/keys.pn, part of
-    // the separately licensed data), between Cancel and Options. Cancel still restores the keys
-    // from when Options was opened.
+    // The presets. Choosing one replaces every binding with that preset's; Cancel restores the
+    // bindings from when Options was opened.
+    left = 56;
+    for (ControlPreset preset : kControlPresets) {
+        CheckboxButtonData data;
+        data.id     = pn::format("preset-{0}", preset_id(preset));
+        data.type   = WidgetDataBase::CHECKBOX;
+        data.bounds = {left, 84, left + 150, 94};
+        data.label  = pn::format("PRESET: {0}", preset_label(preset));
+        data.hue    = Hue::PALE_PURPLE;
+        data.style  = InterfaceStyle::SMALL;
+        left += 170;
+        dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
+                ->bind({
+                        [preset] { return sys.prefs->controls_preset() == preset; },
+                        [this, preset](bool on) {
+                            if (on) {
+                                sys.prefs->set_controls_preset(preset);
+                                bindings_changed();
+                            }
+                        },
+                });
+    }
+
+    // Reset to Defaults: the selected preset's bindings. Between Cancel and Options.
     {
         PlainButtonData data;
         data.id     = "reset-keys";
@@ -416,72 +418,154 @@ KeyControlScreen::KeyControlScreen(OptionsScreen::State* state)
                 ->bind({
                         [this] {
                             sys.prefs->set_controls_preset(sys.prefs->controls_preset());
-                            _selected_key = -1;
-                            update_conflicts();
-                            adjust_interface();
+                            bindings_changed();
                         },
                 });
     }
 
-    // The control presets, as radio-like checkboxes under the instructions: choosing one replaces
-    // every binding with that preset's (Cancel restores the previous ones). Reset to Defaults
-    // resets to the chosen preset.
-    int left = 146;
-    for (ControlPreset preset : kControlPresets) {
-        CheckboxButtonData data;
-        data.id     = pn::format("preset-{0}", preset_id(preset));
-        data.type   = WidgetDataBase::CHECKBOX;
-        data.bounds = {left, 410, left + 110, 420};
-        data.label  = pn::format("PRESET: {0}", preset_label(preset));
+    // Clear: empties the selected binding.
+    {
+        PlainButtonData data;
+        data.id     = "clear-binding";
+        data.type   = WidgetDataBase::BUTTON;
+        data.bounds = {468, 404, 576, 414};
+        data.label  = "CLEAR";
         data.hue    = Hue::PALE_PURPLE;
         data.style  = InterfaceStyle::SMALL;
-        left += 130;
-        dynamic_cast<CheckboxButton*>(add_widget(WidgetData{std::move(data)}))
+        dynamic_cast<PlainButton*>(add_widget(WidgetData{std::move(data)}))
                 ->bind({
-                        [preset] { return sys.prefs->controls_preset() == preset; },
-                        [this, preset](bool on) {
-                            if (on) {
-                                sys.prefs->set_controls_preset(preset);
-                                _selected_key = -1;
-                                update_conflicts();
-                                adjust_interface();
-                            }
+                        [this] {
+                            sys.prefs->set_binding(
+                                    _selected, static_cast<BindingSlot>(_selected_slot),
+                                    Binding::none());
+                            bindings_changed();
                         },
+                        [this] { return _selected >= 0; },
                 });
     }
 
-    adjust_interface();
+    update_clashes();
+    rebuild();
 }
 
 KeyControlScreen::~KeyControlScreen() {}
 
-void KeyControlScreen::key_down(const KeyDownEvent& event) {
-    if (_selected_key >= 0) {
-        switch (event.key().value()) {
-            case Key::ESCAPE:
-            case Key::RETURN:
-            case Key::CAPS_LOCK:
-                sys.sound.warning();
-                _selected_key = -1;
-                break;
+pn::string_view KeyControlScreen::action_name(int action) const {
+    if (action < KEY_COUNT) {
+        return _action_names.at(action);
+    }
+    return kAddedActionNames[action - KEY_COUNT];
+}
 
-            default:
-                sys.prefs->set_key(_selected_key, event.key());
-                int old_tab = get_tab_num(_selected_key);
-                int new_tab = get_tab_num(++_selected_key);
-                if (old_tab != new_tab) {
-                    _selected_key = -1;
-                }
-                break;
+// The binding cells of the current page. Rebuilt after a change rather than from a cell's own
+// action (a widget can't be removed while it runs).
+void KeyControlScreen::rebuild() {
+    _rebuild_pending = false;
+    for (int a = 0; a < ACTION_COUNT; ++a) {
+        for (int s = 0; s < kBindingSlots; ++s) {
+            remove_widget(cell_id(a, s));
         }
-        update_conflicts();
+    }
+    for (int a = kPages[_page].begin; a < kPages[_page].end; ++a) {
+        const int top = kRowTop + (a - kPages[_page].begin) * kRowStep;
+        for (int s = 0; s < kBindingSlots; ++s) {
+            PlainButtonData data;
+            data.id     = cell_id(a, s);
+            data.type   = WidgetDataBase::BUTTON;
+            data.bounds = {kCellLeft[s], top, kCellLeft[s] + kCellWidth, top + 10};
+            data.label  = binding_label(sys.prefs->binding(a, static_cast<BindingSlot>(s)));
+            data.hue    = Hue::AQUA;
+            data.style  = InterfaceStyle::SMALL;
+            dynamic_cast<PlainButton*>(add_widget(WidgetData{std::move(data)}))
+                    ->bind({[this, a, s] {
+                        _selected      = a;
+                        _selected_slot = s;
+                        _capturing     = true;
+                        adjust_interface();
+                    }});
+        }
+    }
+    adjust_interface();
+}
+
+void KeyControlScreen::request_rebuild() { _rebuild_pending = true; }
+
+void KeyControlScreen::bindings_changed() {
+    _capturing = false;
+    update_clashes();
+    request_rebuild();
+}
+
+// Puts an input on the selected binding, if that slot takes it (keys, mouse buttons and the wheel
+// in primary and secondary, gamepad buttons in the gamepad slot; never a reserved input).
+void KeyControlScreen::assign(const Binding& b) {
+    if (!slot_accepts(static_cast<BindingSlot>(_selected_slot), b) || b.empty()) {
+        sys.sound.warning();
+        return;
+    }
+    sys.prefs->set_binding(_selected, static_cast<BindingSlot>(_selected_slot), b);
+    bindings_changed();
+}
+
+void KeyControlScreen::key_down(const KeyDownEvent& event) {
+    if (!_capturing) {
+        InterfaceScreen::key_down(event);
+        return;
+    }
+    if (event.key() == Key::ESCAPE) {
+        _capturing = false;
         adjust_interface();
+        return;
+    }
+    assign(Binding::key(event.key()));
+}
+
+void KeyControlScreen::key_up(const KeyUpEvent& event) {
+    if (!_capturing) {
+        InterfaceScreen::key_up(event);
     }
 }
 
-void KeyControlScreen::key_up(const KeyUpEvent& event) { static_cast<void>(event); }
+void KeyControlScreen::mouse_down(const MouseDownEvent& event) {
+    if (_capturing) {
+        if (event.button() >= 2) {
+            assign(Binding::mouse(event.button()));
+            return;
+        } else if (event.button() == 1) {
+            sys.sound.warning();  // right button: kept for targeting
+            return;
+        }
+        _capturing = false;  // a left click elsewhere ends the capture (the selection stays)
+        adjust_interface();
+    }
+    InterfaceScreen::mouse_down(event);
+}
+
+void KeyControlScreen::mouse_wheel(const MouseWheelEvent& event) {
+    if (_capturing && (event.steps() != 0)) {
+        assign(Binding::wheel(event.steps()));
+    }
+}
+
+void KeyControlScreen::gamepad_button_down(const GamepadButtonDownEvent& event) {
+    if (_capturing) {
+        assign(Binding::gamepad(event.button));
+        return;
+    }
+    InterfaceScreen::gamepad_button_down(event);
+}
+
+void KeyControlScreen::gamepad_button_up(const GamepadButtonUpEvent& event) {
+    if (!_capturing) {
+        InterfaceScreen::gamepad_button_up(event);
+    }
+}
 
 bool KeyControlScreen::next_timer(wall_time& time) {
+    if (_rebuild_pending) {
+        time = now();
+        return true;
+    }
     if (_next_flash > wall_time()) {
         time = _next_flash;
         return true;
@@ -490,71 +574,58 @@ bool KeyControlScreen::next_timer(wall_time& time) {
 }
 
 void KeyControlScreen::fire_timer() {
-    wall_time now = antares::now();
-    while (_next_flash < now) {
-        _next_flash += kFlashTime;
-        _flashed_on = !_flashed_on;
+    if (_rebuild_pending) {
+        rebuild();
+    }
+    if (_next_flash > wall_time()) {
+        wall_time now = antares::now();
+        while (_next_flash < now) {
+            _next_flash += kFlashTime;
+            _flashed_on = !_flashed_on;
+        }
     }
     adjust_interface();
 }
 
+// Cell highlights: the selected cell is active while it waits for an input; cells in a clash flash
+// gold.
 void KeyControlScreen::adjust_interface() {
-    for (const auto tab : kTabs) {
-        dynamic_cast<TabButton&>(*widget(tab)).hue() = Hue::AQUA;
-    }
-
-    for (int key = kKeyIndices[0]; key < kKeyIndices[5]; ++key) {
-        PlainButton* b       = button(kKeys[key]);
-        Key          key_num = sys.prefs->key(key);
-        b->key()             = key_num;
-        if (key == _selected_key) {
-            b->activate();
-        } else {
-            b->deactivate();
-        }
-        b->hue() = Hue::AQUA;
-    }
-
-    if (_flashed_on) {
-        for (vector<pair<size_t, size_t>>::const_iterator it = _conflicts.begin();
-             it != _conflicts.end(); ++it) {
-            flash_on(it->first);
-            flash_on(it->second);
-        }
-    }
-}
-
-void KeyControlScreen::overlay() const {
-    if (!_conflicts.empty()) {
-        const size_t key_one = _conflicts[0].first;
-        const size_t key_two = _conflicts[0].second;
-
-        // TODO(sfiera): permit localization.
-        pn::string text = pn::format(
-                "{0}: {1} conflicts with {2}: {3}", _tabs.at(get_tab_num(key_one)),
-                _keys.at(key_one), _tabs.at(get_tab_num(key_two)), _keys.at(key_two));
-
-        const TextRect& box    = dynamic_cast<const TextRect&>(*widget(kConflictTextRect));
-        Rect            bounds = box.inner_bounds();
-        Point           off    = offset();
-        bounds.offset(off.h, off.v);
-        draw_text_in_rect(bounds, text, box.style(), box.hue());
-    }
-}
-
-void KeyControlScreen::update_conflicts() {
-    vector<pair<size_t, size_t>> new_conflicts;
-    for (size_t i = 0; i < kKeyExtendedControlNum; ++i) {
-        for (size_t j = i + 1; j < kKeyExtendedControlNum; ++j) {
-            if (sys.prefs->key(i) == sys.prefs->key(j)) {
-                new_conflicts.push_back(make_pair(i, j));
+    for (int a = kPages[_page].begin; a < kPages[_page].end; ++a) {
+        for (int s = 0; s < kBindingSlots; ++s) {
+            PlainButton* cell = button(cell_id(a, s));
+            if (!cell) {
+                continue;
+            }
+            cell->hue() = Hue::AQUA;
+            if (_capturing && (a == _selected) && (s == _selected_slot)) {
+                cell->activate();
+            } else {
+                cell->deactivate();
             }
         }
     }
+    if (!_flashed_on) {
+        return;
+    }
+    const auto& b = sys.prefs->get().bindings;
+    for (const auto& c : _clashes) {
+        for (int s = 0; s < kBindingSlots; ++s) {
+            for (int t = 0; t < kBindingSlots; ++t) {
+                if (!b[c.first].slot[s].empty() && (b[c.first].slot[s] == b[c.second].slot[t])) {
+                    for (const auto& cell : {cell_id(c.first, s), cell_id(c.second, t)}) {
+                        if (PlainButton* w = button(cell)) {
+                            w->hue() = Hue::GOLD;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
-    _conflicts.swap(new_conflicts);
-
-    if (_conflicts.empty()) {
+void KeyControlScreen::update_clashes() {
+    _clashes = find_clashes(sys.prefs->get().bindings);
+    if (_clashes.empty()) {
         _next_flash = wall_time();
         _flashed_on = false;
     } else if (_next_flash == wall_time()) {
@@ -563,14 +634,53 @@ void KeyControlScreen::update_conflicts() {
     }
 }
 
-void KeyControlScreen::flash_on(size_t key) {
-    TabBox* box = dynamic_cast<TabBox*>(widget(kTabBox));
-    if (kKeyIndices[box->current_tab()] <= key && key < kKeyIndices[box->current_tab() + 1]) {
-        PlainButton* item = button(kKeys[key]);
-        item->hue()       = Hue::GOLD;
+void KeyControlScreen::overlay() const {
+    const Point off = offset();
+    auto text = [&off](Rect r, pn::string_view s, Hue hue) {
+        r.offset(off.h, off.v);
+        draw_text_in_rect(r, s, InterfaceStyle::SMALL, hue);
+    };
+
+    if (!sys.prefs->get().bindings_match_preset()) {
+        text({396, 84, 584, 94}, "(CHANGED)", Hue::PALE_PURPLE);
+    }
+    for (int s = 0; s < kBindingSlots; ++s) {
+        text({kCellLeft[s], 106, kCellLeft[s] + kCellWidth, 116}, kSlotNames[s], Hue::TAN);
+    }
+    for (int a = kPages[_page].begin; a < kPages[_page].end; ++a) {
+        const int top = kRowTop + (a - kPages[_page].begin) * kRowStep;
+        text({kLabelLeft, top, kCellLeft[0] - 6, top + 10}, action_name(a), Hue::AQUA);
+    }
+
+    if (!_clashes.empty()) {
+        const int  a = _clashes[0].first;
+        const int  b = _clashes[0].second;
+        pn::string message =
+                pn::format("{0} and {1} use the same input", action_name(a), action_name(b));
+        if (_clashes.size() > 1) {
+            message = pn::format("{0} ({1} more clashes)", message, _clashes.size() - 1);
+        }
+        const TextRect& box    = dynamic_cast<const TextRect&>(*widget(kConflictTextRect));
+        Rect            bounds = box.inner_bounds();
+        bounds.offset(off.h, off.v);
+        draw_text_in_rect(bounds, message, box.style(), box.hue());
+    }
+
+    if (_capturing) {
+        text({44, 351, 599, 400},
+             pn::format(
+                     "PRESS THE INPUT FOR {0} ({1}): {2}. ESC CANCELS.", action_name(_selected),
+                     kSlotNames[_selected_slot],
+                     (_selected_slot == kGamepadSlot)
+                             ? "A GAMEPAD BUTTON"
+                             : "A KEY, THE MIDDLE OR A SIDE MOUSE BUTTON, OR THE WHEEL"),
+             Hue::GOLD);
     } else {
-        TabButton* item = dynamic_cast<TabButton*>(widget(kTabs[get_tab_num(key)]));
-        item->hue()     = Hue::GOLD;
+        text({44, 351, 599, 400},
+             "CLICK A BINDING, THEN PRESS A KEY, MOUSE BUTTON, WHEEL OR GAMEPAD BUTTON. CLEAR "
+             "EMPTIES THE SELECTED BINDING. ESC, RETURN, CAPS LOCK, THE LEFT AND RIGHT MOUSE "
+             "BUTTONS, AND THE GAMEPAD'S BUMPERS AND START ARE PRE-ASSIGNED.",
+             Hue::TAN);
     }
 }
 

@@ -223,4 +223,17 @@ Widget* InterfaceScreen::add_widget(const WidgetData& data) {
     return _widgets.back().get();
 }
 
+void InterfaceScreen::remove_widget(pn::string_view id) {
+    for (auto it = _widgets.begin(); it != _widgets.end(); ++it) {
+        if ((*it)->id() == id) {
+            if (_active_widget == it->get()) {
+                _active_widget = nullptr;
+                _state         = NORMAL;
+            }
+            _widgets.erase(it);
+            return;
+        }
+    }
+}
+
 }  // namespace antares

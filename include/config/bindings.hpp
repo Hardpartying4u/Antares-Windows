@@ -78,6 +78,15 @@ std::vector<std::pair<int, int>> find_clashes(const ActionBindings bindings[ACTI
 // The actions an input triggers, in action order.
 std::vector<int> actions_for(const ActionBindings bindings[ACTION_COUNT], const Binding& b);
 
+// The actions in groups, as the Key Controls screen shows them, a page each: Ship, Command,
+// Shortcuts, Utility, Hot Keys (the original 44, as Ares grouped them) and Modern (the added ones).
+struct ActionGroup {
+    const char* label;
+    int         begin, end;  // actions [begin, end)
+};
+extern const ActionGroup kActionGroups[6];
+const int                kMaxGroupSize = 11;  // rows on a Key Controls page
+
 // The config file's name for each action ("ship accel", ... "attack move", "patrol").
 pn::string_view action_config_name(int action);
 
