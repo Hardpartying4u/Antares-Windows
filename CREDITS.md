@@ -42,3 +42,10 @@ Ares (Nathan Lamont, Bigger Planet) and the Antares project: sprites, sounds, mu
 - **Blender** (GPL), used to render the 3D remasters (`tools/sprite-render/`).
 
 The tools are not shipped with Star Bound and are not stored in this repository.
+
+## Application icon
+
+`src/win/icon/antares.ico` (and its source `src/win/icon/hvc-source.png`) shows the Ishiman Heavy
+Cruiser from the original Ares art (Bigger Planet Software, CC BY-NC-SA 3.0; see
+`data/COPYING`), as upscaled for `art/` with Real-ESRGAN (above). `scripts/make_icon.py` builds it
+with Pillow.

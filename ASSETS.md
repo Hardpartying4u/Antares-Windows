@@ -993,3 +993,14 @@ Demo replays shown from the main menu, and the original rotation (sine/cosine) t
 | `data/replays/605.NLRP` | original |
 | `data/replays/623.NLRP` | original |
 | `data/rotation-table` | original |
+
+### Application icon (2)
+
+The Windows icon of Antares.exe, its window and its shortcuts (2026-10-21), built by
+`scripts/make_icon.py` from the Ishiman Heavy Cruiser's Enhanced sheet (frame 3; the overlay layer
+isn't used). It is derived from the original sprite, so it keeps the CC BY-NC-SA licence.
+
+| Asset | Status |
+|---|---|
+| `src/win/icon/hvc-source.png` | adapted: frame 3 of `art/sprites/ish/hvc/image@4x.png` (itself AI-upscaled from `data/sprites/ish/hvc/image.png`), edge specks cleared, centred on a transparent 256 px square, CC BY-NC-SA |
+| `src/win/icon/antares.ico` | adapted: 16, 24, 32, 48, 64, 128 and 256 px from the source above; 16–32 px sharpened, with solid edges and a dark 1 px outline, CC BY-NC-SA |

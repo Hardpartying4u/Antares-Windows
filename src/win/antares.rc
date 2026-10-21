@@ -1,0 +1,9 @@
+// Copyright (C) 2026 The Star Bound Authors
+// This file is part of Star Bound, based on Antares. Distributed under the LGPL+. See COPYING.
+//
+// Windows resources for Antares.exe. The icon (the Ishiman Heavy Cruiser, built by
+// scripts/make_icon.py) is the exe's only icon, so Explorer and shortcuts show it. Its name,
+// GLFW_ICON, is the one GLFW loads for the game window's class (win32_window.c), so the window's
+// title bar and taskbar button show it too.
+
+GLFW_ICON ICON "icon/antares.ico"

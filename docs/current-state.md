@@ -870,6 +870,12 @@ All in logical pixels, from `include/game/globals.hpp`, `src/game/main.cpp` ~78�
   - `scripts/dist.py win zip` packages `art/` next to `data/`, plus `COPYING`, `COPYING.LESSER`,
     `ASSETS.md` and `CREDITS.md` next to `Antares.exe`. Checked 2026-10-19 from a fresh folder with
     no config: it starts, and Video options shows Graphics: Enhanced by default.
+  - **Application icon** (2026-10-21): the Ishiman Heavy Cruiser, from frame 3 of its Enhanced
+    sheet, built by `scripts/make_icon.py` into `src/win/icon/antares.ico` (16–256 px; 16–32 px
+    sharpened and outlined). `src/win/antares.rc` names it `GLFW_ICON`, and the `antares-res`
+    build step (`scripts/win_rc.py`, rc.exe) links it into `Antares.exe`. As the exe's only icon,
+    Explorer and shortcuts show it. GLFW loads a resource named `GLFW_ICON` as the window class
+    icon, so the title bar and taskbar button show it too, with no code change.
   - Each file is looked up on its own, so a sprite takes its sheets from `art/` and its frame table
     from `data/`.
   - **Pictures and fonts** (`load_hidpi_texture`, `src/data/resource.cpp`) look for 1x, `@2x` and

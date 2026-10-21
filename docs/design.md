@@ -75,6 +75,9 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
     is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
     for steering while using the mouse.
+- **Decision (2026-10-21): the application icon is the Ishiman Heavy Cruiser** (Enhanced art,
+  diagonal frame), embedded in Antares.exe as `GLFW_ICON` so Explorer, shortcuts, the title bar and
+  the taskbar all show it (`docs/current-state.md`, Graphics).
 - **Decision (2026-10-21): Arena groups come early when cleared.** A group whose predecessors are
   all destroyed arrives 7 s later rather than on its timer; the win needs the last group in and
   counted (§11 of `docs/arena-investigation.md`).
