@@ -29,8 +29,7 @@
 - Fixed by a history rewrite to `246752892+Hardpartying4u@users.noreply.github.com`, force-pushed
   (branch `4086238a`, tag `v1.0`); upstream history unchanged.
 - Old history is kept locally only: the `pre-rewrite` branch, the `pre-rewrite-v1.0` tag and
-  `backup-pre-rewrite.bundle` (in the folder above `<repo>`). Never push them; delete them when
-  happy.
+  `backup-pre-rewrite.bundle` (folder above `<repo>`). Never push them; delete when happy.
 - Still to do before going public:
   - GitHub Settings → Emails: "Keep my email addresses private" and "Block command line pushes
     that expose my email". Optional: ask GitHub Support to purge cached old commits.
