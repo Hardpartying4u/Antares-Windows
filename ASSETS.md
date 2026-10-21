@@ -1,9 +1,9 @@
-# Star Bound asset register
+# Ares (Windows edition) asset register
 
 This file lists every game asset and whether it is **original** (inherited from Ares via the
-Antares data, not yet replaced by Star Bound), **replaced** (an original we have swapped for our
+Antares data, not yet replaced by this edition), **replaced** (an original we have swapped for our
 own work), **adapted** (an original we have reworked, such as upscaled @2x/@4x sheets, so it is
-still derived from the original and keeps its licence), or **new** (added by Star Bound with no
+still derived from the original and keeps its licence), or **new** (added by this edition with no
 original counterpart). It exists because the
 original Ares media is licensed CC BY-NC-SA 3.0 (`data/COPYING`): free, non-commercial use only.
 Selling the game requires every entry to be *replaced* or *new*. When you replace or add an asset,

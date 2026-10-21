@@ -75,7 +75,7 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "        --console       allocate console\n"
             "    -f, --factory       set path to factory scenario\n"
             "                        (default: {3})\n"
-            "        --art           set path to the Star Bound art folder\n"
+            "        --art           set path to the Enhanced art folder\n"
             "                        (default: art next to the application data)\n"
             "        --no-art        use only the original art\n"
             "        --timing FILE   write start-up and load timings to FILE\n"

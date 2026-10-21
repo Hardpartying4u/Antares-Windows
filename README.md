@@ -1,11 +1,11 @@
-# Ares
+# Ares (Windows edition)
 
-Ares is a Windows fork of [Antares](https://github.com/arescentral/antares), the open-source
-port of *Ares* by Nathan Lamont (Bigger Planet). It brings the classic space strategy game to modern
-Windows with new controls, enhanced graphics and a new Arena mode.
+An **unofficial** Windows fork of [Antares](https://github.com/arescentral/antares), the open-source
+port of *Ares* by Nathan Lamont (Bigger Planet), with my own changes: new controls, enhanced
+graphics and a new Arena mode. It is not the original Ares and not an official Antares release.
 
-**Based on the original game 'Ares,' by Nathan Lamont. Ares Windows is not affiliated with or endorsed
-by Nathan Lamont or Bigger Planet.**
+**Based on the original game 'Ares,' by Nathan Lamont. Ares (Windows edition) is not affiliated
+with or endorsed by Nathan Lamont or Bigger Planet.**
 
 ## How to play
 
@@ -20,7 +20,7 @@ by Nathan Lamont or Bigger Planet.**
 - **Your data:** saves, progress and settings are kept in `Documents\Antares` (`config.pn`,
   `Registry\`), not in the game folder.
 
-## What's new in Star Bound
+## What's new in this edition
 
 ### Windows build
 - Native MSVC build of Antares.
@@ -110,7 +110,7 @@ Tests: `python scripts/test.py`. Package: `python scripts/dist.py win zip`.
   its source code and media were released in 2008.
 - **Antares** by the Antares authors (see `AUTHORS`): <https://github.com/arescentral/antares>,
   website <https://arescentral.org/antares>.
-- Star Bound's third-party credits (GLFW, Real-ESRGAN and others) are in `CREDITS.md`; every
+- This edition's third-party credits (GLFW, Real-ESRGAN and others) are in `CREDITS.md`; every
   asset's origin and licence is in `ASSETS.md`.
 
 ## Licence
@@ -120,5 +120,5 @@ Tests: `python scripts/test.py`. Package: `python scripts/dist.py win zip`.
   Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (`data/COPYING`): non-commercial use
   only, and derived media stay under the same licence.
 
-**Based on the original game 'Ares,' by Nathan Lamont. Star Bound is not affiliated with or endorsed
-by Nathan Lamont or Bigger Planet.**
+**Based on the original game 'Ares,' by Nathan Lamont. Ares (Windows edition) is not affiliated
+with or endorsed by Nathan Lamont or Bigger Planet.**

@@ -1,6 +1,6 @@
-# Star Bound art folder
+# Ares (Windows edition): Enhanced art folder
 
-Replacement art for Star Bound, laid out like `data/` and read before it (search order: plugin,
+Replacement art for Ares (Windows edition), laid out like `data/` and read before it (search order: plugin,
 factory scenario folder, `art/`, `data/`; see `src/data/resource.cpp`). Only replaced files live
 here, so `data/` is never edited. Sprites keep their frame tables (`.pn`) in `data/`; this folder
 holds their `image`/`overlay` sheets at 1x, `@2x` and `@4x`.

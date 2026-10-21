@@ -1,7 +1,9 @@
-# Star Bound credits
+# Ares (Windows edition) credits
+
+Based on the original game 'Ares,' by Nathan Lamont. Ares (Windows edition) is not affiliated with or endorsed by Nathan Lamont or Bigger Planet.
 
 Code authors are listed in `AUTHORS` (upstream Antares). This file credits the third-party tools
-and assets used to make Star Bound's art. Asset licences are tracked per file in `ASSETS.md`.
+and assets used to make this edition's art. Asset licences are tracked per file in `ASSETS.md`.
 
 ## Original game data
 
@@ -41,7 +43,7 @@ Ares (Nathan Lamont, Bigger Planet) and the Antares project: sprites, sounds, mu
   `tools/sprite-render/upscale_sheet.py`.
 - **Blender** (GPL), used to render the 3D remasters (`tools/sprite-render/`).
 
-The tools are not shipped with Star Bound and are not stored in this repository.
+The tools are not shipped with Ares (Windows edition) and are not stored in this repository.
 
 ## Application icon
 
