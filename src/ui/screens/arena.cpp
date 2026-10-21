@@ -31,6 +31,24 @@ const char kFrameRect[]      = "select-level";  // the data's "Select Level" box
 const int  kRowHeight        = 44;  // a title line and two fleet lines
 const int  kRowPad           = 4;
 const Rect kFrameBounds      = {54, 105, 587, 346};
+const Rect kListBounds       = {70, 125, 570, 321};  // taller than the data's box: four rows
+
+// Where a battle sits on the difficulty ladder, from the end of its title: "Skirmish (Easy)".
+// Unknown difficulties go last.
+int difficulty_rank(pn::string_view title) {
+    static const char* const kLadder[] = {"(Easy)", "(Medium)", "(Hard)", "(Very Hard)"};
+    while (!title.empty() && ((title.data()[title.size() - 1] == '\n') ||
+                              (title.data()[title.size() - 1] == ' '))) {
+        title = title.substr(0, title.size() - 1);
+    }
+    for (int i = 0; i < 4; ++i) {
+        const pn::string_view d = kLadder[i];
+        if ((title.size() >= d.size()) && (title.substr(title.size() - d.size()) == d)) {
+            return i;
+        }
+    }
+    return 4;
+}
 
 // Each kind of ship in `owner`'s fleet with how many there are, in the order they first appear,
 // by the ship's long name ("Cruiser"); the flagship first.
@@ -62,12 +80,31 @@ std::vector<std::pair<pn::string, int>> fleet(const Level& level, int owner) {
 
 }  // namespace
 
-pn::string ArenaScreen::fleet_line(const std::vector<std::pair<pn::string, int>>& ships) {
-    pn::string line;
+// "Enemy: Heavy Destroyer, 4 Gunships" for the given ships, cut to one line `width` wide: ships
+// that don't fit are summed up as "+N more".
+pn::string ArenaScreen::fleet_line(
+        pn::string_view prefix, const std::vector<std::pair<pn::string, int>>& ships, int width) {
+    auto one_line = [width](pn::string_view text) {
+        return GetInterfaceTextHeightFromWidth(text, InterfaceStyle::SMALL, width) <=
+               GetInterfaceTextHeightFromWidth("X", InterfaceStyle::SMALL, width);
+    };
+    pn::string line = prefix.copy();
+    int        rest = 0;
     for (const auto& s : ships) {
-        line += pn::format(
-                "{0}{1}", line.empty() ? "" : ", ",
+        rest += s.second;
+    }
+    for (int i = 0; i < ships.size(); ++i) {
+        const auto& s    = ships[i];
+        pn::string  next = pn::format(
+                "{0}{1}{2}", line, (i == 0) ? "" : ", ",
                 (s.second == 1) ? s.first.copy() : pn::format("{0} {1}s", s.second, s.first));
+        const int  left = rest - s.second;
+        pn::string with = (left > 0) ? pn::format("{0}, +{1} more", next, left) : next.copy();
+        if ((left > 0) ? !one_line(with) : !one_line(next)) {
+            return pn::format("{0}{1}+{2} more", line, (i == 0) ? "" : ", ", rest);
+        }
+        line = std::move(next);
+        rest = left;
     }
     return line;
 }
@@ -87,6 +124,14 @@ ArenaScreen::ArenaScreen(bool* cancelled, int* index, const Level** level)
     frame.label.emplace("Arena");
     frame.hue = Hue::AQUA;
     add_widget(WidgetData{std::move(frame)});
+    remove_widget(kListRect);
+    BoxRectData list;
+    list.id     = kListRect;
+    list.type   = WidgetDataBase::RECT;
+    list.bounds = kListBounds;
+    list.hue    = Hue::AQUA;
+    list.style  = InterfaceStyle::SMALL;
+    add_widget(WidgetData{std::move(list)});
 
     for (const auto& kv : plug.arena) {
         const Level& l = kv.second;
@@ -98,10 +143,15 @@ ArenaScreen::ArenaScreen(bool* cancelled, int* index, const Level** level)
                 cpu = p;
             }
         }
-        _rows.push_back(Row{&l, l.base.name.copy(),
-                            pn::format("You: {0}", fleet_line(fleet(l, human))),
-                            pn::format("Enemy: {0}", fleet_line(fleet(l, cpu)))});
+        const int width = row_bounds(0).width() - 8;  // as drawn in overlay()
+        _rows.push_back(Row{&l, l.base.name.copy(), fleet_line("You: ", fleet(l, human), width),
+                            fleet_line("Enemy: ", fleet(l, cpu), width)});
     }
+    // Easy to Very Hard; the same difficulty by title.
+    std::stable_sort(_rows.begin(), _rows.end(), [](const Row& a, const Row& b) {
+        const int ra = difficulty_rank(a.title), rb = difficulty_rank(b.title);
+        return (ra != rb) ? (ra < rb) : (a.title < b.title);
+    });
     *_index = std::max(0, std::min<int>(*_index, int(_rows.size()) - 1));
     *_level = _rows.empty() ? nullptr : _rows[*_index].level;
 

@@ -14,8 +14,9 @@ namespace antares {
 union Level;
 
 // The Arena battle picker (docs/arena-investigation.md §4): one row per battle in plug.arena, its
-// title and both fleets. Up/Down (or the gamepad's d-pad, or a click) picks a row; Begin (Return,
-// gamepad A) starts it; Cancel (Esc, gamepad B) goes back. Built in code on the campaign's
+// title and both fleets, ordered Easy to Very Hard by the difficulty ending its title. Up/Down
+// (or the gamepad's d-pad, or a click) picks a row; Begin (Return, gamepad A) starts it; Cancel
+// (Esc, gamepad B) goes back. Built in code on the campaign's
 // level-select frame (data/interfaces/select-level.pn), whose Previous/Next buttons and "Select
 // Level" box are removed, so data/ is never edited.
 class ArenaScreen : public InterfaceScreen {
@@ -28,8 +29,11 @@ class ArenaScreen : public InterfaceScreen {
     void mouse_down(const MouseDownEvent& event) override;
     void gamepad_button_down(const GamepadButtonDownEvent& event) override;
 
-    // "4 Cruisers" from a ship's name and how many there are (for the fleet lines).
-    static pn::string fleet_line(const std::vector<std::pair<pn::string, int>>& ships);
+    // `prefix` and the ships ("4 Cruisers"), cut to one line of small text `width` wide: ships that
+    // don't fit end the line as "+N more".
+    static pn::string fleet_line(
+            pn::string_view prefix, const std::vector<std::pair<pn::string, int>>& ships,
+            int width);
 
   protected:
     void overlay() const override;

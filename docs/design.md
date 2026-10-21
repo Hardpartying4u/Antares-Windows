@@ -75,6 +75,10 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
     is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
     for steering while using the mouse.
+- **Decision (2026-10-21): an Arena difficulty ladder.** Skirmish (Easy), Fleet Action (Medium),
+  Armada (Hard, reinforcements at 60 s) and Last Stand (Very Hard, three waves against a bunker;
+  lose if the bunker stops being yours, since stations are neutralised, not destroyed). The
+  picker orders by the difficulty in the title (`docs/arena-investigation.md` §9).
 - **Decision (2026-10-21): Arena replaces Demo.** Arena (D / gamepad Y) sits in Network's old
   menu row; the Demo button goes but the idle demo replays stay. Picker on the level-select frame
   (one row per battle with both fleets), the game's own result and Esc screens, and back to the

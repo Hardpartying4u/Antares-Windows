@@ -1,0 +1,115 @@
+type:     "solo"
+title:
+	>	Fleet Action (Medium)
+players:
+	*	type:           "human"
+		race:           "ish"
+		name:           "Ishiman Strike Group"
+		earning_power:  0.0
+	*	type:           "cpu"
+		race:           "gai"
+		name:           "Gaitori Battle Fleet"
+		earning_power:  0.0
+song:  "eyes-of-fire"
+initials:
+	*	base:      "ish/hvd"
+		owner:     0
+		at:        {x: 0, y: 2000}
+		flagship:  true
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: -525, y: 1700}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: -175, y: 1700}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 175, y: 1700}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 525, y: 1700}
+		target:    {initial: 0}
+	*	base:      "ish/gunship"
+		owner:     0
+		at:        {x: -250, y: 2300}
+		target:    {initial: 0}
+	*	base:      "ish/gunship"
+		owner:     0
+		at:        {x: 250, y: 2300}
+		target:    {initial: 0}
+	*	base:      "gai/hvd"
+		owner:     1
+		at:        {x: 0, y: -2300}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: -400, y: -2000}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 0, y: -2000}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 400, y: -2000}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -450, y: -2600}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -150, y: -2600}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 150, y: -2600}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 450, y: -2600}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: -375, y: -1800}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: -125, y: -1800}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: 125, y: -1800}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: 375, y: -1800}
+conditions:
+	# 0. Win: the Gaitori have no ships left (on after 5 s).
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:    "win"
+				player:  0
+				text:
+					>	The Gaitori fleet is destroyed.
+	# 1. Lose: the flagship is destroyed.
+	*	when:
+			type:    "destroyed"
+			op:      "eq"
+			object:  {initial: 0}
+			value:   true
+		action:
+			*	type:    "win"
+				player:  1
+				text:
+					>	Your flagship was destroyed.
+	# 2. After 5 s, turn on condition 0.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "5s"
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [0]
+par:
+	time:    "5m"
+	kills:   12
+	losses:  0

@@ -267,3 +267,39 @@ Choices made (§4 review): 1a, 2 (D / gamepad Y), 3, 4 and 5a as proposed, and 6
     output (the bar covers all three lines).
   - A battle with four cruisers drag-selected and saved as group 1 shows the group bar ("1", the
     cruiser icon, "4") lit as the selection.
+
+## 9. Step 5: the difficulty ladder (2026-10-21)
+
+Four battles in `arena/` (never `data/`). Each title ends in its difficulty, and the picker orders
+rows by it (Easy, Medium, Hard, Very Hard; anything else last). You are always the Ishiman Strike
+Group, with no money or building.
+
+| Battle | You | Enemy | Rules |
+|---|---|---|---|
+| **Skirmish (Easy)** (`skirmish.pn`, renamed only) | Heavy Destroyer (flagship), 4 Cruisers | Gaitori: 4 Gunships, 2 Fighters | Win: no enemy ships. Lose: flagship destroyed |
+| **Fleet Action (Medium)** (`fleet-action.pn`) | Heavy Destroyer, 4 Cruisers, 2 Gunships | Gaitori: Heavy Destroyer, 3 Cruisers, 4 Gunships, 4 Fighters | As Skirmish |
+| **Armada (Hard)** (`armada.pn`) | Heavy Destroyer, 3 Cruisers, 2 Gunships, a Carrier | Gaitori: 2 Heavy Destroyers, 4 Cruisers, 4 Gunships, 4 Fighters; Cantharan Heavy Cruiser. **At 60 s:** 3 Cantharan Cruisers and 3 Gunships jump in from the east and head for your flagship | Win counts only from 60 s, after the reinforcements |
+| **Last Stand (Very Hard)** (`last-stand.pn`) | Heavy Destroyer, 2 Cruisers, a **Bunker Station** | Wave 1 (start, north): 4 Gaitori Gunships, 2 Fighters. Wave 2 (50 s, east): Gaitori Heavy Destroyer, 3 Cruisers, 3 Gunships. Wave 3 (100 s, west): 2 Cantharan Heavy Cruisers, 4 Gunships, 2 Salrilian Fighters. All waves head for the bunker | Win: no enemy ships once wave 3 is in. Lose: flagship destroyed, **or the bunker is no longer yours** |
+
+**How the rules are built (all existing level features):**
+- **Reinforcements and waves** are hidden ships (`hide: true`) shown at a set time by a `time`
+  condition with a `reveal` action and an on-screen message.
+- **The win** ("ships" = 0) starts disabled and is turned on by the condition that brings in the
+  last group, so killing an early group can't end the battle.
+- **The nearest thing to "the base dies":** a station that is destroyed doesn't explode in this
+  game. It is neutralised (`destroy: {neutralize: true}` in `tpl/station`). So Last Stand's loss is
+  an `owner` condition: the bunker's owner is no longer you (knocked out, or captured).
+
+**Checks:**
+- `arena-test`: all four battles load, pass the loader's checks, and name only ships in
+  `data/objects`.
+- The `arena` offscreen test now plays each battle for 25 s in turn, from the picker. Every
+  battle reaches combat in that time. Armada's Gaitori warp in and open fire about 20 s in, after
+  its enemy fleet was moved 500 units closer for that.
+- With no input (replay tool, `arena_run.py`), each ends in a loss: Skirmish about 95 s, Fleet
+  Action 50 s, Armada 60 s, Last Stand 65 s ("The bunker has fallen."). The wave and
+  reinforcement messages fire on time.
+- These runs show the battles work, not how hard they are to win; that needs your playtest.
+- **Picker:** the list box is taller than the data's (4 rows of 44 px). A fleet line that wouldn't
+  fit on one line ends in "+N more" (found in the 2× screenshot, where Armada's and Last Stand's
+  enemy lines wrapped into the next row).

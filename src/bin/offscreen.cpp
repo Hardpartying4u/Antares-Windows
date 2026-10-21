@@ -342,41 +342,42 @@ void mission_briefing(EventScheduler& scheduler, Ledger& ledger) {
     scheduler.schedule_snapshot(time_ticks + 180);
 }
 
-// Star Bound's Arena (2026-10-21): the main menu's Arena button (D), the battle picker (Down,
-// then Up: one battle, so no change), Begin starts the Skirmish from arena/, 20 s of battle, Esc
-// then Quit returns to the picker, Esc there returns to the main menu.
+// Star Bound's Arena (2026-10-21): the main menu's Arena button (D), the battle picker (rows Easy
+// to Very Hard), then each of the four arena/ battles in turn: Begin, 25 s of battle (the fleets
+// meet), Esc then Quit back to the picker (which keeps the last row), Down to the next battle.
+// Esc on the picker returns to the main menu.
 void arena(EventScheduler& scheduler) {
     scheduler.schedule_key(Key::Q, 900, 901);
     scheduler.schedule_snapshot(900);
 
     scheduler.schedule_key(Key::D, 960, 1020);
     scheduler.schedule_snapshot(1020);
-    scheduler.schedule_key(Key::DOWN_ARROW, 1040, 1041);
-    scheduler.schedule_key(Key::UP_ARROW, 1050, 1051);
-    scheduler.schedule_snapshot(1060);
 
-    // Begin: the picker fades out and the battle loads.
-    scheduler.schedule_key(Key::RETURN, 1080, 1140);
-    scheduler.schedule_snapshot(1140);
-    scheduler.schedule_snapshot(1200);
-
-    int64_t t = 1260;
-    for (int i = 0; i < 10; ++i) {
-        scheduler.schedule_snapshot(t);
-        t += 120;
+    int64_t t = 1080;
+    for (int battle = 0; battle < 4; ++battle) {
+        if (battle > 0) {
+            scheduler.schedule_key(Key::DOWN_ARROW, t, t + 1);
+            scheduler.schedule_snapshot(t + 10);
+        }
+        // Begin: the picker fades out and the battle loads.
+        scheduler.schedule_key(Key::RETURN, t + 20, t + 80);
+        scheduler.schedule_snapshot(t + 140);
+        for (int i = 1; i <= 5; ++i) {
+            scheduler.schedule_snapshot(t + 140 + i * 300);
+        }
+        // Esc: Resume / Restart / Quit; Quit fades back to the picker.
+        t += 1700;
+        scheduler.schedule_key(Key::ESCAPE, t, t + 1);
+        scheduler.schedule_snapshot(t + 30);
+        scheduler.schedule_key(Key::Q, t + 60, t + 120);
+        scheduler.schedule_snapshot(t + 240);
+        t += 300;
     }
 
-    // Esc: Resume / Restart / Quit; Quit fades back to the picker.
-    scheduler.schedule_key(Key::ESCAPE, t, t + 1);
-    scheduler.schedule_snapshot(t + 30);
-    scheduler.schedule_key(Key::Q, t + 60, t + 120);
-    scheduler.schedule_snapshot(t + 180);
-    scheduler.schedule_snapshot(t + 240);
-
     // Esc on the picker: back to the main menu.
-    scheduler.schedule_key(Key::ESCAPE, t + 300, t + 301);
-    scheduler.schedule_snapshot(t + 360);
-    scheduler.schedule_key(Key::Q, t + 420, t + 421);
+    scheduler.schedule_key(Key::ESCAPE, t, t + 1);
+    scheduler.schedule_snapshot(t + 60);
+    scheduler.schedule_key(Key::Q, t + 120, t + 121);
 }
 
 void pause(EventScheduler& scheduler) {

@@ -1,6 +1,6 @@
 type:     "solo"
 title:
-	>	Skirmish
+	>	Skirmish (Easy)
 players:
 	*	type:           "human"
 		race:           "ish"

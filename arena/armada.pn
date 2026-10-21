@@ -1,0 +1,161 @@
+type:     "solo"
+title:
+	>	Armada (Hard)
+players:
+	*	type:           "human"
+		race:           "ish"
+		name:           "Ishiman Strike Group"
+		earning_power:  0.0
+	*	type:           "cpu"
+		race:           "gai"
+		name:           "Gaitori-Cantharan Armada"
+		earning_power:  0.0
+song:  "eyes-of-fire"
+initials:
+	*	base:      "ish/hvd"
+		owner:     0
+		at:        {x: 0, y: 2200}
+		flagship:  true
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: -400, y: 1900}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 0, y: 1900}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 400, y: 1900}
+		target:    {initial: 0}
+	*	base:      "ish/gunship"
+		owner:     0
+		at:        {x: -300, y: 2500}
+		target:    {initial: 0}
+	*	base:      "ish/gunship"
+		owner:     0
+		at:        {x: 300, y: 2500}
+		target:    {initial: 0}
+	*	base:      "ish/carrier"
+		owner:     0
+		at:        {x: 0, y: 2600}
+		target:    {initial: 0}
+	*	base:      "gai/hvd"
+		owner:     1
+		at:        {x: -350, y: -1900}
+	*	base:      "gai/hvd"
+		owner:     1
+		at:        {x: 350, y: -1900}
+	*	base:      "can/hvc"
+		owner:     1
+		at:        {x: 0, y: -2200}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: -525, y: -1600}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: -175, y: -1600}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 175, y: -1600}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 525, y: -1600}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -450, y: -2200}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -150, y: -2200}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 150, y: -2200}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 450, y: -2200}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: -375, y: -1400}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: -125, y: -1400}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: 125, y: -1400}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: 375, y: -1400}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: 3200, y: -600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: 3500, y: -600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: 3800, y: -600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/gunship"
+		owner:     1
+		at:        {x: 3200, y: -1000}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/gunship"
+		owner:     1
+		at:        {x: 3500, y: -1000}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/gunship"
+		owner:     1
+		at:        {x: 3800, y: -1000}
+		hide:      true
+		target:    {initial: 0}
+conditions:
+	# 0. Win: no enemy ships left (on once the reinforcements are in).
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:    "win"
+				player:  0
+				text:
+					>	The armada is destroyed.
+	# 1. Lose: the flagship is destroyed.
+	*	when:
+			type:    "destroyed"
+			op:      "eq"
+			object:  {initial: 0}
+			value:   true
+		action:
+			*	type:    "win"
+				player:  1
+				text:
+					>	Your flagship was destroyed.
+	# 2. At 60 s, Cantharan reinforcements arrive from the east; the win can count from now.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "60s"
+		action:
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Cantharan reinforcements are jumping in from the east!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [22, 23, 24, 25, 26, 27]
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [0]
+par:
+	time:    "8m"
+	kills:   21
+	losses:  0
