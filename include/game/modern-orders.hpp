@@ -91,6 +91,17 @@ void                             modern_group_save(int group);
 std::vector<Handle<SpaceObject>> modern_group_ships(int group);
 void                             modern_group_pointer(int group);
 
+// The group bar (2026-10-21): along the bottom of the play area, a box per group that has ships,
+// in number order, showing its number and how many ("1 . 5", with a middle dot). A box flashes
+// when its group is saved or Shift+number is pressed, and stays lit while the group is the
+// selection. View only, except that a click on a box acts as the group's number
+// (PlayerShip::mouse_down). While it shows, red messages rise above it
+// (Messages::draw_message_screen). Only in the Modern mode.
+void    draw_modern_group_bar();
+int     modern_group_bar_hit(Point where);  // the group whose box is at `where`, or -1
+int32_t modern_group_bar_height();          // 0 when no box shows
+void    modern_group_flash(int group);
+
 // Attack-move (step C, docs/modern-controls.md §5b), from an existing order: the attack-move key
 // then a click, or Ctrl+right-click. Each selected ship gets a point order to its formation point
 // with the 15 s clock left at 0, the Classic point order (Hold Position's), so it turns aside to

@@ -559,6 +559,36 @@ replays, the demo and the tutorials are unchanged.
 The double-tap check failed only because the test pressed the keys about 560 ms apart, outside the
 window. The window was then widened from 0.4 to 0.5 s, and the replay tool confirmed the pointer.
 
+### 2.4c2 The group bar (2026-10-21)
+
+A row of boxes along the bottom edge of the play area, like StarCraft's hotkey bar, in the Modern
+mode only (Classic, replays, the demo and the tutorials have none). Code: `group_boxes()`,
+`draw_modern_group_bar()` and `modern_group_bar_hit()` in `src/game/modern-orders.cpp`.
+
+- **Boxes:** one per group that has ships, in number order from the play area's bottom left,
+  showing the number and how many ships it has ("1 · 5", tactical font, 3 px padding, 2 px apart).
+  The count is the group's ships that can still take orders, read every frame, so it drops when one
+  dies, is captured or becomes locked; an empty group's box goes. Boxes that don't fit a narrow
+  play area are left out.
+- **Look** (yellow, as the selection brackets): dark fill, medium frame, light text. Lit (lighter
+  fill, brightest frame and text) while the group is exactly the selection. It blinks for 0.45 s
+  when the group is saved (Ctrl+number) or Shift+number adds it to the selection. Drawn with
+  rectangles and the font, so it is the same in Original and Enhanced graphics and is scaled by the
+  integer UI scale like the rest of the screen.
+- **Clicks:** a left-click on a box acts as the group's number (with Ctrl or Shift held, as
+  Ctrl+number or Shift+number); a double-click also shows the group pointer, as a double tap. A
+  left or right click on the bar never reaches the play area (no Classic click, no drag box, no
+  order).
+- **Messages:** the bottom of the play area moves up with the long-message box, and the bar with
+  it. While the bar shows, red messages rise above it (by its height plus 2 px); a message on screen
+  moves when the bar appears or goes. With no bar (always in Classic) they are where they were.
+- **Tests:** `modern-multi` replay test: selecting the flagship empties the selection, then a
+  left-click on group 1's box selects its three ships. Its screenshots now show the bar, a count
+  dropping as a ship dies, and red messages above the bar. Two runs are identical.
+- **In game (srtm as a test scenario, Modern: Ares, windowed 1920×1080, UI 2×):** groups of 2 and 5
+  ships showed as "1 · 2" and "2 · 5", the second lit as the selection, readable and clear of the
+  left panel.
+
 ### 2.4d Modern attack-move (2026-10-21)
 
 Step C of `docs/modern-controls.md` (plan in §5b), in the Modern mode only. It is built from the

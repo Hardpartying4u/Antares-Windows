@@ -157,6 +157,45 @@ bool group_valid(const GroupEntry& e) {
     return (e.number >= 0) && (e.number < kMaxSpaceObject) && (o->id == e.id) && selectable(o);
 }
 
+// The group bar's boxes, left to right from the play area's bottom left corner.
+const int32_t kGroupBarPad    = 3;  // around the text
+const int32_t kGroupBarGap    = 2;  // between boxes
+const int32_t kGroupBarLeft   = 2;  // from the play area's left edge
+const usecs   kGroupFlashTime = std::chrono::milliseconds(450);
+wall_time     gGroupFlash[ControlGroups::kCount];  // view only
+
+struct GroupBox {
+    int        group;
+    Rect       rect;
+    pn::string text;
+};
+
+std::vector<GroupBox> group_boxes() {
+    std::vector<GroupBox> boxes;
+    if (!g.modern_controls || !g.ship.get()) {
+        return boxes;
+    }
+    const Font&   font   = sys.fonts.tactical;
+    const int32_t height = font.height + (2 * kGroupBarPad);
+    const Rect    v      = viewport();
+    int32_t       left   = v.left + kGroupBarLeft;
+    for (int i = 0; i < ControlGroups::kCount; ++i) {
+        const int count = g.modern_groups.peek(i, group_valid).size();
+        if (count == 0) {
+            continue;
+        }
+        pn::string    text  = pn::format("{0} \xc2\xb7 {1}", (i + 1) % 10, count);  // "1 · 5"
+        const int32_t width = font.string_width(text) + (2 * kGroupBarPad);
+        if (left + width > v.right) {
+            break;  // no room on a narrow play area
+        }
+        boxes.push_back(GroupBox{
+                i, Rect(left, v.bottom - height, left + width, v.bottom), std::move(text)});
+        left += width + kGroupBarGap;
+    }
+    return boxes;
+}
+
 void log_event(pn::string_view what) {
     if (modern_order_log) {
         modern_order_log(pn::format("{0}\t{1}\n", g.time.time_since_epoch().count(), what));
@@ -317,6 +356,7 @@ void modern_group_save(int group) {
         entries.push_back(GroupEntry{o.number(), o->id});
     }
     g.modern_groups.save(group, entries);
+    modern_group_flash(group);
     log_event(pn::format("group {0} saved\t{1}", (group + 1) % 10, ship_names(ships)));
 }
 
@@ -332,6 +372,82 @@ void modern_group_pointer(int group) {
     gPointer.group = group;
     gPointer.since = now();
     log_event(pn::format("group {0} pointer", (group + 1) % 10));
+}
+
+void modern_group_flash(int group) {
+    if ((group >= 0) && (group < ControlGroups::kCount)) {
+        gGroupFlash[group] = now();
+    }
+}
+
+int modern_group_bar_hit(Point where) {
+    for (const auto& b : group_boxes()) {
+        if (b.rect.contains(where)) {
+            return b.group;
+        }
+    }
+    return -1;
+}
+
+int32_t modern_group_bar_height() {
+    auto boxes = group_boxes();
+    return boxes.empty() ? 0 : (boxes[0].rect.height() + kGroupBarGap);
+}
+
+void draw_modern_group_bar() {
+    auto boxes = group_boxes();
+    if (boxes.empty()) {
+        return;
+    }
+    auto selection = current_selection();
+    struct Look {
+        RgbColor fill, frame, text;
+    };
+    std::vector<Look> looks;
+    for (const auto& b : boxes) {
+        // Lit while the group is exactly the selection.
+        auto ships    = g.modern_groups.peek(b.group, group_valid);
+        bool selected = !selection.empty() && (ships.size() == selection.size());
+        for (const auto& s : selection) {
+            selected = selected &&
+                       (std::find(ships.begin(), ships.end(),
+                                  GroupEntry{s.first.number(), s.second}) != ships.end());
+        }
+        // A flash: quick blinks for a moment after a save or Shift+number.
+        const usecs age   = now() - gGroupFlash[b.group];
+        const bool  flash = (gGroupFlash[b.group] != wall_time()) && (age < kGroupFlashTime) &&
+                           (((age / std::chrono::milliseconds(75)) % 2) == 0);
+        if (flash) {
+            looks.push_back(Look{GetRGBTranslateColorShade(Hue::YELLOW, LIGHT),
+                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST),
+                                 GetRGBTranslateColorShade(Hue::YELLOW, DARKEST)});
+        } else if (selected) {
+            looks.push_back(Look{GetRGBTranslateColorShade(Hue::YELLOW, DARK),
+                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST),
+                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST)});
+        } else {
+            looks.push_back(Look{GetRGBTranslateColorShade(Hue::YELLOW, DARKEST),
+                                 GetRGBTranslateColorShade(Hue::YELLOW, MEDIUM),
+                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHT)});
+        }
+    }
+    {
+        const Rects rects;  // drawn when it goes out of scope, before the text
+        for (int i = 0; i < boxes.size(); ++i) {
+            const Rect& r = boxes[i].rect;
+            rects.fill(r, looks[i].frame);
+            Rect inside = r;
+            inside.inset(1, 1);
+            rects.fill(inside, looks[i].fill);
+        }
+    }
+    const Font& font = sys.fonts.tactical;
+    for (int i = 0; i < boxes.size(); ++i) {
+        const Rect& r = boxes[i].rect;
+        font.draw(
+                Point(r.left + kGroupBarPad, r.top + kGroupBarPad + font.ascent), boxes[i].text,
+                looks[i].text);
+    }
 }
 
 void modern_selection_matches_control() {

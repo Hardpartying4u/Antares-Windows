@@ -51,3 +51,10 @@
 1280 key 44
 1283 rclick 320 330
 1286 log-selection
+# The group bar (2026-10-21): select the flagship (initial 0), which empties the selection; then
+# a left-click on group 1's box at the bottom left of the play area selects group 1 (three ships),
+# as its number does, and doesn't also act on the play area (no Classic click, no drag box).
+1300 select-initial 0
+1303 log-selection
+1310 lclick 140 470
+1313 log-selection

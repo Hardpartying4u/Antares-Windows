@@ -75,6 +75,10 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
     is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
     for steering while using the mouse.
+- **Decision (2026-10-21): the control group bar sits flush on the bottom edge of the play area**
+  (Modern mode only); red messages rise above it while it shows, rather than the bar floating above
+  the message lane. Classic, replays, the demo and the tutorials are unchanged
+  (`docs/modern-controls.md` §5a).
 - **Decision (2026-10-21): Modern: Ares takes Classic's bindings.** Its keys, wheel and gamepad
   are exactly Classic's, with all the Modern mouse and group features; Classic and Modern: WASD
   are unchanged. Attack move is on A in Classic too (it acts only in the Modern mode), so Modern:

@@ -572,6 +572,18 @@ void PlayerShip::mouse_down(const MouseDownEvent& event) {
     _cursor.mouse_down(event);
 
     Point where = event.where();
+    if (g.modern_controls && (event.button() <= 1)) {
+        const int group = modern_group_bar_hit(where);
+        if (group >= 0) {  // the group bar: never also a click on the play area
+            if ((event.button() == 0) && active() && !(g.key_mask & kMouseMask)) {
+                modern_group_key(group);  // as its number (with Ctrl or Shift, too)
+                if (event.count() == 2) {
+                    modern_group_pointer(group);  // as a double tap
+                }
+            }
+            return;
+        }
+    }
     switch (event.button()) {
         case 0:
             if (event.count() == 2) {
@@ -684,6 +696,7 @@ void PlayerShip::modern_group_key(int group) {
             select_object(ships[0], false, g.admiral);
         }
         modern_select(ships, true);
+        modern_group_flash(group);
     } else {
         select_object(ships[0], false, g.admiral);
         modern_select(ships, false);

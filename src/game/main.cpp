@@ -418,6 +418,7 @@ void GamePlay::draw() const {
     draw_sprites();
     Label::draw();
     draw_modern_markers();
+    draw_modern_group_bar();
 
     Messages::draw_message();
     if (_should_draw_site) {

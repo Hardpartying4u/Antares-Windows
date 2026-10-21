@@ -30,6 +30,7 @@
 #include "game/instruments.hpp"
 #include "game/labels.hpp"
 #include "game/level.hpp"
+#include "game/modern-orders.hpp"
 #include "game/space-object.hpp"
 #include "game/sys.hpp"
 #include "lang/defines.hpp"
@@ -304,14 +305,22 @@ void Messages::draw_message_screen(ticks by_units) {
     if (!message_data.empty()) {
         pn::string_view message = message_data.front();
 
+        // In the Modern mode, above the group bar while it shows; the message moves when the bar
+        // appears or goes. (Always 0 in Classic.)
+        static int32_t lift = 0, v = 0;
+        const int32_t  bar    = modern_group_bar_height();
+        const int32_t  bottom = viewport().bottom - bar;
         if (time_count < kRaiseTime) {
-            g.message_label->set_position(
-                    kMessageScreenLeft, viewport().bottom - time_count.count());
+            v = bottom - time_count.count();
+            g.message_label->set_position(kMessageScreenLeft, v);
         } else if (time_count > kLowerTime) {
-            g.message_label->set_position(
-                    kMessageScreenLeft,
-                    viewport().bottom - (kMessageDisplayTime - time_count).count());
+            v = bottom - (kMessageDisplayTime - time_count).count();
+            g.message_label->set_position(kMessageScreenLeft, v);
+        } else if (bar != lift) {
+            v -= bar - lift;
+            g.message_label->set_position(kMessageScreenLeft, v);
         }
+        lift = bar;
 
         g.message_label->text() = StyledText::plain(
                 message, sys.fonts.tactical, GetRGBTranslateColorShade(kMessageColor, LIGHTEST));

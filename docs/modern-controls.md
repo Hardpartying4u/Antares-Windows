@@ -563,6 +563,12 @@ whose point moves along a route.
   - In the Modern mode the number keys are groups, not hotkeys, and the Order key fires on release
     unless a number was pressed while it was held. That resolves the Ctrl clash in Modern: WASD.
   - Group digits beside the markers (§4) are not drawn yet.
+- **The group bar: done 2026-10-21** (`docs/current-state.md` §2.4c2). A box per group that has
+  ships along the bottom edge of the play area ("1 · 5"), counts kept live, a blink on save and on
+  Shift+number, lit while the group is the selection. A click on a box acts as the number, a
+  double-click as a double tap, and clicks on the bar never reach the play area. Red messages rise
+  above the bar while it shows (chosen over a bar floating above the message lane). Modern mode
+  only.
 - **Steps C and F, attack-move and two-point patrol: done 2026-10-21** (`docs/current-state.md`
   §2.4d), as planned in §5b.
   - Attack-move key + click, or Ctrl+right-click: point orders with the engage clock at 0.
