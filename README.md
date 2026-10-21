@@ -1,10 +1,10 @@
-# Star Bound
+# Ares
 
-Star Bound is a Windows fork of [Antares](https://github.com/arescentral/antares), the open-source
+Ares is a Windows fork of [Antares](https://github.com/arescentral/antares), the open-source
 port of *Ares* by Nathan Lamont (Bigger Planet). It brings the classic space strategy game to modern
 Windows with new controls, enhanced graphics and a new Arena mode.
 
-**Based on the original game 'Ares,' by Nathan Lamont. Star Bound is not affiliated with or endorsed
+**Based on the original game 'Ares,' by Nathan Lamont. Ares Windows is not affiliated with or endorsed
 by Nathan Lamont or Bigger Planet.**
 
 ## How to play
