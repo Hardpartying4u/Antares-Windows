@@ -85,9 +85,9 @@ TEST_F(BindingsTest, ClassicMatchesTodaysControls) {
     for (const auto& p : pad) {
         EXPECT_EQ(c[p.action].slot[kGamepadSlot], Binding::gamepad(p.button)) << p.action;
     }
-    for (int s = 0; s < kBindingSlots; ++s) {
-        EXPECT_TRUE(c[kAttackMoveKeyNum].slot[s].empty());
-    }
+    EXPECT_EQ(c[kAttackMoveKeyNum].slot[kPrimarySlot], Binding::key(Key::A));  // since 2026-10-21
+    EXPECT_TRUE(c[kAttackMoveKeyNum].slot[kSecondarySlot].empty());
+    EXPECT_TRUE(c[kAttackMoveKeyNum].slot[kGamepadSlot].empty());
 }
 
 TEST_F(BindingsTest, ModernWasdFliesOnWasd) {
@@ -226,7 +226,7 @@ TEST_F(BindingsTest, Version2RoundTrip) {
     pn::value x;
     pn::input in{kV2Config, pn::text};
     ASSERT_TRUE(pn::parse(in, &x, nullptr));
-    EXPECT_EQ(x.as_map().get("version").as_int(), 4);
+    EXPECT_EQ(x.as_map().get("version").as_int(), 5);
     EXPECT_EQ(x.as_map().get("keys").as_map().get("ship accel").as_int(), Key(Key::W).value());
     EXPECT_EQ(x.as_map().get("keys").as_map().get("help").as_int(), 0);  // no key: 0
 }
@@ -369,7 +369,7 @@ TEST_F(BindingsTest, OldModernAresLayoutMigrates) {
     EXPECT_TRUE(prefs.get().bindings_match_preset());
     EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::N8));
     EXPECT_EQ(prefs.binding(kOrderKeyNum, kPrimarySlot), Binding::key(Key::CONTROL));
-    EXPECT_TRUE(prefs.binding(kAttackMoveKeyNum, kPrimarySlot).empty());
+    EXPECT_EQ(prefs.binding(kAttackMoveKeyNum, kPrimarySlot), Binding::key(Key::A));
 }
 
 // One the player customised keeps its bindings; Reset to Defaults then gives the new layout.
@@ -388,6 +388,35 @@ TEST_F(BindingsTest, CustomisedModernAresKept) {
     EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::UP_ARROW));
     EXPECT_EQ(prefs.binding(kAttackMoveKeyNum, kPrimarySlot), Binding::key(Key::A));
     EXPECT_TRUE(prefs.binding(kHelpKeyNum, kPrimarySlot).empty());
+}
+
+// Before version 5 attack move had no key in Classic: an older Classic config gets A when A is free
+// and attack move has no key; otherwise it is left alone.
+TEST_F(BindingsTest, AttackMoveGetsA) {
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 4\ncontrols: {{preset: \"classic\", bindings: {{"
+                "\"attack move\": {{primary: null, secondary: null, gamepad: null}}}}}}\n");
+    }
+    {
+        FilePrefsDriver prefs(kV2Config);
+        EXPECT_EQ(prefs.binding(kAttackMoveKeyNum, kPrimarySlot), Binding::key(Key::A));
+        EXPECT_TRUE(prefs.get().bindings_match_preset());
+    }
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 4\ncontrols: {{preset: \"classic\", bindings: {{"
+                "\"attack move\": {{primary: null}}, \"help\": {{primary: {{key: {0}}}}}}}}}\n",
+                Key(Key::A).value());
+    }
+    {
+        FilePrefsDriver prefs(kV2Config);  // A is in use: attack move stays without a key
+        EXPECT_TRUE(prefs.binding(kAttackMoveKeyNum, kPrimarySlot).empty());
+        EXPECT_EQ(prefs.binding(kHelpKeyNum, kPrimarySlot), Binding::key(Key::A));
+    }
 }
 
 // Bindings a file shouldn't hold (a reserved input, a gamepad button in a key slot) are ignored.

@@ -728,15 +728,17 @@ unchanged. Players who know the Ares keys get the Modern features without relear
 | 15–18 | Minicomputer up / down / accept / cancel | T / G / B / V | ↑ ↓ → ← |
 | 19 | Transfer control | C | F8 |
 | 27 | Next message | ` | Backspace |
-| 44 | Attack move | A, then click | No key (as Classic); Ctrl+right-click |
+| 44 | Attack move | A, then click | A, then click (Classic has A too, since 2026-10-21); Ctrl+right-click |
 
 **Clash check (done first, none found):**
 - **Ctrl** is Classic's Order key and also the raw group and attack-move modifier. The Modern mode
   already handles this (Modern: WASD has Ctrl as Order too): Order fires on release, not after
   Ctrl+number (§5.1) or Ctrl+right-click. The Modern replay tests run with Classic's bindings.
 - **Shift** (target) and **1–0** (hotkeys, groups in the Modern mode) are the same in all presets.
-- **Attack move** has no key in Classic. Ctrl+right-click still gives it, and it can be bound on
-  the MODERN page.
+- **Attack move** had no key in Classic. On 2026-10-21 Classic got A for it (A is free in Classic,
+  and the action does nothing outside the Modern mode), so Modern: Ares keeps A, then click.
+  Older Classic and Modern: Ares configs get A if attack move has no key and A is free (config
+  version 5).
 - No Classic key is used as a raw key by a Modern feature (only Ctrl and Return are).
 
 **Saved configs:** a config (version 1 to 3) on Modern: Ares whose bindings are still the old

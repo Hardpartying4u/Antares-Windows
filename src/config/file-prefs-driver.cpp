@@ -47,7 +47,10 @@ namespace antares {
 //     2 have the fire-key move applied on load (migrate_classic_fire_keys).
 //  4. (2026-10-21) the same as 3, written after Modern: Ares took Classic's bindings. Versions 1 to 3
 //     on Modern: Ares with its old layout untouched get the new one on load (migrate_modern_ares).
-static const int64_t kConfigVersion = 4;
+//  5. (2026-10-21) the same as 4, written after Classic (and so Modern: Ares) bound attack move to A.
+//     Versions 1 to 4 on those presets get A on load when attack move has no key or mouse button
+//     and A is free (migrate_attack_move_key).
+static const int64_t kConfigVersion = 5;
 
 // Modern: Ares' own layout before version 4, where it differed from Classic: primary keys only (its
 // secondary and gamepad bindings were Classic's).
@@ -84,6 +87,20 @@ static void migrate_modern_ares(Preferences* p) {
         }
     }
     apply_preset(ControlPreset::MODERN_ARES, p->bindings);
+}
+
+// Attack move had no key in Classic (and so in Modern: Ares) before version 5; it gets A, unless
+// the player gave it a key or mouse button or A is in use.
+static void migrate_attack_move_key(Preferences* p) {
+    const ActionBindings& attack_move = p->bindings[kAttackMoveKeyNum];
+    if (!attack_move.slot[kPrimarySlot].empty() || !attack_move.slot[kSecondarySlot].empty()) {
+        return;
+    }
+    const Binding a = Binding::key(Key(Key::A));
+    if (!actions_for(p->bindings, a).empty()) {
+        return;
+    }
+    p->bindings[kAttackMoveKeyNum].slot[kPrimarySlot] = a;
 }
 
 static const char* const kSlotNames[kBindingSlots] = {"primary", "secondary", "gamepad"};
@@ -184,6 +201,10 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
     }
     if ((version < 4) && (_current.controls_preset == ControlPreset::MODERN_ARES)) {
         migrate_modern_ares(&_current);
+    }
+    if ((version < 5) && ((_current.controls_preset == ControlPreset::CLASSIC) ||
+                          (_current.controls_preset == ControlPreset::MODERN_ARES))) {
+        migrate_attack_move_key(&_current);
     }
 
     pn::map_cref video = m.get("video").as_map();

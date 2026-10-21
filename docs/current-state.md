@@ -48,12 +48,12 @@ GLFW (src/glfw/video-driver.cpp)
   may, because the Ares gamepad fires both weapons with RT.
 - **Presets** (data tables in `src/config/bindings.cpp`):
   - **Classic** (the default) is the game as it was: the keys below, the wheel as the secondary
-    binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move is
-    unbound. One exception: since 2026-10-20 the fire keys are X and Z, not Left Alt and the
+    binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move is on A
+    since 2026-10-21 (it only acts in the Modern mode). One exception: since 2026-10-20 the fire keys are X and Z, not Left Alt and the
     Windows key (§1.2).
   - **Modern: Ares** (the default Modern layout) has exactly Classic's bindings, keys, wheel and
     gamepad, since 2026-10-21: the Ares keys with the Modern mouse and group features. Attack move
-    has no key (as Classic); Ctrl+right-click gives it. Ctrl is Classic's Order key, which in the
+    is A, then click (as Classic), or Ctrl+right-click. Ctrl is Classic's Order key, which in the
     Modern mode fires on release, and not after Ctrl+number or Ctrl+right-click (§2.4c, §2.4d).
     From 2026-10-20 to 2026-10-21 it had its own Ares-style layout (arrows steer, the rest under
     the left hand); `docs/modern-controls.md` §8 keeps it, and old configs are migrated (below).
@@ -197,6 +197,10 @@ Modern: Ares whose bindings are still exactly its old Ares-style layout get the 
 on load (`migrate_modern_ares`, `src/config/file-prefs-driver.cpp`). A config whose bindings the
 player changed is kept as it is: the screen shows "(CHANGED)", and Reset to Defaults gives the new
 layout. Saves are now version 4.
+
+**Attack move on A (version 5, 2026-10-21).** Configs written before (version 1 to 4) on Classic or
+Modern: Ares get attack move on A when it has no key or mouse button and A isn't bound to anything
+(`migrate_attack_move_key`). Otherwise they are left alone. Saves are now version 5.
 
 **Checked in game (2026-10-20):**
 - Key Controls shows X and Z at UI 1×, 2× and 4×.
@@ -564,8 +568,8 @@ didn't work in play and isn't needed for now (`docs/modern-controls.md` §5a). G
 (`807c90ba`).
 
 **Keys** (rebindable action 44, `docs/modern-controls.md` §8):
-- **Attack-move:** G (Modern: WASD; Modern: Ares had A until 2026-10-21 and now has no key, as
-  Classic) arms it; the next left-click in the play
+- **Attack-move:** A (Classic and Modern: Ares; it acts only in the Modern mode) or G (Modern: WASD)
+  arms it; the next left-click in the play
   area gives it. **Ctrl+right-click** gives it at once (Ctrl as the raw key; Order's release then
   gives nothing).
 - While armed the crosshair is red. A right-click disarms without an order. A level that

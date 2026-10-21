@@ -77,7 +77,8 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
     for steering while using the mouse.
 - **Decision (2026-10-21): Modern: Ares takes Classic's bindings.** Its keys, wheel and gamepad
   are exactly Classic's, with all the Modern mouse and group features; Classic and Modern: WASD
-  are unchanged. Attack move has no key (Ctrl+right-click gives it). Old configs still on the old
+  are unchanged. Attack move is on A in Classic too (it acts only in the Modern mode), so Modern:
+  Ares keeps A, then click, as well as Ctrl+right-click. Old configs still on the old
   Ares-style layout move to the new one; customised ones are kept (`docs/modern-controls.md` §8).
 - **Investigation (2026-10-20, revised the same day):** `docs/modern-controls.md` covers how orders and ship behaviour work, the detailed behaviour of control groups, drag selection with context-sensitive right-click, attack-move and patrol, and the proposed build order (toggle, right-click orders, attack-move, multi-select, groups, two-point patrol, then multi-point patrol routes). Findings:
   - Ctrl orders to an object fly straight there; a ship only fights after being hit or on arrival.
