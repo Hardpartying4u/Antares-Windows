@@ -1,0 +1,90 @@
+type:     "solo"
+title:
+	>	Skirmish
+players:
+	*	type:           "human"
+		race:           "ish"
+		name:           "Ishiman Strike Group"
+		earning_power:  0.0
+	*	type:           "cpu"
+		race:           "gai"
+		name:           "Gaitori Raiders"
+		earning_power:  0.0
+song:  "eyes-of-fire"
+initials:
+	*	base:      "ish/hvd"
+		owner:     0
+		at:        {x: 0, y: 2000}
+		flagship:  true
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: -500, y: 1700}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 500, y: 1700}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: -900, y: 2200}
+		target:    {initial: 0}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 900, y: 2200}
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -600, y: -2000}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -200, y: -2100}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 200, y: -2100}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 600, y: -2000}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: -300, y: -2400}
+	*	base:      "gai/fighter"
+		owner:     1
+		at:        {x: 300, y: -2400}
+conditions:
+	# 0. Win: the Gaitori have no ships left. Off at the start (as the campaign's "no ships" wins
+	#    are), and turned on by condition 2.
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:    "win"
+				player:  0
+				text:
+					>	The Gaitori raiders are destroyed.
+	# 1. Lose: the flagship is destroyed.
+	*	when:
+			type:    "destroyed"
+			op:      "eq"
+			object:  {initial: 0}
+			value:   true
+		action:
+			*	type:    "win"
+				player:  1
+				text:
+					>	Your flagship was destroyed.
+	# 2. After 5 s, turn on condition 0.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "5s"
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [0]
+par:
+	time:    "3m"
+	kills:   6
+	losses:  0

@@ -169,3 +169,40 @@ changes only the main-menu snapshots listed in §1.6.
 - **Replays/recording:** Arena games aren't recorded. If replay recording is ever added, the
   arena files must ship with the game so recordings can find their level.
 - **Original graphics:** untouched as long as arena levels only reference existing objects.
+
+## 6. Step 2 results: the Skirmish prototype (2026-10-21)
+
+**The level:** `arena/skirmish.pn` (a new Star Bound folder; `data/` untouched). It has an
+Ishiman flagship (`ish/hvd`) and 4 cruisers escorting it (`target: {initial: 0}`), against 4
+Gaitori gunships and 2 fighters about 4,000 units away. The Gaitori have no target and no script,
+so whatever they do is the cpu admiral's own choice. There is no money (earning 0), no building
+and no briefing. Par is 3 min, 6 kills, 0 losses.
+
+**How it was run (no code changes).** The `replay` tool reads `./data` relative to where it
+runs. A scratch script (`arena_run.py`, kept in the session scratchpad):
+1. copies `data/` into a scratch folder;
+2. adds the arena level there as chapter 90;
+3. writes a replay of that chapter with **no input** (5 minutes, a chosen seed);
+4. runs `replay.exe --text` from that folder.
+
+The debriefing text says who won; the text screenshots show which ships are on screen.
+
+**Results:**
+- **The AI fights.** Within about 10 s the Gaitori gunships come to the Ishiman fleet without
+  any script. The escorting cruisers engage them, and with no player input all four are lost by
+  about 50 s. The gunships then kill the idle flagship.
+- **Lose works:** "Your flagship was destroyed." Seed 12345 ended at about 90 s, seed 777 at
+  about 40 s and seed 4242 at about 70 s.
+- **Win works:** a scratch copy with only the 2 fighters ended with "The Gaitori raiders are
+  destroyed." at 0:24, with 2 kills and 0 losses. The debriefing table (time, losses, kills,
+  score against par) appears on a win; on a loss only the text shows.
+- **Deterministic:** two runs with the same seed gave identical output.
+- **Finding:** a "ships = 0" win must start **disabled**. Enabled from the start, it fired at once
+  ("win" at 0:03 with no kills), because the ship counts are 0 until the first ship-think pass
+  has counted them. The campaign does the same (ch16, ch20 and tut3 start it disabled). The
+  prototype turns it on with a `time ≥ 5s` condition.
+- **Balance:** 4 gunships and 2 fighters beat 4 cruisers whose flagship is idle. With a player
+  flying and ordering the fleet, it should be a fair small fight, but that needs a playtest.
+
+**Not checked yet:** how a human plays it (Modern orders, groups), the medium and large battles,
+and the cpu admiral against a fleet that is spread out.
