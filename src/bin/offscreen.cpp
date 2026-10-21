@@ -290,6 +290,9 @@ void options_controls(EventScheduler& scheduler) {
     // Back to Classic, then back out: Cancel restores the bindings and returns to the main menu.
     scheduler.schedule_mouse(0, Point(172, 89), 1920, 1980);
     scheduler.schedule_snapshot(1980);
+    // The UTILITY page: no Net Settings row (2026-10-21).
+    scheduler.schedule_mouse(0, Point(361, 67), 1990, 2010);
+    scheduler.schedule_snapshot(2030);
     scheduler.schedule_mouse(0, Point(86, 432), 2040, 2100);
     scheduler.schedule_snapshot(2100);
 

@@ -42,7 +42,7 @@ static const secs kMainDemoTimeOutTime  = secs(30);
 static const int  kTitleTextScrollWidth = 450;
 
 static constexpr char kSoloButton[]    = "start-new-game";
-static constexpr char kNetButton[]     = "start-network-game";
+static constexpr char kNetButton[]     = "start-network-game";  // removed (2026-10-21)
 static constexpr char kOptionsButton[] = "options";
 static constexpr char kQuitButton[]    = "quit";
 static constexpr char kAboutButton[]   = "about-ares";
@@ -59,11 +59,9 @@ MainScreen::MainScreen()
                     [] { return plug.chapters.find(1) != plug.chapters.end(); },
             });
 
-    button(kNetButton)
-            ->bind({
-                    [] { throw std::runtime_error("Networked games not yet implemented."); },
-                    [] { return false; },
-            });
+    // Star Bound has no network play: the data's (always disabled) button is removed. Its row
+    // stays empty for now (docs/arena-investigation.md).
+    remove_widget(kNetButton);
 
     button(kIntroButton)
             ->bind({

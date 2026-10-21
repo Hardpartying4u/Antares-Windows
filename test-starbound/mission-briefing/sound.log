@@ -1,0 +1,38 @@
+0	3	quiet
+0	3	loop	music	255	doomtroopers-unite
+960	0	play	sound	192	gui/beep/select
+1080	0	play	sound	192	gui/beep/select
+1200	3	quiet
+1200	3	loop	music	255	freds-theme
+1202	1	play	sound	64	gui/beep/message
+1205	1	play	sound	64	gui/beep/message
+1208	1	play	sound	64	gui/beep/message
+1211	1	play	sound	64	gui/beep/message
+1214	1	play	sound	64	gui/beep/message
+1217	1	play	sound	64	gui/beep/message
+1220	1	play	sound	64	gui/beep/message
+1223	1	play	sound	64	gui/beep/message
+1226	1	play	sound	64	gui/beep/message
+1229	1	play	sound	64	gui/beep/message
+1232	1	play	sound	64	gui/beep/message
+1235	1	play	sound	64	gui/beep/message
+1238	1	play	sound	64	gui/beep/message
+1241	1	play	sound	64	gui/beep/message
+1244	1	play	sound	64	gui/beep/message
+1247	1	play	sound	64	gui/beep/message
+1250	1	play	sound	64	gui/beep/message
+1253	1	play	sound	64	gui/beep/message
+1256	1	play	sound	64	gui/beep/message
+1259	1	play	sound	64	gui/beep/message
+1380	0	play	sound	192	gui/beep/select
+1500	0	play	sound	192	gui/beep/select
+1620	0	play	sound	192	gui/beep/select
+1740	0	play	sound	192	gui/beep/select
+1860	0	play	sound	192	gui/beep/select
+1980	0	play	sound	192	gui/beep/select
+2100	0	play	sound	192	gui/beep/select
+2220	0	play	sound	192	gui/beep/select
+2460	3	quiet
+2460	3	quiet
+2460	3	loop	music	255	doomtroopers-unite
+2520	0	play	sound	192	gui/beep/select

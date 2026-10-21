@@ -62,6 +62,8 @@ static constexpr char kVolRect[]       = "volume";
 
 static constexpr char kFullscreenButton[] = "fullscreen";
 
+static constexpr char kSpeechButton[] = "speak-network-messages";  // removed (2026-10-21)
+
 static constexpr char kConflictTextRect[] = "conflict";
 
 OptionsScreen::OptionsScreen() : _state(SOUND_CONTROL), _revert(sys.prefs->get().copy()) {}
@@ -86,6 +88,8 @@ void OptionsScreen::become_front() {
 
 SoundControlScreen::SoundControlScreen(OptionsScreen::State* state)
         : InterfaceScreen("options/sound", {0, 0, 640, 480}), _state(state) {
+    remove_widget(kSpeechButton);  // no network play, so no network messages to speak
+
     checkbox(kIdleMusicButton)
             ->bind({
                     [] { return sys.prefs->play_idle_music(); },
@@ -317,6 +321,19 @@ static_assert(KEY_COUNT + 1 == ACTION_COUNT, "a name for each added action");
 
 pn::string cell_id(int action, int slot) { return pn::format("cell-{0}-{1}", action, slot); }
 
+// Net Settings (F5) is kept as an action, since replays and configs refer to it by number, but
+// it does nothing and Star Bound has no network play: it gets no row, and no clash (2026-10-21).
+bool action_shown(int action) { return action != kNetSettingsKeyNum; }
+
+// The row of each shown action on its page.
+int row_top(int page, int action) {
+    int row = 0;
+    for (int a = kPages[page].begin; a < action; ++a) {
+        row += action_shown(a) ? 1 : 0;
+    }
+    return kRowTop + row * kRowStep;
+}
+
 pn::string binding_label(const Binding& b) { return b.empty() ? pn::string{"-"} : b.name(); }
 
 }  // namespace
@@ -469,7 +486,10 @@ void KeyControlScreen::rebuild() {
         }
     }
     for (int a = kPages[_page].begin; a < kPages[_page].end; ++a) {
-        const int top = kRowTop + (a - kPages[_page].begin) * kRowStep;
+        if (!action_shown(a)) {
+            continue;
+        }
+        const int top = row_top(_page, a);
         for (int s = 0; s < kBindingSlots; ++s) {
             PlainButtonData data;
             data.id     = cell_id(a, s);
@@ -627,6 +647,13 @@ void KeyControlScreen::adjust_interface() {
 
 void KeyControlScreen::update_clashes() {
     _clashes = find_clashes(sys.prefs->get().bindings);
+    _clashes.erase(
+            std::remove_if(
+                    _clashes.begin(), _clashes.end(),
+                    [](const std::pair<int, int>& c) {
+                        return !action_shown(c.first) || !action_shown(c.second);
+                    }),
+            _clashes.end());
     if (_clashes.empty()) {
         _next_flash = wall_time();
         _flashed_on = false;
@@ -651,7 +678,10 @@ void KeyControlScreen::overlay() const {
         text({kCellLeft[s], 106, kCellLeft[s] + kCellWidth, 116}, kSlotNames[s], Hue::TAN);
     }
     for (int a = kPages[_page].begin; a < kPages[_page].end; ++a) {
-        const int top = kRowTop + (a - kPages[_page].begin) * kRowStep;
+        if (!action_shown(a)) {
+            continue;
+        }
+        const int top = row_top(_page, a);
         text({kLabelLeft, top, kCellLeft[0] - 6, top + 10}, action_name(a), Hue::AQUA);
     }
 

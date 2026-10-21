@@ -1,0 +1,100 @@
+0	3	quiet
+0	3	loop	music	255	doomtroopers-unite
+1816	0	play	sound	192	gui/beep/select
+1861	1	play	sound	192	dev/stealth/on
+1866	2	play	sound	192	dev/stealth/off
+1875	0	play	sound	192	gui/beep/select
+1936	3	quiet
+1936	3	loop	music	255	freds-theme
+1938	1	play	sound	64	gui/beep/message
+1941	1	play	sound	64	gui/beep/message
+1944	1	play	sound	64	gui/beep/message
+1947	1	play	sound	64	gui/beep/message
+1950	1	play	sound	64	gui/beep/message
+1953	1	play	sound	64	gui/beep/message
+1956	1	play	sound	64	gui/beep/message
+1959	1	play	sound	64	gui/beep/message
+1962	1	play	sound	64	gui/beep/message
+1965	1	play	sound	64	gui/beep/message
+1968	1	play	sound	64	gui/beep/message
+1971	1	play	sound	64	gui/beep/message
+1974	1	play	sound	64	gui/beep/message
+1980	0	play	sound	192	gui/beep/select
+1981	3	quiet
+1981	1	play	sound	128	gui/beep/zoom
+1981	3	quiet
+2242	1	play	sound	165	sfx/warp/out
+2242	1	play	sound	167	dev/atomic
+2250	2	play	sound	128	gui/beep/zoom
+2256	0	play	sound	255	sfx/explosion/small
+2258	1	play	sound	255	dev/conc
+2259	2	play	sound	255	dev/conc
+2259	1	play	sound	255	dev/conc/ricochet/1
+2260	1	play	sound	255	dev/conc/ricochet/1
+2260	2	play	sound	255	dev/conc/ricochet/2
+2260	1	play	sound	255	dev/conc/ricochet/1
+2261	1	play	sound	255	dev/conc/ricochet/1
+2261	1	play	sound	255	dev/conc/ricochet/1
+2262	1	play	sound	255	dev/conc/ricochet/1
+2262	1	play	sound	255	dev/conc/ricochet/1
+2263	2	play	sound	255	dev/conc/ricochet/2
+2264	1	play	sound	255	dev/conc/ricochet/1
+2264	0	play	sound	255	sfx/explosion/small
+2264	1	play	sound	255	dev/conc/ricochet/1
+2265	1	play	sound	255	dev/conc/ricochet/1
+2265	0	play	sound	255	gui/klaxon
+2265	1	play	sound	255	dev/conc/ricochet/1
+2266	1	play	sound	255	dev/conc/ricochet/1
+2266	1	play	sound	255	dev/conc/ricochet/1
+2267	1	play	sound	255	dev/conc/ricochet/1
+2267	2	play	sound	255	dev/conc/ricochet/2
+2268	1	play	sound	255	dev/conc/ricochet/1
+2268	1	play	sound	255	dev/conc/ricochet/1
+2269	1	play	sound	255	dev/conc/ricochet/1
+2269	1	play	sound	255	sfx/explosion/large
+2269	2	play	sound	255	dev/conc/ricochet/2
+2270	2	play	sound	255	dev/conc/ricochet/2
+2300	2	play	sound	128	gui/beep/zoom
+2321	2	play	sound	64	gui/beep/message
+2321	2	play	sound	64	gui/beep/message
+2321	2	play	sound	64	gui/beep/message
+2321	2	play	sound	64	gui/beep/message
+2322	2	play	sound	64	gui/beep/message
+2322	2	play	sound	64	gui/beep/message
+2322	2	play	sound	64	gui/beep/message
+2322	2	play	sound	64	gui/beep/message
+2323	2	play	sound	64	gui/beep/message
+2323	2	play	sound	64	gui/beep/message
+2323	2	play	sound	64	gui/beep/message
+2323	2	play	sound	64	gui/beep/message
+2324	2	play	sound	64	gui/beep/message
+2324	2	play	sound	64	gui/beep/message
+2324	2	play	sound	64	gui/beep/message
+2324	2	play	sound	64	gui/beep/message
+2325	2	play	sound	64	gui/beep/message
+2325	2	play	sound	64	gui/beep/message
+2325	2	play	sound	64	gui/beep/message
+2325	2	play	sound	64	gui/beep/message
+2326	2	play	sound	64	gui/beep/message
+2326	2	play	sound	202	sfx/warp/charge/1
+2326	0	play	sound	64	gui/beep/message
+2326	0	play	sound	64	gui/beep/message
+2326	0	play	sound	64	gui/beep/message
+2327	0	play	sound	64	gui/beep/message
+2327	0	play	sound	64	gui/beep/message
+2327	0	play	sound	64	gui/beep/message
+2327	0	play	sound	64	gui/beep/message
+2328	0	play	sound	64	gui/beep/message
+2328	0	play	sound	198	sfx/warp/charge/2
+2330	1	play	sound	64	gui/beep/message
+2330	1	play	sound	193	sfx/warp/charge/3
+2347	2	play	sound	64	gui/beep/message
+2347	2	play	sound	64	gui/beep/message
+2580	2	play	sound	192	gui/beep/select
+2640	0	quiet
+2640	1	quiet
+2640	2	quiet
+2640	3	quiet
+2640	3	quiet
+2640	3	loop	music	255	doomtroopers-unite
+2700	2	play	sound	192	gui/beep/select

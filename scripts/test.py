@@ -183,14 +183,16 @@ def main():
         (data_test, opts, queue, "object-data"),
         (data_test, opts, queue, "shapes"),
         (data_test, opts, queue, "tint"),
-        (offscreen_test, opts, queue, "fast-motion", ["--text"]),
+        # fast-motion, mission-briefing and pause pass through the main menu, which has no network
+        # button in Star Bound (2026-10-21), so they have their own expected output too.
+        (offscreen_test, opts, queue, "fast-motion", ["--text"], "test-starbound"),
         (offscreen_test, opts, queue, "main-screen", opengl),
-        (offscreen_test, opts, queue, "mission-briefing", ["--text"]),
+        (offscreen_test, opts, queue, "mission-briefing", ["--text"], "test-starbound"),
         # Star Bound rebuilt Options > Key Controls (rebinding screen), so options has its own output.
         (offscreen_test, opts, queue, "options", ["--text"], "test-starbound"),
         # Star Bound's own script for the current Key Controls screen (presets, pages, a capture).
         (offscreen_test, opts, queue, "options-controls", ["--text"], "test-starbound"),
-        (offscreen_test, opts, queue, "pause", ["--text"]),
+        (offscreen_test, opts, queue, "pause", ["--text"], "test-starbound"),
         (replay_test, opts, queue, "and-it-feels-so-good"),
         (replay_test, opts, queue, "astrotrash-plus"),
         (replay_test, opts, queue, "blood-toil-tears-sweat"),
