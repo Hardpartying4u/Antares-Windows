@@ -1230,7 +1230,7 @@ Text uses bitmap fonts `title`, `button`, `button-small`, `computer`, `tactical`
 | Orders, build, minicomputer | `src/game/minicomputer.cpp`, `src/game/admiral.cpp` |
 | Ship behaviour/physics | `src/game/non-player-ship.cpp`, `src/game/motion.cpp`, `src/game/action.cpp` |
 | HUD | `src/game/instruments.cpp`, `src/game/messages.cpp`, `src/game/labels.cpp` |
-| Arena (Star Bound, 2026-10-21) | Battles in `arena/*.pn`, loaded by `src/data/arena.cpp` into `plug.arena` (not the campaign). Main menu → Arena: picker `ArenaScreen` (`src/ui/screens/arena.cpp`), flow `ArenaGame` (`src/ui/flows/arena-game.cpp`): battle → result → picker; nothing saved (`docs/arena-investigation.md` §8) |
+| Arena (Star Bound, 2026-10-21) | Battles in `arena/*.pn`, loaded by `src/data/arena.cpp` into `plug.arena` (not the campaign). Main menu → Arena: picker `ArenaScreen` (`src/ui/screens/arena.cpp`), flow `ArenaGame` (`src/ui/flows/arena-game.cpp`): battle → result → picker; nothing saved. In a battle, losing the flagship passes control at once to another ship (no escape pod: `arena_flagship_transfer`, Arena only); lost when no ship is left (`docs/arena-investigation.md` §8) |
 | Screens | `src/ui/screens/*.cpp`, `src/ui/flows/*.cpp`, `data/interfaces/` |
 | Widgets | `src/ui/screen.cpp`, `src/ui/widget.cpp`, `src/drawing/interface.cpp` |
 | Rendering | `src/video/opengl-driver.cpp`, `src/video/glsl/`, `src/drawing/` |

@@ -1,0 +1,69 @@
+0	3	quiet
+0	3	loop	music	255	freds-theme
+0	3	quiet
+0	0	play	sound	128	gui/beep/zoom
+0	3	quiet
+0	3	loop	music	215	eyes-of-fire
+36	0	play	sound	192	gui/beep/select
+360	0	play	sound	231	sfx/warp/out
+360	1	play	sound	209	sfx/explosion/large
+363	2	play	sound	209	sfx/energy
+363	2	play	sound	209	sfx/energy
+363	2	play	sound	209	sfx/energy
+363	2	play	sound	209	sfx/energy
+375	1	play	sound	215	dev/atomic
+405	0	play	sound	238	sfx/warp/out
+405	2	play	sound	128	gui/beep/zoom
+408	1	play	sound	240	dev/atomic
+411	2	play	sound	220	dev/conc
+420	2	play	sound	221	sfx/explosion/small
+429	0	play	sound	219	dev/conc
+429	0	play	sound	220	dev/conc/ricochet/2
+441	1	play	sound	218	dev/fusion
+441	2	play	sound	216	dev/pk/ish
+462	2	play	sound	219	dev/pk/ish
+468	0	play	sound	221	sfx/explosion/energy
+477	1	play	sound	218	dev/fusion
+483	2	play	sound	217	dev/pk/ish
+504	2	play	sound	218	dev/pk/ish
+513	0	play	sound	254	dev/conc
+519	1	play	sound	252	dev/conc
+519	2	play	sound	247	sfx/explosion/energy
+540	0	play	sound	192	gui/beep/select
+576	0	play	sound	234	sfx/explosion/energy
+600	1	play	sound	128	gui/beep/order
+612	1	play	sound	209	sfx/explosion/energy
+612	1	play	sound	209	sfx/explosion/energy
+612	1	play	sound	209	sfx/explosion/energy
+615	1	play	sound	229	dev/atomic
+624	2	play	sound	229	dev/fusion
+624	0	play	sound	228	dev/pk/ish
+648	0	play	sound	201	dev/atomic
+666	0	play	sound	207	sfx/explosion/small
+729	0	play	sound	212	dev/fusion
+729	2	play	sound	212	dev/pk/ish
+855	1	play	sound	247	dev/atomic
+888	0	play	sound	196	dev/atomic
+894	0	play	sound	255	dev/fusion
+906	2	play	sound	255	dev/pk/ish
+909	1	play	sound	255	sfx/explosion/energy
+912	1	play	sound	255	sfx/explosion/energy
+960	0	play	sound	255	dev/fusion
+960	2	play	sound	255	dev/pk/ish
+996	0	play	sound	255	dev/fusion
+1032	1	play	sound	252	dev/fusion
+1050	2	play	sound	144	dev/fusion
+1050	2	play	sound	145	dev/pk/ish
+1059	0	play	sound	137	sfx/explosion/energy
+1065	0	play	sound	215	sfx/explosion/energy
+1075	1	play	sound	128	gui/beep/zoom
+1077	1	play	sound	149	sfx/explosion/small
+1086	0	play	sound	239	dev/fusion
+1095	1	play	sound	207	dev/atomic
+1107	2	play	sound	229	dev/pk/ish
+1119	0	play	sound	206	sfx/explosion/energy
+1128	1	play	sound	95	dev/atomic
+1200	0	quiet
+1200	1	quiet
+1200	2	quiet
+1200	3	quiet

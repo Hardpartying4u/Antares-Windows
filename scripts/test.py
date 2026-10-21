@@ -115,6 +115,23 @@ def modern_replay_test(opts, queue, name, args=[]):
     return diff_test(opts, queue, name, cmd, "test-starbound/%s" % name)
 
 
+def arena_replay_test(opts, queue, name, battle, arena_dir):
+    # A Star Bound Arena test: the replay tool plays arena battle BATTLE (from ARENA_DIR) with the
+    # Modern mode and test-starbound/NAME.inject; test-starbound/NAME.NLRP gives only the seed and
+    # the length. Expected output: test-starbound/NAME.
+    cmd = [
+        "out/cur/replay",
+        "test-starbound/%s.NLRP" % name,
+        "--text",
+        "--modern",
+        "--interval=300",
+        "--arena=%s" % battle,
+        "--arena-dir=%s" % arena_dir,
+        "--inject=test-starbound/%s.inject" % name,
+    ]
+    return diff_test(opts, queue, name, cmd, "test-starbound/%s" % name)
+
+
 def call(args):
     fn = args[0]
     opts = args[1]
@@ -215,6 +232,8 @@ def main():
         (replay_test, opts, queue, "you-should-have-seen-the-one-that-got-away"),
         (modern_replay_test, opts, queue, "modern-orders", ["shoplifter-1"]),
         (modern_replay_test, opts, queue, "modern-multi", ["space-race"]),
+        # Arena: losing the flagship passes control on (no escape pod); groups and orders still work.
+        (arena_replay_test, opts, queue, "arena-transfer", "transfer", "test-starbound/arena-levels"),
     ]
 
     if opts.test:
@@ -232,7 +251,7 @@ def main():
         if "offscreen" not in opts.type:
             tests = [t for t in tests if t[0] != offscreen_test]
         if "replay" not in opts.type:
-            tests = [t for t in tests if t[0] not in (replay_test, modern_replay_test)]
+            tests = [t for t in tests if t[0] not in (replay_test, modern_replay_test, arena_replay_test)]
 
     if opts.wine:
         tests = [t for t in tests if t[3] in WINE_TESTS]

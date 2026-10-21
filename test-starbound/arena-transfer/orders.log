@@ -1,0 +1,13 @@
+36	group 1 saved	Cruiser #1
+63	selection	1 ships
+63	  selected	Cruiser #2 heading for 0, 0
+120	flagship	Heavy Destroyer #0 heading for 0, 0	control	Cruiser #2 heading for 0, 0
+480	flagship	Cruiser #2 heading for 0, 0	control	Cruiser #2 heading for 0, 0
+483	selection	0 ships
+543	selection	1 ships
+543	  selected	Cruiser #1 heading for 0, 0
+600	Cruiser #1	move	to 1073741103, 1073742693
+603	selection	1 ships
+603	  selected	Cruiser #1 heading for 1073741103, 1073742693
+900	flagship	Cruiser #2 heading for 0, 0	control	Cruiser #1 heading for 1073741103, 1073742693
+1200	end	Cruiser #1 heading for 1073741103, 1073742693

@@ -120,7 +120,9 @@ std::vector<pn::string> arena_level_problems(const Level& level) {
         problems.push_back("no flagship for the human player");
     }
 
-    bool win = false, lose = false;
+    // A loss: a win for a cpu player, or no_ships (the engine ends the battle with it when the
+    // flagship is lost and no ship is left to take over).
+    bool win = false, lose = level.solo.no_ships.has_value();
     for (const Condition& c : level.base.conditions) {
         if ((c.when.type() == ConditionWhen::Type::SHIPS) && !c.disabled.value_or(false)) {
             problems.push_back("a \"ships\" condition starts enabled (it would fire at once)");
@@ -138,7 +140,7 @@ std::vector<pn::string> arena_level_problems(const Level& level) {
         problems.push_back("no win for the human player");
     }
     if (!lose) {
-        problems.push_back("no loss (a win for a cpu player)");
+        problems.push_back("no loss (a win for a cpu player, or no_ships)");
     }
     return problems;
 }

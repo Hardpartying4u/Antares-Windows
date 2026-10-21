@@ -1,0 +1,20 @@
+# Arena flagship transfer (2026-10-21), Modern mode, on the test-only battle
+# test-starbound/arena-levels/transfer.pn, which destroys its own flagship at 5 s (tick 300).
+# Cruiser #1 (initial 1) is saved as group 1 (Ctrl, raw key 224, + action 34); then Cruiser #2
+# (initial 2) is selected, so it is the control object when the flagship is lost.
+30 select-initial 1
+33 keyevent-down 224
+36 key 34
+45 keyevent-up 224
+60 select-initial 2
+63 log-selection
+120 log-flagship
+# After tick 300: no escape pod; Cruiser #2 is now the flagship (so it leaves the selection).
+480 log-flagship
+483 log-selection
+# Groups and orders still work: 1 recalls Cruiser #1, and a right-click moves it.
+540 key 34
+543 log-selection
+600 rclick 200 420
+603 log-selection
+900 log-flagship

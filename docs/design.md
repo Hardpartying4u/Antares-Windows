@@ -75,6 +75,11 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
     is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
     for steering while using the mouse.
+- **Decision (2026-10-21): in the Arena, losing the flagship isn't defeat.** Control passes at
+  once (no escape pod) to the selected ship, else the first ship that can take orders, by an
+  Arena-only switch (`arena_flagship_transfer`); the campaign keeps the pod. A battle is lost when
+  no ship is left. Last Stand: defend the planet Avalon (earns, builds) against six fixed,
+  escalating waves (`docs/arena-investigation.md` §10).
 - **Decision (2026-10-21): an Arena difficulty ladder.** Skirmish (Easy), Fleet Action (Medium),
   Armada (Hard, reinforcements at 60 s) and Last Stand (Very Hard, three waves against a bunker;
   lose if the bunker stops being yours, since stations are neutralised, not destroyed). The

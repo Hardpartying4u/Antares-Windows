@@ -1,0 +1,67 @@
+# Test-only arena battle for the flagship transfer (arena-transfer replay test; not shipped). At 5 s
+# the level destroys its own flagship (initial 0), so the test doesn't depend on how a fight goes:
+# control passes to another of the player's ships and the battle goes on. The Gaitori start far
+# away, so the cruisers are still there to take over.
+type:     "solo"
+title:
+	>	Transfer Test
+players:
+	*	type:           "human"
+		race:           "ish"
+		name:           "Ishiman Strike Group"
+		earning_power:  0.0
+	*	type:           "cpu"
+		race:           "gai"
+		name:           "Gaitori Raiders"
+		earning_power:  0.0
+song:  "eyes-of-fire"
+initials:
+	*	base:      "ish/hvd"
+		owner:     0
+		at:        {x: 0, y: 0}
+		flagship:  true
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: -400, y: 300}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 400, y: 300}
+	*	base:      "ish/cruiser"
+		owner:     0
+		at:        {x: 0, y: 600}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -300, y: -6000}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 300, y: -6000}
+conditions:
+	# 0. Win: the Gaitori have no ships left (on after 5 s).
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:    "win"
+				player:  0
+				text:
+					>	The Gaitori raiders are destroyed.
+	# 1. At 5 s: turn on condition 0, and destroy the flagship.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "5s"
+		subject:  {initial: 0}
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [0]
+			*	type:       "destroy"
+				reflexive:  true
+par:
+	time:    "3m"
+	kills:   2
+	losses:  0
+no_ships:  "Your fleet was destroyed."

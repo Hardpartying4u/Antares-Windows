@@ -5,129 +5,319 @@ players:
 	*	type:           "human"
 		race:           "ish"
 		name:           "Ishiman Strike Group"
-		earning_power:  0.0
+		earning_power:  1.25
 	*	type:           "cpu"
 		race:           "gai"
-		name:           "Gaitori Assault Force"
+		name:           "Gaitori-Cantharan Assault"
 		earning_power:  0.0
 song:  "eyes-of-fire"
 initials:
 	*	base:      "ish/hvd"
 		owner:     0
-		at:        {x: 0, y: 700}
+		at:        {x: 0, y: 450}
 		flagship:  true
 	*	base:      "ish/cruiser"
 		owner:     0
-		at:        {x: -450, y: 500}
+		at:        {x: -250, y: 350}
 		target:    {initial: 0}
 	*	base:      "ish/cruiser"
 		owner:     0
-		at:        {x: 450, y: 500}
+		at:        {x: 250, y: 350}
 		target:    {initial: 0}
-	*	base:      "loc/bunker"
+	*	base:      "loc/planet"
 		owner:     0
 		at:        {x: 0, y: 0}
+		override:
+			name:    "Avalon"
+			sprite:  "loc/planets/saturny"
+		earning:  1.0
+		build:
+			*	"fighter"
+			*	"gunship"
+			*	"cruiser"
+			*	"carrier"
 	*	base:      "gai/gunship"
 		owner:     1
-		at:        {x: -450, y: -3000}
-		target:    {initial: 3}
+		at:        {x: -300, y: -3000}
+		target:    {initial: 0}
 	*	base:      "gai/gunship"
 		owner:     1
-		at:        {x: -150, y: -3000}
-		target:    {initial: 3}
+		at:        {x: 0, y: -3000}
+		target:    {initial: 0}
 	*	base:      "gai/gunship"
 		owner:     1
-		at:        {x: 150, y: -3000}
-		target:    {initial: 3}
-	*	base:      "gai/gunship"
-		owner:     1
-		at:        {x: 450, y: -3000}
-		target:    {initial: 3}
+		at:        {x: 300, y: -3000}
+		target:    {initial: 0}
 	*	base:      "gai/fighter"
 		owner:     1
 		at:        {x: -150, y: -2700}
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "gai/fighter"
 		owner:     1
 		at:        {x: 150, y: -2700}
-		target:    {initial: 3}
-	*	base:      "gai/hvd"
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 3200, y: -600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 3200, y: -300}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
 		owner:     1
 		at:        {x: 3200, y: 0}
 		hide:      true
-		target:    {initial: 3}
-	*	base:      "gai/cruiser"
-		owner:     1
-		at:        {x: 3100, y: -400}
-		hide:      true
-		target:    {initial: 3}
-	*	base:      "gai/cruiser"
-		owner:     1
-		at:        {x: 3400, y: -400}
-		hide:      true
-		target:    {initial: 3}
-	*	base:      "gai/cruiser"
-		owner:     1
-		at:        {x: 3700, y: -400}
-		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "gai/gunship"
 		owner:     1
-		at:        {x: 3100, y: 400}
+		at:        {x: 3400, y: 0}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "gai/gunship"
 		owner:     1
-		at:        {x: 3400, y: 400}
+		at:        {x: 3400, y: 300}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "gai/gunship"
 		owner:     1
-		at:        {x: 3700, y: 400}
+		at:        {x: 3400, y: 600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/hvd"
+		owner:     1
+		at:        {x: -3200, y: 0}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: -3400, y: -700}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: -3400, y: -400}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: -3400, y: -100}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -3400, y: 250}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: -3400, y: 550}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/aslttran"
+		owner:     1
+		at:        {x: -3600, y: 0}
 		hide:      true
 		target:    {initial: 3}
 	*	base:      "can/hvc"
 		owner:     1
-		at:        {x: -3550, y: 0}
+		at:        {x: -250, y: 3300}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "can/hvc"
 		owner:     1
-		at:        {x: -3050, y: 0}
+		at:        {x: 250, y: 3300}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "can/gunship"
 		owner:     1
-		at:        {x: -3850, y: -500}
+		at:        {x: -450, y: 3500}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "can/gunship"
 		owner:     1
-		at:        {x: -3550, y: -500}
+		at:        {x: -150, y: 3500}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "can/gunship"
 		owner:     1
-		at:        {x: -3250, y: -500}
+		at:        {x: 150, y: 3500}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "can/gunship"
 		owner:     1
-		at:        {x: -2950, y: -500}
+		at:        {x: 450, y: 3500}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "sal/fighter"
 		owner:     1
-		at:        {x: -3350, y: 500}
+		at:        {x: -300, y: 3100}
 		hide:      true
-		target:    {initial: 3}
+		target:    {initial: 0}
 	*	base:      "sal/fighter"
 		owner:     1
-		at:        {x: -3050, y: 500}
+		at:        {x: 0, y: 3100}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/fighter"
+		owner:     1
+		at:        {x: 300, y: 3100}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/aslttran"
+		owner:     1
+		at:        {x: 0, y: 3700}
+		hide:      true
+		target:    {initial: 3}
+	*	base:      "gai/hvd"
+		owner:     1
+		at:        {x: 2350, y: -2600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/hvd"
+		owner:     1
+		at:        {x: 2850, y: -2600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 2350, y: -2200}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 2650, y: -2200}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 2950, y: -2200}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 3250, y: -2200}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 1750, y: -2900}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 2050, y: -2900}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 2350, y: -2900}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 2650, y: -2900}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "gai/aslttran"
+		owner:     1
+		at:        {x: 2850, y: -3000}
+		hide:      true
+		target:    {initial: 3}
+	*	base:      "gai/aslttran"
+		owner:     1
+		at:        {x: 3150, y: -3000}
+		hide:      true
+		target:    {initial: 3}
+	*	base:      "can/hvd"
+		owner:     1
+		at:        {x: 0, y: -3400}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/hvc"
+		owner:     1
+		at:        {x: 3400, y: -250}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/hvc"
+		owner:     1
+		at:        {x: 3400, y: 250}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: -3400, y: -450}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: -3400, y: -150}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: -3400, y: 150}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/cruiser"
+		owner:     1
+		at:        {x: -3400, y: 450}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/gunship"
+		owner:     1
+		at:        {x: -450, y: 3400}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/gunship"
+		owner:     1
+		at:        {x: -150, y: 3400}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/gunship"
+		owner:     1
+		at:        {x: 150, y: 3400}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/gunship"
+		owner:     1
+		at:        {x: 450, y: 3400}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/fighter"
+		owner:     1
+		at:        {x: 2150, y: 2600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/fighter"
+		owner:     1
+		at:        {x: 2450, y: 2600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/fighter"
+		owner:     1
+		at:        {x: 2750, y: 2600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "sal/fighter"
+		owner:     1
+		at:        {x: 3050, y: 2600}
+		hide:      true
+		target:    {initial: 0}
+	*	base:      "can/aslttran"
+		owner:     1
+		at:        {x: -2750, y: -2600}
+		hide:      true
+		target:    {initial: 3}
+	*	base:      "can/aslttran"
+		owner:     1
+		at:        {x: -2450, y: -2600}
 		hide:      true
 		target:    {initial: 3}
 conditions:
-	# 0. Win: no enemy ships left (on once the last wave is in).
+	# 0. Win: no enemy ships left once the final wave is in.
 	*	disabled:  true
 		when:
 			type:    "ships"
@@ -138,19 +328,8 @@ conditions:
 			*	type:    "win"
 				player:  0
 				text:
-					>	The bunker held. All three waves are destroyed.
-	# 1. Lose: the flagship is destroyed.
-	*	when:
-			type:    "destroyed"
-			op:      "eq"
-			object:  {initial: 0}
-			value:   true
-		action:
-			*	type:    "win"
-				player:  1
-				text:
-					>	Your flagship was destroyed.
-	# 2. Lose: the bunker is knocked out (a station that is destroyed turns neutral) or taken.
+					>	Avalon held. You survived all six waves.
+	# 1. Lose: Avalon is no longer yours (captured by an assault transport).
 	*	when:
 			type:    "owner"
 			op:      "ne"
@@ -160,37 +339,77 @@ conditions:
 			*	type:    "win"
 				player:  1
 				text:
-					>	The bunker has fallen.
-	# 3. At 50 s, the second wave arrives from the east.
+					>	Avalon has fallen.
+	# 2. At 45 s, wave 2.
 	*	when:
 			type:      "time"
 			op:        "ge"
-			duration:  "50s"
+			duration:  "45s"
 		action:
 			*	type:       "message"
 				reflexive:  true
 				pages:
-					*	>	Second wave: Gaitori heavy units from the east!
+					*	>	Wave 2 of 6: Gaitori cruisers from the east!
 			*	type:       "reveal"
 				reflexive:  true
-				initial:    [10, 11, 12, 13, 14, 15, 16]
-	# 4. At 100 s, the third wave arrives from the west; the win can count from now.
+				initial:    [9, 10, 11, 12, 13, 14]
+	# 3. At 90 s, wave 3.
 	*	when:
 			type:      "time"
 			op:        "ge"
-			duration:  "100s"
+			duration:  "90s"
 		action:
 			*	type:       "message"
 				reflexive:  true
 				pages:
-					*	>	Third wave: Cantharan and Salrilian ships from the west!
+					*	>	Wave 3 of 6: a Gaitori heavy destroyer and an assault transport from the west!
 			*	type:       "reveal"
 				reflexive:  true
-				initial:    [17, 18, 19, 20, 21, 22, 23, 24]
+				initial:    [15, 16, 17, 18, 19, 20, 21]
+	# 4. At 135 s, wave 4.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "135s"
+		action:
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Wave 4 of 6: Cantharan heavy cruisers and Salrilian fighters from the south!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+	# 5. At 180 s, wave 5.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "180s"
+		action:
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Wave 5 of 6: a Gaitori battle group from the north-east!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
+	# 6. At 225 s, wave 6.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "225s"
+		action:
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Final wave: the Cantharan fleet, from every side!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
 			*	type:       "condition"
 				reflexive:  true
 				enable:     [0]
 par:
 	time:    "6m"
-	kills:   21
+	kills:   60
 	losses:  0
+no_ships:  "Your fleet was destroyed."

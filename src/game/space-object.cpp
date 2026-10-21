@@ -803,6 +803,10 @@ void SpaceObject::create_floating_player_body() {
     if (obj->base == &body_type) {
         return;
     }
+    if (arena_flagship_transfer) {  // Star Bound Arena: no escape pod (player-ship.hpp)
+        PlayerShipBodyExpire(obj, true);
+        return;
+    }
 
     auto body = CreateAnySpaceObject(
             body_type, obj->velocity, obj->location, obj->direction, obj->owner, 0, sfz::nullopt);

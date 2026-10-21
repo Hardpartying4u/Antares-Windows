@@ -30,7 +30,9 @@ ArenaLevels load_arena_levels(pn::string_view dir);
 //   * a solo level with no chapter (so it can never join the campaign);
 //   * one human player and at least one cpu player;
 //   * a flagship owned by the human player;
-//   * a win for the human player, and a win for a cpu player (the human's loss);
+//   * a win for the human player, and a loss: a win for a cpu player, or a no_ships text (the
+//     engine passes control on when the flagship dies, and ends the battle with that text when no
+//     ship is left);
 //   * any "ships" condition starting disabled: ship counts are 0 until the first think, so an
 //     enabled one fires at once (docs/arena-investigation.md §6).
 std::vector<pn::string> arena_level_problems(const Level& level);

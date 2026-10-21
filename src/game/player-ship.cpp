@@ -1339,11 +1339,16 @@ void PlayerShipGiveCommand(Handle<Admiral> whichAdmiral) {
     }
 }
 
-void PlayerShipBodyExpire(Handle<SpaceObject> flagship) {
+bool arena_flagship_transfer = false;
+
+// `dying`: `flagship` itself is being destroyed (an Arena transfer, with no escape pod), so it can't
+// take over from itself.
+void PlayerShipBodyExpire(Handle<SpaceObject> flagship, bool dying) {
     auto selectShip = flagship->owner->control();
 
     if (selectShip.get()) {
-        if ((selectShip->active != kObjectInUse) || (!(selectShip->attributes & kCanThink)) ||
+        if ((dying && (selectShip == flagship)) || (selectShip->active != kObjectInUse) ||
+            (!(selectShip->attributes & kCanThink)) ||
             (selectShip->attributes & kStaticDestination) ||
             (selectShip->owner != flagship->owner) ||
             (!(selectShip->attributes & kCanAcceptDestination)))
@@ -1351,7 +1356,8 @@ void PlayerShipBodyExpire(Handle<SpaceObject> flagship) {
     }
     if (!selectShip.get()) {
         selectShip = g.root;
-        while (selectShip.get() && ((selectShip->active != kObjectInUse) ||
+        while (selectShip.get() && ((dying && (selectShip == flagship)) ||
+                                    (selectShip->active != kObjectInUse) ||
                                     (selectShip->attributes & kStaticDestination) ||
                                     (!((selectShip->attributes & kCanThink) &&
                                        (selectShip->attributes & kCanAcceptDestination))) ||

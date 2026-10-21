@@ -40,18 +40,18 @@ initials:
 		owner:     0
 		at:        {x: 250, y: 2300}
 		target:    {initial: 0}
-	*	base:      "gai/hvd"
-		owner:     1
-		at:        {x: 0, y: -2300}
 	*	base:      "gai/cruiser"
 		owner:     1
-		at:        {x: -400, y: -2000}
+		at:        {x: -600, y: -2000}
 	*	base:      "gai/cruiser"
 		owner:     1
-		at:        {x: 0, y: -2000}
+		at:        {x: -200, y: -2000}
 	*	base:      "gai/cruiser"
 		owner:     1
-		at:        {x: 400, y: -2000}
+		at:        {x: 200, y: -2000}
+	*	base:      "gai/cruiser"
+		owner:     1
+		at:        {x: 600, y: -2000}
 	*	base:      "gai/gunship"
 		owner:     1
 		at:        {x: -450, y: -2600}
@@ -89,18 +89,7 @@ conditions:
 				player:  0
 				text:
 					>	The Gaitori fleet is destroyed.
-	# 1. Lose: the flagship is destroyed.
-	*	when:
-			type:    "destroyed"
-			op:      "eq"
-			object:  {initial: 0}
-			value:   true
-		action:
-			*	type:    "win"
-				player:  1
-				text:
-					>	Your flagship was destroyed.
-	# 2. After 5 s, turn on condition 0.
+	# 1. After 5 s, turn on condition 0.
 	*	when:
 			type:      "time"
 			op:        "ge"
@@ -113,3 +102,4 @@ par:
 	time:    "5m"
 	kills:   12
 	losses:  0
+no_ships:  "Your fleet was destroyed."

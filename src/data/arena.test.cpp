@@ -63,6 +63,43 @@ pn::string battle(bool chapter, bool flagship, bool ships_disabled) {
             ships_disabled ? "disabled: true\n\t\t" : "");
 }
 
+// The loss can instead be the level's no_ships text (the arena rule since 2026-10-21: losing the
+// flagship passes control on, and the battle is lost when no ship is left). With neither, the
+// battle is skipped.
+TEST_F(ArenaTest, NoShipsIsALoss) {
+    const char kDir[] = "out/test/arena-loss";
+    sfz::makedirs(kDir, 0755);
+    // The good battle, cut before its flagship-destroyed loss.
+    const pn::string      full = battle(false, true, true);
+    const pn::string_view cut  = "\t*\twhen: {type: \"destroyed\"";
+    pn::string_view       h    = full;
+    int                   at  = -1;
+    for (int i = 0; i + cut.size() <= h.size(); ++i) {
+        if (h.substr(i, cut.size()) == cut) {
+            at = i;
+            break;
+        }
+    }
+    ASSERT_GE(at, 0);
+    const pn::string base = h.substr(0, at).copy();
+    const pn::string par  = "par: {time: \"1m\", kills: 1, losses: 0}\n";
+    for (const char* stale : {"no-ships", "no-loss"}) {
+        std::remove(pn::format("{0}/{1}.pn", kDir, stale).c_str());
+    }
+    {
+        pn::output out{pn::format("{0}/no-ships.pn", kDir), pn::text};
+        out.format("{0}{1}no_ships: \"Your fleet was destroyed.\"\n", base, par);
+    }
+    {
+        pn::output out{pn::format("{0}/no-loss.pn", kDir), pn::text};
+        out.format("{0}{1}", base, par);
+    }
+    ArenaLevels arena = load_arena_levels(kDir);
+    EXPECT_TRUE(arena.levels.find("no-ships") != arena.levels.end());
+    ASSERT_EQ(arena.problems.size(), 1);
+    EXPECT_THAT(arena.problems[0].c_str(), ::testing::HasSubstr("arena/no-loss.pn: no loss"));
+}
+
 // A good file loads; a file that doesn't parse, and files missing what an arena battle needs, are
 // skipped with a reason.
 TEST_F(ArenaTest, BadFilesSkipped) {

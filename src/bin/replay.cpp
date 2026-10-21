@@ -29,6 +29,7 @@
 #include "config/dirs.hpp"
 #include "config/ledger.hpp"
 #include "config/preferences.hpp"
+#include "data/arena.hpp"
 #include "data/plugin.hpp"
 #include "data/resource.hpp"
 #include "drawing/color.hpp"
@@ -45,6 +46,7 @@
 #include "game/messages.hpp"
 #include "game/modern-orders.hpp"
 #include "game/motion.hpp"
+#include "game/player-ship.hpp"
 #include "game/space-object.hpp"
 #include "game/sys.hpp"
 #include "game/vector.hpp"
@@ -67,6 +69,13 @@ namespace path = sfz::path;
 
 namespace antares {
 namespace {
+
+// --arena=NAME: play the arena/ battle NAME (plug.arena) instead of the replay's chapter. The
+// replay file then only gives the seed and the length (Star Bound arena tests). --arena-dir=DIR
+// reads the battles from DIR instead of arena/ (test-only battles).
+sfz::optional<pn::string> arena_battle;
+sfz::optional<pn::string> arena_dir;
+ArenaLevels               arena_from_dir;
 
 // A test step run when the input queue delivers it to the player's ship (at its major tick).
 class StepEvent : public Event {
@@ -123,9 +132,26 @@ class ReplayMaster : public Card {
                 Randomize(4);  // For the decision to replay intro.
                 _game_result  = NO_GAME;
                 g.random.seed = _random_seed;
-                stack()->push(new MainPlay(
-                        *Level::get(_replay_data.chapter_id), true, &_input_source, false,
-                        &_game_result));
+                if (arena_battle.has_value()) {
+                    auto& battles = arena_dir.has_value() ? arena_from_dir.levels : plug.arena;
+                    if (arena_dir.has_value()) {
+                        arena_from_dir = load_arena_levels(*arena_dir);
+                        for (const auto& problem : arena_from_dir.problems) {
+                            pn::err.format("{0}\n", problem);
+                        }
+                    }
+                    auto it = battles.find(arena_battle->copy());
+                    if (it == battles.end()) {
+                        throw std::runtime_error(
+                                pn::format("no arena battle {0}", *arena_battle).c_str());
+                    }
+                    stack()->push(new MainPlay(
+                            it->second, true, &_input_source, false, &_game_result));
+                } else {
+                    stack()->push(new MainPlay(
+                            *Level::get(_replay_data.chapter_id), true, &_input_source, false,
+                            &_game_result));
+                }
                 break;
 
             case REPLAY:
@@ -221,6 +247,16 @@ class ReplayMaster : public Card {
                                     g.time.time_since_epoch().count(), o->long_name(), o.number(),
                                     o->sprite->where.h, o->sprite->where.v);
                         }
+                    }
+                })));
+            } else if (w == "log-flagship") {
+                // The ship the player flies, and the control object (arena flagship transfer).
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([this](EventReceiver*) {
+                    if (_orders_log.has_value()) {
+                        _orders_log->format(
+                                "{0}\tflagship\t{1}\tcontrol\t{2}\n",
+                                g.time.time_since_epoch().count(), describe(g.ship),
+                                describe(g.admiral->control()));
                     }
                 })));
             } else if (w == "log-selection") {
@@ -345,6 +381,8 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "\n        --opengl=2.0|3.2 select OpenGL version (default: 3.2)"
             "\n        --modern         play with the Modern control mode on"
             "\n        --inject=FILE    add clicks and key actions from FILE (see ReplayMaster)"
+            "\n        --arena=NAME     play the arena/ battle NAME (the replay gives seed and length)"
+            "\n        --arena-dir=DIR  read --arena battles from DIR instead of arena/"
             "\n        --help           display this help screen"
             "\n",
             progname);
@@ -412,6 +450,13 @@ void main(int argc, char* const* argv) {
             return true;
         } else if (opt == "modern") {
             modern_controls_in_replays = true;
+            return true;
+        } else if (opt == "arena-dir") {
+            arena_dir.emplace(get_value().copy());
+            return true;
+        } else if (opt == "arena") {
+            arena_battle.emplace(get_value().copy());
+            arena_flagship_transfer = true;  // as ArenaGame
             return true;
         } else if (opt == "inject") {
             inject_path.emplace(get_value().copy());

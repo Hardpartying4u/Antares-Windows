@@ -209,7 +209,14 @@ void PlayerShipHandleClick(Point where, int button);
 void ChangePlayerShipNumber(Handle<Admiral> whichAdmiral, Handle<SpaceObject> newShip);
 void TogglePlayerAutoPilot(Handle<SpaceObject> theShip);
 void PlayerShipGiveCommand(Handle<Admiral> whichAdmiral);
-void PlayerShipBodyExpire(Handle<SpaceObject> theShip);
+void PlayerShipBodyExpire(Handle<SpaceObject> theShip, bool dying = false);
+
+// Star Bound Arena (docs/arena-investigation.md §10): while set, a destroyed flagship ejects no
+// escape pod; control passes at once to another of the owner's ships (PlayerShipBodyExpire's
+// choice: the control object if it can take orders, else the first such ship), and with none left
+// the battle is lost (the level's no_ships text). Set only while an Arena battle runs (ArenaGame,
+// and the replay tool's --arena); the campaign never sets it, so it keeps the escape pod.
+extern bool arena_flagship_transfer;
 
 }  // namespace antares
 

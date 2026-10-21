@@ -51,8 +51,7 @@ initials:
 		owner:     1
 		at:        {x: 300, y: -2400}
 conditions:
-	# 0. Win: the Gaitori have no ships left. Off at the start (as the campaign's "no ships" wins
-	#    are), and turned on by condition 2.
+	# 0. Win: the Gaitori have no ships left (on after 5 s).
 	*	disabled:  true
 		when:
 			type:    "ships"
@@ -64,18 +63,7 @@ conditions:
 				player:  0
 				text:
 					>	The Gaitori raiders are destroyed.
-	# 1. Lose: the flagship is destroyed.
-	*	when:
-			type:    "destroyed"
-			op:      "eq"
-			object:  {initial: 0}
-			value:   true
-		action:
-			*	type:    "win"
-				player:  1
-				text:
-					>	Your flagship was destroyed.
-	# 2. After 5 s, turn on condition 0.
+	# 1. After 5 s, turn on condition 0.
 	*	when:
 			type:      "time"
 			op:        "ge"
@@ -88,3 +76,4 @@ par:
 	time:    "3m"
 	kills:   6
 	losses:  0
+no_ships:  "Your fleet was destroyed."

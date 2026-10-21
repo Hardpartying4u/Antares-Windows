@@ -4,18 +4,20 @@
 #include "ui/flows/arena-game.hpp"
 
 #include "data/level.hpp"
+#include "game/player-ship.hpp"
 #include "ui/screens/arena.hpp"
 
 namespace antares {
 
 ArenaGame::ArenaGame() : _game_result(NO_GAME) {}
 
-ArenaGame::~ArenaGame() {}
+ArenaGame::~ArenaGame() { arena_flagship_transfer = false; }
 
 void ArenaGame::become_front() {
     switch (_state) {
         case PICK:
-            _state = PICKING;
+            arena_flagship_transfer = false;
+            _state                  = PICKING;
             stack()->push(new ArenaScreen(&_cancelled, &_index, &_level));
             break;
 
@@ -25,8 +27,9 @@ void ArenaGame::become_front() {
                 stack()->pop(this);
                 break;
             }
-            _state       = PLAYING;
-            _game_result = NO_GAME;
+            _state                  = PLAYING;
+            _game_result            = NO_GAME;
+            arena_flagship_transfer = true;  // no escape pod: control passes to another ship
             stack()->push(new MainPlay(*_level, false, &_input_source, true, &_game_result));
             break;
 
@@ -44,7 +47,10 @@ void ArenaGame::become_front() {
             }
             break;
 
-        case QUIT: stack()->pop(this); break;
+        case QUIT:
+            arena_flagship_transfer = false;
+            stack()->pop(this);
+            break;
     }
 }
 
