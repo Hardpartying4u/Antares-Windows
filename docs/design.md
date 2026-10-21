@@ -75,6 +75,9 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
     is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
     for steering while using the mouse.
+- **Decision (2026-10-21): Arena groups come early when cleared.** A group whose predecessors are
+  all destroyed arrives 7 s later rather than on its timer; the win needs the last group in and
+  counted (§11 of `docs/arena-investigation.md`).
 - **Decision (2026-10-21): in the Arena, losing the flagship isn't defeat.** Control passes at
   once (no escape pod) to the selected ship, else the first ship that can take orders, by an
   Arena-only switch (`arena_flagship_transfer`); the campaign keeps the pod. A battle is lost when

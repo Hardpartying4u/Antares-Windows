@@ -234,6 +234,8 @@ def main():
         (modern_replay_test, opts, queue, "modern-multi", ["space-race"]),
         # Arena: losing the flagship passes control on (no escape pod); groups and orders still work.
         (arena_replay_test, opts, queue, "arena-transfer", "transfer", "test-starbound/arena-levels"),
+        # Arena: a cleared group brings the next one early; the win only after the last group.
+        (arena_replay_test, opts, queue, "arena-armada-early", "armada", "arena"),
     ]
 
     if opts.test:

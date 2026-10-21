@@ -1,0 +1,67 @@
+0	3	quiet
+0	3	loop	music	255	freds-theme
+0	3	quiet
+0	0	play	sound	128	gui/beep/zoom
+0	3	quiet
+0	3	loop	music	215	eyes-of-fire
+600	1	play	sound	122	sfx/explosion/large
+804	0	play	sound	196	sfx/energy
+1052	2	play	sound	64	gui/beep/message
+1055	2	play	sound	64	gui/beep/message
+1058	2	play	sound	64	gui/beep/message
+1061	2	play	sound	64	gui/beep/message
+1064	2	play	sound	64	gui/beep/message
+1067	2	play	sound	64	gui/beep/message
+1070	2	play	sound	64	gui/beep/message
+1073	2	play	sound	64	gui/beep/message
+1076	2	play	sound	64	gui/beep/message
+1079	2	play	sound	64	gui/beep/message
+1082	2	play	sound	64	gui/beep/message
+1085	2	play	sound	64	gui/beep/message
+1088	2	play	sound	64	gui/beep/message
+1091	2	play	sound	64	gui/beep/message
+1094	2	play	sound	64	gui/beep/message
+1097	2	play	sound	64	gui/beep/message
+1100	2	play	sound	64	gui/beep/message
+1103	2	play	sound	64	gui/beep/message
+1106	2	play	sound	64	gui/beep/message
+1392	0	play	sound	213	sfx/warp/out
+1445	1	play	sound	128	gui/beep/zoom
+1488	0	play	sound	255	dev/fusion
+1524	0	play	sound	255	dev/fusion
+1548	1	play	sound	255	dev/stealth/off
+1548	2	play	sound	255	dev/anti
+1548	0	play	sound	255	dev/pk/can
+1569	0	play	sound	255	dev/pk/can
+1587	2	play	sound	226	dev/lepton
+1596	1	play	sound	222	dev/lepton
+1608	1	play	sound	241	sfx/explosion/energy
+1666	0	play	sound	128	gui/beep/zoom
+1701	0	play	sound	212	dev/fusion
+1701	2	play	sound	212	dev/pk/ish
+1704	0	play	sound	222	dev/fusion
+1710	1	play	sound	187	sfx/explosion/energy
+1716	2	play	sound	186	sfx/explosion/energy
+1725	0	play	sound	185	sfx/explosion/energy
+1740	0	play	sound	214	dev/fusion
+1761	1	play	sound	179	dev/lepton
+1761	1	play	sound	181	dev/pk/ish
+1767	1	play	sound	196	dev/lepton
+1767	1	play	sound	198	dev/pk/ish
+1770	2	play	sound	178	dev/lepton
+1776	2	play	sound	196	dev/lepton
+1779	0	play	sound	175	dev/anti
+1779	1	play	sound	174	dev/pk/can
+1785	0	play	sound	189	dev/lepton
+1788	2	play	sound	174	dev/stealth/on
+1794	0	play	sound	190	dev/lepton
+1797	1	play	sound	161	dev/lepton
+1797	1	play	sound	168	sfx/explosion/energy
+1800	1	play	sound	171	sfx/explosion/large
+1806	0	play	sound	160	dev/lepton
+1806	0	play	sound	170	sfx/explosion/energy
+1836	2	play	sound	158	sfx/energy
+2070	0	quiet
+2070	1	quiet
+2070	2	quiet
+2070	3	quiet

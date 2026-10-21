@@ -1,0 +1,15 @@
+# Arena early arrival and safe win (2026-10-21), on the shipped Armada (Hard) battle, Modern mode.
+# Its first group (14 ships) is destroyed at 10 s (tick 600), well before the reinforcements are due
+# at 60 s. They must arrive about 7 s later instead, with no win as they arrive; the win comes only
+# once they are destroyed too (tick 1800).
+300 log-ships
+600 destroy-enemies
+660 log-ships
+900 log-ships
+1020 log-ships
+1080 log-ships
+1140 log-ships
+1500 log-ships
+1740 log-ships
+1800 destroy-enemies
+1860 log-ships

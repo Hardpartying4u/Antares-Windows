@@ -54,6 +54,9 @@ initials:
 		at:        {x: 600, y: -2000}
 	*	base:      "gai/gunship"
 		owner:     1
+		at:        {x: -750, y: -2600}
+	*	base:      "gai/gunship"
+		owner:     1
 		at:        {x: -450, y: -2600}
 	*	base:      "gai/gunship"
 		owner:     1
@@ -64,6 +67,9 @@ initials:
 	*	base:      "gai/gunship"
 		owner:     1
 		at:        {x: 450, y: -2600}
+	*	base:      "gai/gunship"
+		owner:     1
+		at:        {x: 750, y: -2600}
 	*	base:      "gai/fighter"
 		owner:     1
 		at:        {x: -375, y: -1800}
@@ -100,6 +106,6 @@ conditions:
 				enable:     [0]
 par:
 	time:    "5m"
-	kills:   12
+	kills:   14
 	losses:  0
 no_ships:  "Your fleet was destroyed."

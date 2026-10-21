@@ -364,3 +364,39 @@ Group, with no money or building.
 - 37 tests; all but `main-screen` pass.
 - **In game (Modern: Ares, 1920×1080, UI 2×):** Last Stand with Avalon selected and its Build
   menu open (Fighter, Gunship, Cruiser, Carrier).
+
+## 11. Fixes after the second playtest (2026-10-21)
+
+**Bug (Armada, and the same in Last Stand):**
+- *What happened:* clearing the starting enemies before 60 s did nothing, and the win then fired
+  the moment the reinforcements appeared.
+- *Cause:* the arrival step revealed the group and turned on the "no enemy ships" win in the same
+  action list. Ship counts only update on the next think pass, so the win saw 0 enemies.
+- *Fix* (level data only, all existing features; built by `group_conditions` in the generator):
+  - Every group after the first has two triggers: its **timer**, and an **early** trigger (enemy
+    ships = 0). The early one brings the group in **7 s** later, with its message.
+  - Whichever trigger fires first turns the other off. A second reveal would bring back a group
+    that had already been destroyed.
+  - After each arrival, a **2-s delay** passes before the next early trigger or the win is turned
+    on, so the new ships are counted first. The win can't fire as a group arrives; it needs the
+    last group in and every enemy destroyed.
+- The game's "ships" count includes thinking objects such as guided missiles, so an early arrival
+  waits until those are gone too.
+
+**Retuning:**
+- **Fleet Action (Medium):** 2 more Gaitori Gunships (4 → 6; par kills 12 → 14). Armada is still
+  clearly bigger: 14 to start plus 6 reinforcements.
+- **Last Stand:** Avalon's `earning` is 1.0 → **1.35** (+35%). Your earning power stays 1.25, so
+  the income rate goes from 1.25 to about 1.69 times the base. Build costs are unchanged.
+
+**Tests:**
+- New replay test **`arena-armada-early`** on the shipped Armada, with two test-only replay steps
+  (`destroy-enemies` and `log-ships`):
+  - all 14 starting enemies are destroyed at 10 s;
+  - the 6 reinforcements arrive about 7.5 s later (tick 1052), with no win then;
+  - the win ("The armada is destroyed.") comes only after they are destroyed too.
+
+  Two runs are identical.
+- **Last Stand** checked the same way (not a committed test): clearing each wave brought the next
+  about 7.5 s later every time, and the win came only after wave 6.
+- 38 tests; all but `main-screen` pass.

@@ -249,6 +249,32 @@ class ReplayMaster : public Card {
                         }
                     }
                 })));
+            } else if (w == "destroy-enemies") {
+                // Test only: destroys every ship of admiral 1 (Arena: clears an enemy group at once).
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([this](EventReceiver*) {
+                    int n = 0;
+                    for (auto o : SpaceObject::all()) {
+                        if ((o->active == kObjectInUse) && (o->owner == Handle<Admiral>(1)) &&
+                            (o->attributes & kCanThink)) {
+                            o->destroy();
+                            ++n;
+                        }
+                    }
+                    if (_orders_log.has_value()) {
+                        _orders_log->format(
+                                "{0}\tdestroyed\t{1} enemy ships\n", g.time.time_since_epoch().count(),
+                                n);
+                    }
+                })));
+            } else if (w == "log-ships") {
+                // How many ships each side has (admirals 0 and 1, as the "ships" condition counts).
+                _input_source.add(at, unique_ptr<Event>(new StepEvent([this](EventReceiver*) {
+                    if (_orders_log.has_value()) {
+                        _orders_log->format(
+                                "{0}\tships\tyou {1}\tenemy {2}\n", g.time.time_since_epoch().count(),
+                                Handle<Admiral>(0)->shipsLeft(), Handle<Admiral>(1)->shipsLeft());
+                    }
+                })));
             } else if (w == "log-flagship") {
                 // The ship the player flies, and the control object (arena flagship transfer).
                 _input_source.add(at, unique_ptr<Event>(new StepEvent([this](EventReceiver*) {

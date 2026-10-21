@@ -30,7 +30,7 @@ initials:
 		override:
 			name:    "Avalon"
 			sprite:  "loc/planets/saturny"
-		earning:  1.0
+		earning:  1.35
 		build:
 			*	"fighter"
 			*	"gunship"
@@ -317,7 +317,7 @@ initials:
 		hide:      true
 		target:    {initial: 3}
 conditions:
-	# 0. Win: no enemy ships left once the final wave is in.
+	# 0. Win: no enemy ships left, on once the final wave is in and counted.
 	*	disabled:  true
 		when:
 			type:    "ships"
@@ -340,12 +340,15 @@ conditions:
 				player:  1
 				text:
 					>	Avalon has fallen.
-	# 2. At 45 s, wave 2.
+	# 2. At 45 s, group 2 arrives (unless it came early).
 	*	when:
 			type:      "time"
 			op:        "ge"
 			duration:  "45s"
 		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [3]
 			*	type:       "message"
 				reflexive:  true
 				pages:
@@ -353,12 +356,45 @@ conditions:
 			*	type:       "reveal"
 				reflexive:  true
 				initial:    [9, 10, 11, 12, 13, 14]
-	# 3. At 90 s, wave 3.
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [5]
+	# 3. Early: every enemy is gone before 45 s, so group 2 arrives 7 s later.
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [2]
+			*	type:       "delay"
+				duration:   "7s"
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Wave 2 of 6: Gaitori cruisers from the east!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [9, 10, 11, 12, 13, 14]
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [5]
+	# 4. At 90 s, group 3 arrives (unless it came early).
 	*	when:
 			type:      "time"
 			op:        "ge"
 			duration:  "90s"
 		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [5]
 			*	type:       "message"
 				reflexive:  true
 				pages:
@@ -366,12 +402,45 @@ conditions:
 			*	type:       "reveal"
 				reflexive:  true
 				initial:    [15, 16, 17, 18, 19, 20, 21]
-	# 4. At 135 s, wave 4.
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [7]
+	# 5. Early: every enemy is gone before 90 s, so group 3 arrives 7 s later.
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [4]
+			*	type:       "delay"
+				duration:   "7s"
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Wave 3 of 6: a Gaitori heavy destroyer and an assault transport from the west!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [15, 16, 17, 18, 19, 20, 21]
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [7]
+	# 6. At 135 s, group 4 arrives (unless it came early).
 	*	when:
 			type:      "time"
 			op:        "ge"
 			duration:  "135s"
 		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [7]
 			*	type:       "message"
 				reflexive:  true
 				pages:
@@ -379,12 +448,45 @@ conditions:
 			*	type:       "reveal"
 				reflexive:  true
 				initial:    [22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
-	# 5. At 180 s, wave 5.
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [9]
+	# 7. Early: every enemy is gone before 135 s, so group 4 arrives 7 s later.
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [6]
+			*	type:       "delay"
+				duration:   "7s"
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Wave 4 of 6: Cantharan heavy cruisers and Salrilian fighters from the south!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [9]
+	# 8. At 180 s, group 5 arrives (unless it came early).
 	*	when:
 			type:      "time"
 			op:        "ge"
 			duration:  "180s"
 		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [9]
 			*	type:       "message"
 				reflexive:  true
 				pages:
@@ -392,12 +494,45 @@ conditions:
 			*	type:       "reveal"
 				reflexive:  true
 				initial:    [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
-	# 6. At 225 s, wave 6.
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [11]
+	# 9. Early: every enemy is gone before 180 s, so group 5 arrives 7 s later.
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [8]
+			*	type:       "delay"
+				duration:   "7s"
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Wave 5 of 6: a Gaitori battle group from the north-east!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [11]
+	# 10. At 225 s, group 6 arrives (unless it came early).
 	*	when:
 			type:      "time"
 			op:        "ge"
 			duration:  "225s"
 		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [11]
 			*	type:       "message"
 				reflexive:  true
 				pages:
@@ -405,9 +540,45 @@ conditions:
 			*	type:       "reveal"
 				reflexive:  true
 				initial:    [44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
+			*	type:       "delay"
+				duration:   "2s"
 			*	type:       "condition"
 				reflexive:  true
 				enable:     [0]
+	# 11. Early: every enemy is gone before 225 s, so group 6 arrives 7 s later.
+	*	disabled:  true
+		when:
+			type:    "ships"
+			op:      "eq"
+			player:  1
+			value:   0
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				disable:    [10]
+			*	type:       "delay"
+				duration:   "7s"
+			*	type:       "message"
+				reflexive:  true
+				pages:
+					*	>	Final wave: the Cantharan fleet, from every side!
+			*	type:       "reveal"
+				reflexive:  true
+				initial:    [44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
+			*	type:       "delay"
+				duration:   "2s"
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [0]
+	# 12. After 5 s (once the start group is counted), turn on condition 3.
+	*	when:
+			type:      "time"
+			op:        "ge"
+			duration:  "5s"
+		action:
+			*	type:       "condition"
+				reflexive:  true
+				enable:     [3]
 par:
 	time:    "6m"
 	kills:   60

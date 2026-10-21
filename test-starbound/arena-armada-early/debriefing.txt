@@ -1,0 +1,7 @@
+The armada is destroyed.
+
+\b82 \f82 TIME\t \f82 \b8e YOU\t\b8b PAR\t
+\b8e \f82 TIME\t \f8e \b81 0:34\t\f8b 8:00
+\b8b \f82 LOSSES\t \f8e \b81 0\t\f8b 0
+\b88 \f82 KILLS\t \f8e \b81 20\t\f8b 20
+\b85 \f82 SCORE\t \f8e \b81 150\t\f8b 100
