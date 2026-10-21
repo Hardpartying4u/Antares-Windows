@@ -9,7 +9,7 @@ with or endorsed by Nathan Lamont or Bigger Planet.**
 
 ## How to play
 
-1. Download the release zip.
+1. Download the release zip. https://github.com/Hardpartying4u/Antares-Windows/releases/tag/v1.0
 2. Unzip it anywhere.
 3. Run `Antares.exe` in the `Antares` folder (it also holds `data`, `art`, `arena` and the licence
    files).
