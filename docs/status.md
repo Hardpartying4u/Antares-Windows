@@ -2,7 +2,7 @@
 
 ## What this is
 - **Ares (Windows edition)**: an unofficial Windows fork of Antares (the open-source port of Ares).
-- Repo: `<repo>` (`C:\Projects\Starbound\antares`), branch `windows-working-build`.
+- Repo: `<repo>`, branch `windows-working-build`.
 - Remotes: `starbound` = github.com/Hardpartying4u/Antares-Windows (push here only). `origin` =
   upstream arescentral/antares (never push).
 - Play copy: `%USERPROFILE%\Downloads\antares-win-git\Antares` (older builds beside it as
@@ -29,7 +29,8 @@
 - Fixed by a history rewrite to `246752892+Hardpartying4u@users.noreply.github.com`, force-pushed
   (branch `4086238a`, tag `v1.0`); upstream history unchanged.
 - Old history is kept locally only: the `pre-rewrite` branch, the `pre-rewrite-v1.0` tag and
-  `C:\Projects\Starbound\backup-pre-rewrite.bundle`. Never push them; delete them when happy.
+  `backup-pre-rewrite.bundle` (in the folder above `<repo>`). Never push them; delete them when
+  happy.
 - Still to do before going public:
   - GitHub Settings → Emails: "Keep my email addresses private" and "Block command line pushes
     that expose my email". Optional: ask GitHub Support to purge cached old commits.
