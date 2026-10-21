@@ -681,7 +681,7 @@ MainScreen
 |---|---|---|---|
 | Publisher / ego / title pictures | `ui/flows/master.cpp`, `PictFade`, `TitleScreenFade` | `data/pictures` | Full-screen fades; any key skips |
 | Scroll text (intro, about, prologue/epilogue) | `ui/screens/scroll-text.cpp` | — | Picture-and-text crawl; slow/fast speeds |
-| **Main menu** | `ui/screens/main.cpp` | `interfaces/main.pn` | Artwork frame (top/left/right/bottom pictures) around a centered column (x 207–427): **Start New Game** (S), Replay Intro (R), Demo (D), Options (O), About Ares (A), Quit (Q). The data's Start Network Game button (always disabled) is removed in code since 2026-10-21 (`remove_widget`); its row, under Start New Game, is left empty for Arena (`docs/arena-investigation.md`) |
+| **Main menu** | `ui/screens/main.cpp` | `interfaces/main.pn` | Artwork frame (top/left/right/bottom pictures) around a centered column (x 207–427): **Start New Game** (S), Arena (D, gamepad Y; Star Bound, added in code in the row of the data's Start Network Game, which is removed), Replay Intro (R), Options (O), About Ares (A), Quit (Q). The data's Demo button is removed (its row is empty); idle for 30 s still plays a demo replay or the intro (`docs/arena-investigation.md` §8) |
 | **Select level** | `ui/screens/select-level.cpp` | `interfaces/select-level.pn` | "Select Level" tablet frame; chapter name/info box; Previous (←) / Next (→) at y 302; Cancel (Esc) / Begin (Return) at y 422. Only unlocked chapters (`config/ledger.cpp`) |
 | **Loading** | `ui/screens/loading.cpp` | `interfaces/loading.pn` | Small "Loading…" box with progress |
 | **Briefing** | `ui/screens/briefing.cpp` | `interfaces/briefing.pn` | "Mission Analysis" tablet: star map → blank system map → each briefing point (map with highlighted objects + text). Previous (←), Next (→), Done (Return); Esc cancels. Keys 1–0 open object data sheets |
@@ -1230,7 +1230,7 @@ Text uses bitmap fonts `title`, `button`, `button-small`, `computer`, `tactical`
 | Orders, build, minicomputer | `src/game/minicomputer.cpp`, `src/game/admiral.cpp` |
 | Ship behaviour/physics | `src/game/non-player-ship.cpp`, `src/game/motion.cpp`, `src/game/action.cpp` |
 | HUD | `src/game/instruments.cpp`, `src/game/messages.cpp`, `src/game/labels.cpp` |
-| Arena battles (Star Bound, 2026-10-21) | `arena/*.pn`, loaded by `src/data/arena.cpp` into `plug.arena` (not the campaign); not playable from the menu yet (`docs/arena-investigation.md`) |
+| Arena (Star Bound, 2026-10-21) | Battles in `arena/*.pn`, loaded by `src/data/arena.cpp` into `plug.arena` (not the campaign). Main menu → Arena: picker `ArenaScreen` (`src/ui/screens/arena.cpp`), flow `ArenaGame` (`src/ui/flows/arena-game.cpp`): battle → result → picker; nothing saved (`docs/arena-investigation.md` §8) |
 | Screens | `src/ui/screens/*.cpp`, `src/ui/flows/*.cpp`, `data/interfaces/` |
 | Widgets | `src/ui/screen.cpp`, `src/ui/widget.cpp`, `src/drawing/interface.cpp` |
 | Rendering | `src/video/opengl-driver.cpp`, `src/video/glsl/`, `src/drawing/` |

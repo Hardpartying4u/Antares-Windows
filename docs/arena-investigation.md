@@ -231,3 +231,39 @@ and the cpu admiral against a fleet that is spread out.
     enabled and one with no flagship are each skipped with their reason;
   - a missing folder gives nothing.
 - Nothing uses `plug.arena` yet; the Arena screen and game flow are step 4.
+
+## 8. Step 4: Arena in the menu (2026-10-21)
+
+Choices made (§4 review): 1a, 2 (D / gamepad Y), 3, 4 and 5a as proposed, and 6a (Skirmish only).
+
+- **Main menu** (`src/ui/screens/main.cpp`):
+  - An **Arena** button (green, key **D**, gamepad **Y**) is added in code in Network's old row,
+    under Start New Game. It is greyed out if no arena battles loaded.
+  - The **Demo** button is removed and its row left empty.
+  - The **idle auto-play is kept**: after 30 s, a demo replay or the intro text.
+- **Picker** (`ArenaScreen`, `src/ui/screens/arena.cpp`):
+  - Built in code on the campaign's level-select frame. Its Previous/Next buttons and its "Select
+    Level" box go, and a box labelled "Arena" replaces the box.
+  - One row per battle in `plug.arena`: the title, then "You: …" and "Enemy: …" fleet lines
+    worked out from the level's ships (long names, counted). The selected row is on a dark aqua
+    bar.
+  - Up/Down (gamepad d-pad) or a click picks a row. **Begin** (Return, gamepad A) starts it, and
+    **Cancel** (Esc, gamepad B) goes back to the main menu. The picker remembers the last battle.
+- **Flow** (`ArenaGame`, `src/ui/flows/arena-game.cpp`): picker → `MainPlay` (as the campaign
+  plays a level, so the control preset, the Modern mode and the group bar all apply) → picker.
+  - **Win:** the message and the debriefing table, then the picker.
+  - **Loss:** the message, then Restart / Quit (Quit → picker).
+  - **Esc in battle:** Resume / Restart / Quit (Quit → picker).
+  - Restart replays the battle. Nothing is saved: no campaign progress or unlocks.
+- **Tests:**
+  - New offscreen script `arena` (`test-starbound/arena`): menu → D → picker → Down/Up → Begin →
+    20 s of the Skirmish (the fleets meet) → Esc → Quit → picker → Esc → menu.
+  - `fast-motion`, `mission-briefing`, `options`, `options-controls` and `pause` changed only in
+    their main-menu snapshots (new button, no Demo).
+  - 36 tests; all but `main-screen` pass.
+- **In game (Modern: Ares, windowed 1920×1080, UI 2×):** two screenshots.
+  - The picker shows Skirmish with both fleet lines. That shot found the fleet lines crowded and
+    the selected bar too short; rows are now 44 px with 13–14 px line steps, checked in the text
+    output (the bar covers all three lines).
+  - A battle with four cruisers drag-selected and saved as group 1 shows the group bar ("1", the
+    cruiser icon, "4") lit as the selection.

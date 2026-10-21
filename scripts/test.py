@@ -195,6 +195,8 @@ def main():
         # Star Bound's own script for the current Key Controls screen (presets, pages, a capture).
         (offscreen_test, opts, queue, "options-controls", ["--text"], "test-starbound"),
         (offscreen_test, opts, queue, "pause", ["--text"], "test-starbound"),
+        # Star Bound's Arena: menu button, picker, a Skirmish battle, Esc / Quit, back out.
+        (offscreen_test, opts, queue, "arena", ["--text"], "test-starbound"),
         (replay_test, opts, queue, "and-it-feels-so-good"),
         (replay_test, opts, queue, "astrotrash-plus"),
         (replay_test, opts, queue, "blood-toil-tears-sweat"),

@@ -75,6 +75,11 @@ Core rules, unit and weapon behaviour, fleet orders, AI, scenarios, story text. 
   - Tradeoff accepted: in Ares-style the right hand can't steer and use the mouse at once. Nothing
     is added to mitigate it now; ships coast, autopilot flies the flagship, and WASD is the choice
     for steering while using the mouse.
+- **Decision (2026-10-21): Arena replaces Demo.** Arena (D / gamepad Y) sits in Network's old
+  menu row; the Demo button goes but the idle demo replays stay. Picker on the level-select frame
+  (one row per battle with both fleets), the game's own result and Esc screens, and back to the
+  picker after each battle; nothing saved. Skirmish only until it has been played; Fleet Action and
+  Armada next (`docs/arena-investigation.md` §8).
 - **Decision (2026-10-21): no network play.** Start Network Game (always disabled), Options ›
   Sound › Speak Network Messages and the Key Controls row for Net Settings are removed, in code
   (`data/` is untouched). Net Settings stays action 32, doing nothing, for replays and configs; the

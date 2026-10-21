@@ -45,6 +45,7 @@ void options(EventScheduler& scheduler);
 void options_controls(EventScheduler& scheduler);
 void mission_briefing(EventScheduler& scheduler, Ledger& ledger);
 void pause(EventScheduler& scheduler);
+void arena(EventScheduler& scheduler);
 
 void usage(pn::output_view out, pn::string_view progname, int retcode) {
     out.format(
@@ -59,6 +60,7 @@ void usage(pn::output_view out, pn::string_view progname, int retcode) {
             "\n       options-controls"
             "\n       mission-briefing"
             "\n       pause"
+            "\n       arena"
             "\n"
             "\n  options:"
             "\n    -o, --output=OUTPUT  place output in this directory"
@@ -143,6 +145,8 @@ void main(int argc, char* const* argv) {
         mission_briefing(scheduler, ledger);
     } else if (*script == "pause") {
         pause(scheduler);
+    } else if (*script == "arena") {
+        arena(scheduler);
     } else {
         throw std::runtime_error(
                 pn::format("no such script {0}\n", pn::dump(*script, pn::dump_short)).c_str());
@@ -336,6 +340,43 @@ void mission_briefing(EventScheduler& scheduler, Ledger& ledger) {
     scheduler.schedule_snapshot(time_ticks + 150);
     scheduler.schedule_snapshot(time_ticks + 179);
     scheduler.schedule_snapshot(time_ticks + 180);
+}
+
+// Star Bound's Arena (2026-10-21): the main menu's Arena button (D), the battle picker (Down,
+// then Up: one battle, so no change), Begin starts the Skirmish from arena/, 20 s of battle, Esc
+// then Quit returns to the picker, Esc there returns to the main menu.
+void arena(EventScheduler& scheduler) {
+    scheduler.schedule_key(Key::Q, 900, 901);
+    scheduler.schedule_snapshot(900);
+
+    scheduler.schedule_key(Key::D, 960, 1020);
+    scheduler.schedule_snapshot(1020);
+    scheduler.schedule_key(Key::DOWN_ARROW, 1040, 1041);
+    scheduler.schedule_key(Key::UP_ARROW, 1050, 1051);
+    scheduler.schedule_snapshot(1060);
+
+    // Begin: the picker fades out and the battle loads.
+    scheduler.schedule_key(Key::RETURN, 1080, 1140);
+    scheduler.schedule_snapshot(1140);
+    scheduler.schedule_snapshot(1200);
+
+    int64_t t = 1260;
+    for (int i = 0; i < 10; ++i) {
+        scheduler.schedule_snapshot(t);
+        t += 120;
+    }
+
+    // Esc: Resume / Restart / Quit; Quit fades back to the picker.
+    scheduler.schedule_key(Key::ESCAPE, t, t + 1);
+    scheduler.schedule_snapshot(t + 30);
+    scheduler.schedule_key(Key::Q, t + 60, t + 120);
+    scheduler.schedule_snapshot(t + 180);
+    scheduler.schedule_snapshot(t + 240);
+
+    // Esc on the picker: back to the main menu.
+    scheduler.schedule_key(Key::ESCAPE, t + 300, t + 301);
+    scheduler.schedule_snapshot(t + 360);
+    scheduler.schedule_key(Key::Q, t + 420, t + 421);
 }
 
 void pause(EventScheduler& scheduler) {

@@ -85,6 +85,7 @@ python scripts/test.py --type=replay
 - The local model never edits files, runs git or pushes. Check everything it returns before
   using it (its sums can be wrong).
 - If the local model isn't running, just do the work yourself.
+- Every report includes one line saying whether houtini-lm was used and for what, or why not.
 
 ## Open items
 - Not yet tested on a clean PC (Windows Sandbox isn't enabled; its software OpenGL is too old

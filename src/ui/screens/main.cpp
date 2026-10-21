@@ -19,6 +19,7 @@
 #include "ui/screens/main.hpp"
 
 #include "config/preferences.hpp"
+#include "data/interface.hpp"
 #include "data/plugin.hpp"
 #include "drawing/text.hpp"
 #include "game/globals.hpp"
@@ -28,6 +29,7 @@
 #include "math/random.hpp"
 #include "sound/music.hpp"
 #include "ui/card.hpp"
+#include "ui/flows/arena-game.hpp"
 #include "ui/flows/replay-game.hpp"
 #include "ui/flows/solo-game.hpp"
 #include "ui/interface-handling.hpp"
@@ -46,7 +48,8 @@ static constexpr char kNetButton[]     = "start-network-game";  // removed (2026
 static constexpr char kOptionsButton[] = "options";
 static constexpr char kQuitButton[]    = "quit";
 static constexpr char kAboutButton[]   = "about-ares";
-static constexpr char kDemoButton[]    = "demo";
+static constexpr char kDemoButton[]    = "demo";   // removed (2026-10-21); idle replays stay
+static constexpr char kArenaButton[]   = "arena";  // Star Bound, in the network button's row
 static constexpr char kIntroButton[]   = "replay-intro";
 
 MainScreen::MainScreen()
@@ -59,9 +62,28 @@ MainScreen::MainScreen()
                     [] { return plug.chapters.find(1) != plug.chapters.end(); },
             });
 
-    // Star Bound has no network play: the data's (always disabled) button is removed. Its row
-    // stays empty for now (docs/arena-investigation.md).
+    // Star Bound has no network play: the data's (always disabled) button is removed, and Arena
+    // takes its row. The Demo button goes too (its row stays empty); the demo replays still play
+    // when the menu is left idle (fire_timer). docs/arena-investigation.md §4.
     remove_widget(kNetButton);
+    remove_widget(kDemoButton);
+    {
+        PlainButtonData arena;
+        arena.id      = kArenaButton;
+        arena.type    = WidgetDataBase::BUTTON;
+        arena.bounds  = {207, 284, 427, 294};
+        arena.label   = "Arena";
+        arena.key     = Key(Key::D);
+        arena.gamepad = Gamepad::Button::Y;
+        arena.hue     = Hue::GREEN;
+        arena.style   = InterfaceStyle::LARGE;
+        add_widget(WidgetData{std::move(arena)});
+    }
+    button(kArenaButton)
+            ->bind({
+                    [this] { stack()->push(new ArenaGame); },
+                    [] { return !plug.arena.empty(); },
+            });
 
     button(kIntroButton)
             ->bind({
@@ -70,14 +92,6 @@ MainScreen::MainScreen()
                                 *plug.info.intro, kTitleTextScrollWidth, kSlowScrollInterval));
                     },
                     [] { return plug.info.intro.has_value(); },
-            });
-
-    button(kDemoButton)
-            ->bind({
-                    [this] {
-                        stack()->push(new ReplayGame(_replays.at(rand() % _replays.size())));
-                    },
-                    [this] { return !_replays.empty(); },
             });
 
     button(kAboutButton)

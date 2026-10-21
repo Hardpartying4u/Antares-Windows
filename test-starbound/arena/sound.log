@@ -1,0 +1,74 @@
+0	3	quiet
+0	3	loop	music	255	doomtroopers-unite
+960	0	play	sound	192	gui/beep/select
+1080	0	play	sound	192	gui/beep/select
+1200	3	quiet
+1200	3	loop	music	255	freds-theme
+1202	1	play	sound	64	gui/beep/message
+1205	1	play	sound	64	gui/beep/message
+1208	1	play	sound	64	gui/beep/message
+1213	3	quiet
+1213	1	play	sound	128	gui/beep/zoom
+1213	3	quiet
+1627	1	play	sound	154	sfx/warp/out
+1630	1	play	sound	155	dev/atomic
+1669	1	play	sound	183	sfx/warp/out
+1672	1	play	sound	198	sfx/warp/out
+1672	2	play	sound	184	dev/atomic
+1681	2	play	sound	203	dev/atomic
+1738	0	play	sound	128	gui/beep/zoom
+1762	0	play	sound	217	dev/conc
+1783	0	play	sound	236	dev/fusion
+1816	0	play	sound	254	dev/conc
+1822	1	play	sound	252	dev/conc
+1825	2	play	sound	252	dev/conc/ricochet/1
+1828	0	play	sound	250	dev/conc
+1828	2	play	sound	253	dev/conc/ricochet/1
+1849	0	play	sound	190	dev/fusion
+1864	0	play	sound	241	dev/fusion
+1864	0	play	sound	243	dev/pk/ish
+1870	1	play	sound	212	dev/atomic
+1879	1	play	sound	237	dev/conc
+1885	2	play	sound	235	dev/conc
+1885	2	play	sound	236	dev/pk/ish
+1891	0	play	sound	234	dev/conc
+1894	0	play	sound	255	sfx/explosion/small
+1894	1	play	sound	233	sfx/explosion/energy
+1897	2	play	sound	233	dev/conc
+1897	1	play	sound	234	dev/conc/ricochet/2
+1900	2	play	sound	203	dev/fusion
+1900	2	play	sound	234	dev/fusion
+1900	1	play	sound	235	dev/conc/ricochet/2
+1906	2	play	sound	235	dev/pk/ish
+1915	0	play	sound	231	sfx/explosion/energy
+1921	1	play	sound	224	dev/atomic
+1921	2	play	sound	206	dev/pk/ish
+1921	2	play	sound	224	sfx/explosion/energy
+1936	0	play	sound	208	dev/fusion
+1942	0	play	sound	209	dev/pk/ish
+1963	2	play	sound	232	sfx/explosion/energy
+2044	1	play	sound	58	dev/atomic
+2055	1	play	sound	128	gui/beep/zoom
+2076	1	play	sound	128	gui/beep/zoom
+2110	1	play	sound	199	dev/atomic
+2137	0	play	sound	255	dev/fusion
+2137	1	play	sound	255	dev/pk/ish
+2137	2	play	sound	255	sfx/explosion/small
+2152	0	play	sound	194	dev/atomic
+2161	0	play	sound	198	dev/atomic
+2266	0	play	sound	255	dev/conc
+2284	0	play	sound	166	dev/atomic
+2302	2	play	sound	255	sfx/explosion/small
+2320	0	play	sound	254	sfx/explosion/small
+2350	0	play	sound	255	dev/atomic
+2392	1	play	sound	253	dev/atomic
+2401	0	play	sound	255	dev/atomic
+2520	2	play	sound	192	gui/beep/select
+2580	0	quiet
+2580	1	quiet
+2580	2	quiet
+2580	3	quiet
+2760	2	play	sound	192	gui/beep/select
+2761	3	quiet
+2761	3	loop	music	255	doomtroopers-unite
+2880	2	play	sound	192	gui/beep/select
