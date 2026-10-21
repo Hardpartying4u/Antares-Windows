@@ -45,7 +45,46 @@ namespace antares {
 //     it knows.
 //  3. (2026-10-20) the same as 2, written after Classic's fire keys moved to X and Z. Versions 1 and
 //     2 have the fire-key move applied on load (migrate_classic_fire_keys).
-static const int64_t kConfigVersion = 3;
+//  4. (2026-10-21) the same as 3, written after Modern: Ares took Classic's bindings. Versions 1 to 3
+//     on Modern: Ares with its old layout untouched get the new one on load (migrate_modern_ares).
+static const int64_t kConfigVersion = 4;
+
+// Modern: Ares' own layout before version 4, where it differed from Classic: primary keys only (its
+// secondary and gamepad bindings were Classic's).
+static const struct {
+    int        action;
+    Key::Value key;
+} kModernAresBefore4[] = {
+        {kUpKeyNum, Key::UP_ARROW},        {kDownKeyNum, Key::DOWN_ARROW},
+        {kLeftKeyNum, Key::LEFT_ARROW},    {kRightKeyNum, Key::RIGHT_ARROW},
+        {kOneKeyNum, Key::SPACE},          {kTwoKeyNum, Key::F},
+        {kEnterKeyNum, Key::D},            {kSelectFriendKeyNum, Key::Q},
+        {kSelectFoeKeyNum, Key::E},        {kSelectBaseKeyNum, Key::R},
+        {kOrderKeyNum, Key::S},            {kZoomInKeyNum, Key::X},
+        {kZoomOutKeyNum, Key::Z},          {kCompUpKeyNum, Key::T},
+        {kCompDownKeyNum, Key::G},         {kCompAcceptKeyNum, Key::B},
+        {kCompCancelKeyNum, Key::V},       {kTransferKeyNum, Key::C},
+        {kMessageNextKeyNum, Key::BACKTICK}, {kAttackMoveKeyNum, Key::A},
+};
+
+// A Modern: Ares config whose bindings are still the old layout gets the new one (Classic's). One
+// the player customised is kept as it is: it shows as changed, and Reset to Defaults gives the new
+// layout.
+static void migrate_modern_ares(Preferences* p) {
+    ActionBindings before[ACTION_COUNT];
+    apply_preset(ControlPreset::CLASSIC, before);
+    for (const auto& r : kModernAresBefore4) {
+        before[r.action].slot[kPrimarySlot] = Binding::key(Key(r.key));
+    }
+    for (int a = 0; a < ACTION_COUNT; ++a) {
+        for (int s = 0; s < kBindingSlots; ++s) {
+            if (p->bindings[a].slot[s] != before[a].slot[s]) {
+                return;
+            }
+        }
+    }
+    apply_preset(ControlPreset::MODERN_ARES, p->bindings);
+}
 
 static const char* const kSlotNames[kBindingSlots] = {"primary", "secondary", "gamepad"};
 
@@ -142,6 +181,9 @@ FilePrefsDriver::FilePrefsDriver(pn::string_view path) : _path(path.copy()) {
         // Left Alt and the Windows key were Classic's defaults; on a Modern preset they are a
         // player's own choice.
         migrate_classic_fire_keys(&_current);
+    }
+    if ((version < 4) && (_current.controls_preset == ControlPreset::MODERN_ARES)) {
+        migrate_modern_ares(&_current);
     }
 
     pn::map_cref video = m.get("video").as_map();

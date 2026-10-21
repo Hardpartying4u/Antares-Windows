@@ -51,20 +51,12 @@ GLFW (src/glfw/video-driver.cpp)
     binding of zoom in and out, and Ares' gamepad mapping (§1.4). Attack move is
     unbound. One exception: since 2026-10-20 the fire keys are X and Z, not Left Alt and the
     Windows key (§1.2).
-  - **Modern: Ares** (Modern (Ares-style), the default Modern layout since 2026-10-20). The arrow
-    keys steer, the PC equivalent of Ares' keypad 8-4-5-6. Every other fire and action key is under
-    the left hand:
-    - fire 1 Space, fire 2 F, special D, warp Tab;
-    - select friendly Q, select hostile E, select base R; target Shift; order S;
-    - zoom X and Z, as well as the wheel;
-    - minicomputer T (up), G (down), B (accept), V (cancel); transfer C; next message `;
-    - attack move A (A, then click).
-
-    The exceptions on the right hand are the zoom shortcuts (F9–F12, End, Home, Page Up, as
-    Classic) and hotkeys 6–0. Ctrl, Alt and the Windows keys are left unbound: Ctrl will be the
-    Modern group and attack-move modifier, and Alt+Tab, Alt+Enter and the Windows key belong to
-    Windows. The tradeoff: the right hand can't steer and use the mouse at once; ships coast, and
-    autopilot (Shift+Tab) flies the flagship while the hand is on the mouse.
+  - **Modern: Ares** (the default Modern layout) has exactly Classic's bindings, keys, wheel and
+    gamepad, since 2026-10-21: the Ares keys with the Modern mouse and group features. Attack move
+    has no key (as Classic); Ctrl+right-click gives it. Ctrl is Classic's Order key, which in the
+    Modern mode fires on release, and not after Ctrl+number or Ctrl+right-click (§2.4c, §2.4d).
+    From 2026-10-20 to 2026-10-21 it had its own Ares-style layout (arrows steer, the rest under
+    the left hand); `docs/modern-controls.md` §8 keeps it, and old configs are migrated (below).
   - **Modern: WASD** flies on W A S D, with:
     - fire 1 Space, fire 2 F, special R;
     - select friendly Q, select hostile E, select base B; order Ctrl;
@@ -199,6 +191,12 @@ Saved configs move to the new keys only where both hold:
 This applies to configs written before the change (version 1 and 2) that are on the Classic preset
 (`migrate_classic_fire_keys`, `src/config/preferences.cpp`). Saves are now version 3, so a key chosen
 afterwards is never moved.
+
+**Modern: Ares' old layout (version 4, 2026-10-21).** Configs written before (version 1 to 3) on
+Modern: Ares whose bindings are still exactly its old Ares-style layout get the new one (Classic's)
+on load (`migrate_modern_ares`, `src/config/file-prefs-driver.cpp`). A config whose bindings the
+player changed is kept as it is: the screen shows "(CHANGED)", and Reset to Defaults gives the new
+layout. Saves are now version 4.
 
 **Checked in game (2026-10-20):**
 - Key Controls shows X and Z at UI 1×, 2× and 4×.
@@ -505,7 +503,8 @@ replays, the demo and the tutorials are unchanged.
   Shift); holding 0.85 s assigns it.
 - **Shift:** the target modifier, so Shift+number targeted.
 - **Ctrl:** in Classic and Modern: WASD it is the Order key and fired on key-down, so Ctrl+number
-  would also give an order. Modern: Ares leaves Ctrl unbound.
+  would also give an order. Modern: Ares then left Ctrl unbound; since 2026-10-21 it has Classic's
+  keys, so Ctrl is its Order key too.
 - **Rebinding screen:** the numbers, Ctrl and Shift can all be rebound. Ctrl as the group modifier
   is a fixed key, not an action.
 
@@ -565,7 +564,8 @@ didn't work in play and isn't needed for now (`docs/modern-controls.md` §5a). G
 (`807c90ba`).
 
 **Keys** (rebindable action 44, `docs/modern-controls.md` §8):
-- **Attack-move:** A (Modern: Ares) or G (Modern: WASD) arms it; the next left-click in the play
+- **Attack-move:** G (Modern: WASD; Modern: Ares had A until 2026-10-21 and now has no key, as
+  Classic) arms it; the next left-click in the play
   area gives it. **Ctrl+right-click** gives it at once (Ctrl as the raw key; Order's release then
   gives nothing).
 - While armed the crosshair is red. A right-click disarms without an order. A level that

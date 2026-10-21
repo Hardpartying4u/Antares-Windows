@@ -102,50 +102,16 @@ TEST_F(BindingsTest, ModernWasdFliesOnWasd) {
     EXPECT_EQ(m[kUpKeyNum].slot[kGamepadSlot], Binding::gamepad(Pad::A));  // same pad as Classic
 }
 
-// Ares-style: the arrows steer; every other fire and action key is under the left hand, except the
-// zoom shortcuts (above the arrows and on F9-F12) and hotkeys 6-0; Ctrl, Alt and the Windows keys
-// are left free.
-TEST_F(BindingsTest, ModernAresStyleLayout) {
+// Modern: Ares has Classic's bindings in every slot (since 2026-10-21); only the mode differs.
+TEST_F(BindingsTest, ModernAresIsClassic) {
+    ActionBindings classic[ACTION_COUNT];
+    apply_preset(ControlPreset::CLASSIC, classic);
     const ActionBindings* m = preset(ControlPreset::MODERN_ARES);
-    EXPECT_EQ(m[kUpKeyNum].slot[kPrimarySlot], Binding::key(Key::UP_ARROW));
-    EXPECT_EQ(m[kDownKeyNum].slot[kPrimarySlot], Binding::key(Key::DOWN_ARROW));
-    EXPECT_EQ(m[kLeftKeyNum].slot[kPrimarySlot], Binding::key(Key::LEFT_ARROW));
-    EXPECT_EQ(m[kRightKeyNum].slot[kPrimarySlot], Binding::key(Key::RIGHT_ARROW));
-    EXPECT_EQ(m[kOneKeyNum].slot[kPrimarySlot], Binding::key(Key::SPACE));
-    EXPECT_EQ(m[kTwoKeyNum].slot[kPrimarySlot], Binding::key(Key::F));
-    EXPECT_EQ(m[kEnterKeyNum].slot[kPrimarySlot], Binding::key(Key::D));
-    EXPECT_EQ(m[kOrderKeyNum].slot[kPrimarySlot], Binding::key(Key::S));
-    EXPECT_EQ(m[kCompUpKeyNum].slot[kPrimarySlot], Binding::key(Key::T));
-    EXPECT_EQ(m[kCompDownKeyNum].slot[kPrimarySlot], Binding::key(Key::G));
-    EXPECT_EQ(m[kCompAcceptKeyNum].slot[kPrimarySlot], Binding::key(Key::B));
-    EXPECT_EQ(m[kCompCancelKeyNum].slot[kPrimarySlot], Binding::key(Key::V));
-    EXPECT_EQ(m[kMessageNextKeyNum].slot[kPrimarySlot], Binding::key(Key::BACKTICK));
-    EXPECT_EQ(m[kAttackMoveKeyNum].slot[kPrimarySlot], Binding::key(Key::A));
-
-    const Key::Value left[] = {
-            Key::BACKTICK, Key::K1, Key::K2, Key::K3, Key::K4, Key::K5, Key::TAB, Key::Q,
-            Key::W,        Key::E,  Key::R,  Key::T,  Key::A,  Key::S,  Key::D,   Key::F,
-            Key::G,        Key::Z,  Key::X,  Key::C,  Key::V,  Key::B,  Key::SPACE, Key::SHIFT,
-            Key::F1,       Key::F2, Key::F3, Key::F4, Key::F5, Key::F6,
-    };
     for (int a = 0; a < ACTION_COUNT; ++a) {
-        const bool right_hand = (a <= kRightKeyNum) ||                                // steering
-                                ((kScale121KeyNum <= a) && (a <= kScaleAllKeyNum)) ||  // views
-                                ((kHotKey6Num <= a) && (a <= kHotKey10Num));           // 6-0
-        const Binding& b = m[a].slot[kPrimarySlot];
-        bool           on_left = false;
-        for (Key::Value k : left) {
-            on_left = on_left || (b == Binding::key(Key(k)));
-        }
-        EXPECT_EQ(on_left, !right_hand) << "action " << a;
         for (int s = 0; s < kBindingSlots; ++s) {
-            for (Key::Value k : {Key::CONTROL, Key::OPTION, Key::COMMAND, Key::R_CONTROL,
-                                 Key::R_OPTION, Key::R_COMMAND}) {
-                EXPECT_NE(m[a].slot[s], Binding::key(Key(k))) << "action " << a;
-            }
+            EXPECT_EQ(m[a].slot[s], classic[a].slot[s]) << "action " << a << " slot " << s;
         }
     }
-    EXPECT_EQ(m[kUpKeyNum].slot[kGamepadSlot], Binding::gamepad(Pad::A));  // same pad as Classic
 }
 
 // Configs saved with the one Modern preset of stage 4 ("modern") load as Modern (WASD), the layout
@@ -260,7 +226,7 @@ TEST_F(BindingsTest, Version2RoundTrip) {
     pn::value x;
     pn::input in{kV2Config, pn::text};
     ASSERT_TRUE(pn::parse(in, &x, nullptr));
-    EXPECT_EQ(x.as_map().get("version").as_int(), 3);
+    EXPECT_EQ(x.as_map().get("version").as_int(), 4);
     EXPECT_EQ(x.as_map().get("keys").as_map().get("ship accel").as_int(), Key(Key::W).value());
     EXPECT_EQ(x.as_map().get("keys").as_map().get("help").as_int(), 0);  // no key: 0
 }
@@ -361,6 +327,67 @@ TEST_F(BindingsTest, ModernFireKeysNotMoved) {
     }
     FilePrefsDriver prefs(kV2Config);
     EXPECT_EQ(prefs.binding(kOneKeyNum, kPrimarySlot), Binding::key(Key::OPTION));
+}
+
+// Modern: Ares' layout before version 4 (where it differed from Classic), as a config's bindings.
+pn::string old_modern_ares_bindings() {
+    const struct {
+        int        action;
+        Key::Value key;
+    } rows[] = {
+            {kUpKeyNum, Key::UP_ARROW},      {kDownKeyNum, Key::DOWN_ARROW},
+            {kLeftKeyNum, Key::LEFT_ARROW},  {kRightKeyNum, Key::RIGHT_ARROW},
+            {kOneKeyNum, Key::SPACE},        {kTwoKeyNum, Key::F},
+            {kEnterKeyNum, Key::D},          {kSelectFriendKeyNum, Key::Q},
+            {kSelectFoeKeyNum, Key::E},      {kSelectBaseKeyNum, Key::R},
+            {kOrderKeyNum, Key::S},          {kZoomInKeyNum, Key::X},
+            {kZoomOutKeyNum, Key::Z},        {kCompUpKeyNum, Key::T},
+            {kCompDownKeyNum, Key::G},       {kCompAcceptKeyNum, Key::B},
+            {kCompCancelKeyNum, Key::V},     {kTransferKeyNum, Key::C},
+            {kMessageNextKeyNum, Key::BACKTICK}, {kAttackMoveKeyNum, Key::A},
+    };
+    pn::string out;
+    for (const auto& r : rows) {
+        out += pn::format(
+                "{0}\"{1}\": {{primary: {{key: {2}}}}}", out.empty() ? "" : ", ",
+                action_config_name(r.action), Key(r.key).value());
+    }
+    return out;
+}
+
+// A version 3 config on Modern: Ares with the old layout untouched gets the new one (Classic's).
+TEST_F(BindingsTest, OldModernAresLayoutMigrates) {
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 3\ncontrols: {{preset: \"modern-ares\", bindings: {{{0}}}}}\n",
+                old_modern_ares_bindings());
+    }
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_TRUE(prefs.controls_preset() == ControlPreset::MODERN_ARES);
+    EXPECT_TRUE(prefs.get().bindings_match_preset());
+    EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::N8));
+    EXPECT_EQ(prefs.binding(kOrderKeyNum, kPrimarySlot), Binding::key(Key::CONTROL));
+    EXPECT_TRUE(prefs.binding(kAttackMoveKeyNum, kPrimarySlot).empty());
+}
+
+// One the player customised keeps its bindings; Reset to Defaults then gives the new layout.
+TEST_F(BindingsTest, CustomisedModernAresKept) {
+    sfz::makedirs("out/test", 0755);
+    {
+        pn::output out{kV2Config, pn::text};
+        out.format(
+                "version: 3\ncontrols: {{preset: \"modern-ares\", bindings: {{{0}, "
+                "\"help\": {{primary: {{key: 0}}}}}}}}\n",
+                old_modern_ares_bindings());
+    }
+    FilePrefsDriver prefs(kV2Config);
+    EXPECT_TRUE(prefs.controls_preset() == ControlPreset::MODERN_ARES);
+    EXPECT_FALSE(prefs.get().bindings_match_preset());
+    EXPECT_EQ(prefs.binding(kUpKeyNum, kPrimarySlot), Binding::key(Key::UP_ARROW));
+    EXPECT_EQ(prefs.binding(kAttackMoveKeyNum, kPrimarySlot), Binding::key(Key::A));
+    EXPECT_TRUE(prefs.binding(kHelpKeyNum, kPrimarySlot).empty());
 }
 
 // Bindings a file shouldn't hold (a reserved input, a gamepad button in a key slot) are ignored.

@@ -701,7 +701,7 @@ Ctrl+number) until then.
 ## 8. The Modern presets (approved 2026-10-20)
 
 There are three presets: Classic (unchanged, except that its fire keys are X and Z since 2026-10-20);
-**Modern: Ares**, the default Modern layout; and
+**Modern: Ares**, the default Modern layout, which has Classic's bindings since 2026-10-21; and
 **Modern: WASD**.
 
 - Inputs no preset can bind: Esc, Return and Caps Lock; the left and right mouse buttons; the
@@ -709,7 +709,43 @@ There are three presets: Classic (unchanged, except that its fire keys are X and
 - Both Modern presets keep Classic's gamepad mapping.
 - "L" is the left hand, "R" the right.
 
-### Modern: Ares (Ares-style)
+### Modern: Ares (Classic's keys, since 2026-10-21)
+
+**Decision (2026-10-21):** Modern: Ares has exactly Classic's bindings (keys, wheel and gamepad),
+with all the Modern mouse and group features: left-click and drag selection, right-click orders,
+control groups, attack-move, wheel zoom and Order firing on release. Classic and Modern: WASD are
+unchanged. Players who know the Ares keys get the Modern features without relearning them.
+
+**What changed** (primary keys; every other binding was already Classic's):
+
+| # | Action | Before | Now |
+|---|---|---|---|
+| 0–3 | Accelerate / decelerate / turn ccw / turn cw | ↑ ↓ ← → | Keypad 8 5 4 6 |
+| 4 / 5 / 6 | Fire 1 / fire 2 / special | Space / F / D | X / Z / Space |
+| 8 / 9 / 10 | Select friendly / hostile / base | Q / E / R | Keypad . / * / ÷ |
+| 12 | Order | S | Ctrl |
+| 13 / 14 | Zoom in / out (the wheel too, unchanged) | X / Z | Keypad + / − |
+| 15–18 | Minicomputer up / down / accept / cancel | T / G / B / V | ↑ ↓ → ← |
+| 19 | Transfer control | C | F8 |
+| 27 | Next message | ` | Backspace |
+| 44 | Attack move | A, then click | No key (as Classic); Ctrl+right-click |
+
+**Clash check (done first, none found):**
+- **Ctrl** is Classic's Order key and also the raw group and attack-move modifier. The Modern mode
+  already handles this (Modern: WASD has Ctrl as Order too): Order fires on release, not after
+  Ctrl+number (§5.1) or Ctrl+right-click. The Modern replay tests run with Classic's bindings.
+- **Shift** (target) and **1–0** (hotkeys, groups in the Modern mode) are the same in all presets.
+- **Attack move** has no key in Classic. Ctrl+right-click still gives it, and it can be bound on
+  the MODERN page.
+- No Classic key is used as a raw key by a Modern feature (only Ctrl and Return are).
+
+**Saved configs:** a config (version 1 to 3) on Modern: Ares whose bindings are still the old
+layout loads with the new one; one the player customised is kept (shown as changed; Reset to
+Defaults gives the new layout). Saves are version 4.
+
+The old layout, for the record:
+
+#### Modern: Ares before 2026-10-21 (Ares-style)
 
 The right hand steers on the arrow keys, the PC equivalent of Ares' keypad 8-4-5-6. Everything else
 is under the left hand: fingers on A S D F, thumb on Space.
