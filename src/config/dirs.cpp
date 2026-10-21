@@ -51,7 +51,8 @@ void set_factory_scenario_path(pn::string_view path) { factory_scenario.emplace(
 static pn::string art;
 static bool       art_forced = false;
 
-pn::string default_art_path() {
+// `name` in the folder that holds the application data folder.
+static pn::string beside_application_data(pn::string_view name) {
     pn::string_view app = application_path();
     int             cut = -1;
     for (int i = 0; i < app.size(); ++i) {
@@ -59,8 +60,12 @@ pn::string default_art_path() {
             cut = i;
         }
     }
-    return (cut < 0) ? pn::string{"art"} : pn::format("{0}/art", app.substr(0, cut));
+    return (cut < 0) ? name.copy() : pn::format("{0}/{1}", app.substr(0, cut), name);
 }
+
+pn::string default_art_path() { return beside_application_data("art"); }
+
+pn::string default_arena_path() { return beside_application_data("arena"); }
 
 pn::string_view art_path() {
     if (!art_forced && sys.prefs && !sys.prefs->enhanced_graphics()) {

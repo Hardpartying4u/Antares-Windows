@@ -206,3 +206,28 @@ The debriefing text says who won; the text screenshots show which ships are on s
 
 **Not checked yet:** how a human plays it (Modern orders, groups), the medium and large battles,
 and the cpu admiral against a fleet that is spread out.
+
+## 7. Step 3: the arena loader (2026-10-21)
+
+- **Where:** `default_arena_path()` (`src/config/dirs.cpp`) is `arena/` next to the application
+  data folder, as `art/` is. In the package that is `Antares\arena\`, beside `data\` and `art\`;
+  for tests and tools run from the repo it is `./arena`. `scripts/dist.py` packages it.
+- **Loading:** `load_arena_levels()` (`src/data/arena.cpp`) reads every `*.pn` there with the
+  campaign's level reader. `PluginInit` stores the battles in `plug.arena`, by file name
+  (`"skirmish"`), and never in `plug.levels` or `plug.chapters`, so the campaign, demo replays and
+  replay tests are unchanged. A file that doesn't parse, or isn't a playable arena battle, is
+  skipped with a line on stderr (`arena/NAME.pn: why: skipped`), so one bad file never stops the
+  game.
+- **What a battle must have** (`arena_level_problems()`):
+  - a solo level with **no chapter**;
+  - one human player and at least one cpu player;
+  - a flagship for the human player;
+  - a win for the human and a win for a cpu player (the loss);
+  - every `ships` condition starting **disabled** (§6).
+- **A finding:** a `win` action needs `text`; without it the file doesn't parse.
+- **Tests** (`arena-test`, a new unit test; 35 tests now):
+  - every shipped battle loads, passes the checks, and names only ships that exist in `data/objects`;
+  - a good file loads, while a broken file, one with a chapter, one whose `ships` win starts
+    enabled and one with no flagship are each skipped with their reason;
+  - a missing folder gives nothing.
+- Nothing uses `plug.arena` yet; the Arena screen and game flow are step 4.

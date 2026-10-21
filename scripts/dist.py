@@ -75,6 +75,9 @@ def add_files(archive_content, archive_root, add):
         # Star Bound art folder: replacement art, read before data/ (src/data/resource.cpp).
         for real_path, archive_path in walk("Antares/art", "art"):
             add(real_path, archive_path)
+        # Star Bound arena battles, apart from the campaign (src/data/arena.cpp).
+        for real_path, archive_path in walk("Antares/arena", "arena"):
+            add(real_path, archive_path)
         add("out/win/opt/antares.exe", "Antares/Antares.exe")
         # Licences and credits: code (LGPL), the per-file asset record and third-party credits.
         # data/COPYING and data/AUTHORS come with data/ above.

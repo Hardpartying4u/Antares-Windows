@@ -25,6 +25,7 @@
 
 #include "config/dirs.hpp"
 #include "config/preferences.hpp"
+#include "data/arena.hpp"
 #include "data/base-object.hpp"
 #include "data/condition.hpp"
 #include "data/field.hpp"
@@ -91,6 +92,14 @@ void PluginInit(sfz::optional<pn::string_view> path) {
     }
 
     read_all_levels();
+
+    // Arena battles: from Star Bound's own folder, apart from the campaign. A bad file is
+    // reported and skipped.
+    ArenaLevels arena = load_arena_levels(default_arena_path());
+    for (const pn::string& problem : arena.problems) {
+        pn::err.format("{0}: skipped\n", problem);
+    }
+    plug.arena = std::move(arena.levels);
 }
 
 void PluginReloadTextures() {

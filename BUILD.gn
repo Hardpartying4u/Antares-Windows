@@ -24,6 +24,7 @@ group("default") {
   deps = [
     ":antares",
     ":antares-download-sounds",
+    ":arena-test",
     ":art-test",
     ":build-pix",
     ":color-test",
@@ -134,6 +135,7 @@ source_set("libantares-config") {
 source_set("libantares-data") {
   sources = [
     "include/data/action.hpp",
+    "include/data/arena.hpp",
     "include/data/audio.hpp",
     "include/data/base-object.hpp",
     "include/data/briefing.hpp",
@@ -173,6 +175,7 @@ source_set("libantares-data") {
     "src/data/info.cpp",
     "src/data/initial.cpp",
     "src/data/interface.cpp",
+    "src/data/arena.cpp",
     "src/data/level.cpp",
     "src/data/object-ref.cpp",
     "src/data/plugin.cpp",
@@ -555,6 +558,17 @@ executable("art-test") {
   testonly = true
   output_extension = exe
   sources = [ "src/config/art.test.cpp" ]
+  deps = [
+    ":libantares-test",
+    "//ext/gmock:gmock_main",
+  ]
+  configs += [ ":antares_private" ]
+}
+
+executable("arena-test") {
+  testonly = true
+  output_extension = exe
+  sources = [ "src/data/arena.test.cpp" ]
   deps = [
     ":libantares-test",
     "//ext/gmock:gmock_main",

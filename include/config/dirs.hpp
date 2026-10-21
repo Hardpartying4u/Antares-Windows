@@ -52,6 +52,10 @@ pn::string      default_art_path();  // "art" next to the application data folde
 pn::string_view art_path();
 void            set_art_path(pn::string_view path, bool forced = false);
 
+// Star Bound arena battles (docs/arena-investigation.md): "arena" next to the application data
+// folder, like "art", so data/ is never edited.
+pn::string default_arena_path();
+
 // Applies the --art DIR / --no-art options (art_option empty: --art not given). Without either,
 // uses default_art_path() if that folder exists. Throws if --art names a missing folder.
 void configure_art(pn::string_view art_option, bool no_art);

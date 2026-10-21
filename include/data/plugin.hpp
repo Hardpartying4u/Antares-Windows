@@ -46,6 +46,7 @@ struct ScenarioGlobals {
     std::map<pn::string, Level>      levels;
     std::map<pn::string, BaseObject> objects;
     std::map<pn::string, Race>       races;
+    std::map<pn::string, Level>      arena;  // Star Bound arena battles (data/arena.hpp)
 
     Texture splash;
     Texture starmap;

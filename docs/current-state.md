@@ -1230,6 +1230,7 @@ Text uses bitmap fonts `title`, `button`, `button-small`, `computer`, `tactical`
 | Orders, build, minicomputer | `src/game/minicomputer.cpp`, `src/game/admiral.cpp` |
 | Ship behaviour/physics | `src/game/non-player-ship.cpp`, `src/game/motion.cpp`, `src/game/action.cpp` |
 | HUD | `src/game/instruments.cpp`, `src/game/messages.cpp`, `src/game/labels.cpp` |
+| Arena battles (Star Bound, 2026-10-21) | `arena/*.pn`, loaded by `src/data/arena.cpp` into `plug.arena` (not the campaign); not playable from the menu yet (`docs/arena-investigation.md`) |
 | Screens | `src/ui/screens/*.cpp`, `src/ui/flows/*.cpp`, `data/interfaces/` |
 | Widgets | `src/ui/screen.cpp`, `src/ui/widget.cpp`, `src/drawing/interface.cpp` |
 | Rendering | `src/video/opengl-driver.cpp`, `src/video/glsl/`, `src/drawing/` |
