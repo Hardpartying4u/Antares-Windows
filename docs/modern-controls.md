@@ -569,6 +569,11 @@ whose point moves along a route.
   double-click as a double tap, and clicks on the bar never reach the play area. Red messages rise
   above the bar while it shows (chosen over a bar floating above the message lane). Modern mode
   only.
+  - **Restyled the same day** (look only): each box has the icon of the group's most common ship
+    type (Enhanced or Original art; text "1 · 5" if there is none), the number in a badge top left
+    and the count bottom right, on a dark translucent panel with a thin frame. Selected: a bright
+    yellow frame. A save or Shift+number makes the frame glow briefly. Boxes are 44 × 30 px, so all
+    ten fit a 640-px screen.
 - **Steps C and F, attack-move and two-point patrol: done 2026-10-21** (`docs/current-state.md`
   §2.4d), as planned in §5b.
   - Attack-move key + click, or Ctrl+right-click: point orders with the engage clock at 0.

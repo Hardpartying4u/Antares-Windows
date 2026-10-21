@@ -7,6 +7,7 @@
 
 #include "config/keys.hpp"
 #include "config/preferences.hpp"
+#include "drawing/pix-table.hpp"
 #include "drawing/sprite-handling.hpp"
 #include "game/admiral.hpp"
 #include "game/globals.hpp"
@@ -17,6 +18,7 @@
 #include "game/sys.hpp"
 #include "game/time.hpp"
 #include "game/timing.hpp"
+#include "math/fixed.hpp"
 #include "sound/fx.hpp"
 #include "video/driver.hpp"
 
@@ -157,10 +159,13 @@ bool group_valid(const GroupEntry& e) {
     return (e.number >= 0) && (e.number < kMaxSpaceObject) && (o->id == e.id) && selectable(o);
 }
 
-// The group bar's boxes, left to right from the play area's bottom left corner.
-const int32_t kGroupBarPad    = 3;  // around the text
-const int32_t kGroupBarGap    = 2;  // between boxes
-const int32_t kGroupBarLeft   = 2;  // from the play area's left edge
+// The group bar's boxes, left to right from the play area's bottom left corner. A fixed size, so
+// all ten fit the 480-px play area of a 640-px screen (2 + 10 * 44 + 9 * 2 = 460).
+const int32_t kGroupBoxWidth  = 44;
+const int32_t kGroupBoxHeight = 30;
+const int32_t kGroupIconSize  = 22;  // as the minicomputer's ship icon
+const int32_t kGroupBarGap    = 2;   // between boxes
+const int32_t kGroupBarLeft   = 2;   // from the play area's left edge
 const usecs   kGroupFlashTime = std::chrono::milliseconds(450);
 wall_time     gGroupFlash[ControlGroups::kCount];  // view only
 
@@ -175,23 +180,21 @@ std::vector<GroupBox> group_boxes() {
     if (!g.modern_controls || !g.ship.get()) {
         return boxes;
     }
-    const Font&   font   = sys.fonts.tactical;
-    const int32_t height = font.height + (2 * kGroupBarPad);
-    const Rect    v      = viewport();
-    int32_t       left   = v.left + kGroupBarLeft;
+    const Rect v    = viewport();
+    int32_t    left = v.left + kGroupBarLeft;
     for (int i = 0; i < ControlGroups::kCount; ++i) {
         const int count = g.modern_groups.peek(i, group_valid).size();
         if (count == 0) {
             continue;
         }
-        pn::string    text  = pn::format("{0} \xc2\xb7 {1}", (i + 1) % 10, count);  // "1 · 5"
-        const int32_t width = font.string_width(text) + (2 * kGroupBarPad);
-        if (left + width > v.right) {
+        pn::string text = pn::format("{0} \xc2\xb7 {1}", (i + 1) % 10, count);  // "1 · 5"
+        if (left + kGroupBoxWidth > v.right) {
             break;  // no room on a narrow play area
         }
         boxes.push_back(GroupBox{
-                i, Rect(left, v.bottom - height, left + width, v.bottom), std::move(text)});
-        left += width + kGroupBarGap;
+                i, Rect(left, v.bottom - kGroupBoxHeight, left + kGroupBoxWidth, v.bottom),
+                std::move(text)});
+        left += kGroupBoxWidth + kGroupBarGap;
     }
     return boxes;
 }
@@ -394,6 +397,68 @@ int32_t modern_group_bar_height() {
     return boxes.empty() ? 0 : (boxes[0].rect.height() + kGroupBarGap);
 }
 
+namespace {
+
+// The group's icon: a ship of its most common type; on a tie, the type with the larger sprite. The
+// icon is shape 0 of the ship's own sprite table (as the minicomputer draws it), so it comes from
+// the art the level loaded: Enhanced or Original. Null if there is none.
+const NatePixTable::Frame* group_icon(const std::vector<GroupEntry>& ships) {
+    struct Type {
+        const BaseObject*          base;
+        int                        count;
+        int32_t                    size;
+        const NatePixTable::Frame* frame;
+    };
+    std::vector<Type> types;
+    for (const auto& e : ships) {
+        Handle<SpaceObject> o(e.number);
+        if (!o->base || !o->pix_id.has_value()) {
+            continue;
+        }
+        auto it = std::find_if(types.begin(), types.end(), [&](const Type& t) {
+            return t.base == o->base;
+        });
+        if (it != types.end()) {
+            ++it->count;
+            continue;
+        }
+        NatePixTable* table = sys.pix.get(o->pix_id->name, o->pix_id->hue);
+        if (!table) {
+            continue;
+        }
+        const int16_t shape = (o->attributes & kIsSelfAnimated)
+                                      ? more_evil_fixed_to_long(o->base->animation->frames.begin)
+                                      : 0;
+        const NatePixTable::Frame& frame = table->at(shape);
+        types.push_back(Type{o->base, 1, frame.width() * frame.height(), &frame});
+    }
+    const Type* best = nullptr;
+    for (const auto& t : types) {
+        if (!best || (t.count > best->count) || ((t.count == best->count) && (t.size > best->size))) {
+            best = &t;
+        }
+    }
+    return best ? best->frame : nullptr;
+}
+
+RgbColor with_alpha(RgbColor c, uint8_t alpha) {
+    c.alpha = alpha;
+    return c;
+}
+
+void frame_rect(const Rects& rects, const Rect& r, const RgbColor& c) {
+    rects.fill(Rect(r.left, r.top, r.right, r.top + 1), c);
+    rects.fill(Rect(r.left, r.bottom - 1, r.right, r.bottom), c);
+    rects.fill(Rect(r.left, r.top + 1, r.left + 1, r.bottom - 1), c);
+    rects.fill(Rect(r.right - 1, r.top + 1, r.right, r.bottom - 1), c);
+}
+
+}  // namespace
+
+// Each box: a dark, partly transparent panel with a thin frame; the group's ship icon in the
+// middle; its number in a small badge at the top left; its ship count bottom right. The selected
+// group's frame is bright yellow, as the selection brackets. After a save or Shift+number the
+// frame glows for a moment. With no icon, the box shows the text "1 · 5" instead.
 void draw_modern_group_bar() {
     auto boxes = group_boxes();
     if (boxes.empty()) {
@@ -401,11 +466,14 @@ void draw_modern_group_bar() {
     }
     auto selection = current_selection();
     struct Look {
-        RgbColor fill, frame, text;
+        bool                       selected;
+        int                        count;
+        uint8_t                    glow;  // 0 when none
+        const NatePixTable::Frame* icon;
     };
     std::vector<Look> looks;
     for (const auto& b : boxes) {
-        // Lit while the group is exactly the selection.
+        // Selected while the group is exactly the selection.
         auto ships    = g.modern_groups.peek(b.group, group_valid);
         bool selected = !selection.empty() && (ships.size() == selection.size());
         for (const auto& s : selection) {
@@ -413,40 +481,87 @@ void draw_modern_group_bar() {
                        (std::find(ships.begin(), ships.end(),
                                   GroupEntry{s.first.number(), s.second}) != ships.end());
         }
-        // A flash: quick blinks for a moment after a save or Shift+number.
-        const usecs age   = now() - gGroupFlash[b.group];
-        const bool  flash = (gGroupFlash[b.group] != wall_time()) && (age < kGroupFlashTime) &&
-                           (((age / std::chrono::milliseconds(75)) % 2) == 0);
-        if (flash) {
-            looks.push_back(Look{GetRGBTranslateColorShade(Hue::YELLOW, LIGHT),
-                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST),
-                                 GetRGBTranslateColorShade(Hue::YELLOW, DARKEST)});
-        } else if (selected) {
-            looks.push_back(Look{GetRGBTranslateColorShade(Hue::YELLOW, DARK),
-                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST),
-                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST)});
-        } else {
-            looks.push_back(Look{GetRGBTranslateColorShade(Hue::YELLOW, DARKEST),
-                                 GetRGBTranslateColorShade(Hue::YELLOW, MEDIUM),
-                                 GetRGBTranslateColorShade(Hue::YELLOW, LIGHT)});
+        // The glow fades out over kGroupFlashTime after a save or Shift+number.
+        const usecs age  = now() - gGroupFlash[b.group];
+        uint8_t     glow = 0;
+        if ((gGroupFlash[b.group] != wall_time()) && (age < kGroupFlashTime)) {
+            glow = uint8_t(255 - (255 * age.count()) / kGroupFlashTime.count());
         }
+        looks.push_back(Look{selected, int(ships.size()), glow, group_icon(ships)});
     }
+
+    const RgbColor yellow = GetRGBTranslateColorShade(Hue::YELLOW, LIGHTEST);
     {
-        const Rects rects;  // drawn when it goes out of scope, before the text
+        const Rects rects;  // drawn when it goes out of scope, before the icons and text
         for (int i = 0; i < boxes.size(); ++i) {
             const Rect& r = boxes[i].rect;
-            rects.fill(r, looks[i].frame);
+            const Look& l = looks[i];
+            if (l.glow) {
+                Rect outer = r;
+                outer.inset(-1, -1);
+                frame_rect(rects, outer, with_alpha(yellow, l.glow / 2));
+            }
             Rect inside = r;
             inside.inset(1, 1);
-            rects.fill(inside, looks[i].fill);
+            rects.fill(inside, with_alpha(GetRGBTranslateColorShade(Hue::GRAY, DARKEST), 176));
+            if (l.selected || l.glow) {
+                frame_rect(rects, r, l.selected ? yellow : with_alpha(yellow, l.glow));
+                frame_rect(rects, inside, with_alpha(yellow, l.selected ? 96 : l.glow / 3));
+            } else {
+                frame_rect(rects, r, with_alpha(GetRGBTranslateColorShade(Hue::GRAY, MEDIUM), 224));
+            }
         }
     }
-    const Font& font = sys.fonts.tactical;
+    for (int i = 0; i < boxes.size(); ++i) {
+        if (!looks[i].icon) {
+            continue;
+        }
+        const NatePixTable::Frame& frame = *looks[i].icon;
+        Rect                       icon(0, 0, frame.width(), frame.height());
+        const int32_t              max_dimension = std::max(frame.width(), frame.height());
+        if (max_dimension > kGroupIconSize) {
+            icon.right  = (icon.right * kGroupIconSize) / max_dimension;
+            icon.bottom = (icon.bottom * kGroupIconSize) / max_dimension;
+        }
+        icon.center_in(boxes[i].rect);
+        frame.texture().draw(icon);
+    }
+    const Font& badge_font = sys.fonts.computer;
+    const Font& count_font = sys.fonts.tactical;
+    {
+        const Rects rects;  // the badges
+        for (int i = 0; i < boxes.size(); ++i) {
+            if (looks[i].icon) {
+                const Rect& r = boxes[i].rect;
+                rects.fill(
+                        Rect(r.left + 1, r.top + 1, r.left + 9, r.top + 1 + badge_font.height),
+                        looks[i].selected ? yellow
+                                          : GetRGBTranslateColorShade(Hue::GRAY, LIGHT));
+            }
+        }
+    }
     for (int i = 0; i < boxes.size(); ++i) {
         const Rect& r = boxes[i].rect;
-        font.draw(
-                Point(r.left + kGroupBarPad, r.top + kGroupBarPad + font.ascent), boxes[i].text,
-                looks[i].text);
+        const Look& l = looks[i];
+        if (!l.icon) {  // the text box
+            const int32_t w = badge_font.string_width(boxes[i].text);
+            badge_font.draw(
+                    Point(r.left + (r.width() - w) / 2,
+                          r.top + (r.height() - badge_font.height) / 2 + badge_font.ascent),
+                    boxes[i].text,
+                    l.selected ? yellow : GetRGBTranslateColorShade(Hue::YELLOW, LIGHT));
+            continue;
+        }
+        const pn::string digit = pn::format("{0}", (boxes[i].group + 1) % 10);
+        badge_font.draw(
+                Point(r.left + 1 + (8 - badge_font.string_width(digit) + 1) / 2,
+                      r.top + 1 + badge_font.ascent),
+                digit, GetRGBTranslateColorShade(Hue::GRAY, DARKEST));
+        const pn::string count = pn::format("{0}", l.count);
+        count_font.draw(
+                Point(r.right - 2 - count_font.string_width(count),
+                      r.bottom - 2 - (count_font.height - count_font.ascent)),
+                count, l.selected ? yellow : RgbColor::white());  // GRAY has no LIGHTEST shade
     }
 }
 

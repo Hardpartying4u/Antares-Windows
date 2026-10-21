@@ -565,16 +565,25 @@ A row of boxes along the bottom edge of the play area, like StarCraft's hotkey b
 mode only (Classic, replays, the demo and the tutorials have none). Code: `group_boxes()`,
 `draw_modern_group_bar()` and `modern_group_bar_hit()` in `src/game/modern-orders.cpp`.
 
-- **Boxes:** one per group that has ships, in number order from the play area's bottom left,
-  showing the number and how many ships it has ("1 · 5", tactical font, 3 px padding, 2 px apart).
-  The count is the group's ships that can still take orders, read every frame, so it drops when one
-  dies, is captured or becomes locked; an empty group's box goes. Boxes that don't fit a narrow
-  play area are left out.
-- **Look** (yellow, as the selection brackets): dark fill, medium frame, light text. Lit (lighter
-  fill, brightest frame and text) while the group is exactly the selection. It blinks for 0.45 s
-  when the group is saved (Ctrl+number) or Shift+number adds it to the selection. Drawn with
-  rectangles and the font, so it is the same in Original and Enhanced graphics and is scaled by the
-  integer UI scale like the rest of the screen.
+- **Boxes** (restyled 2026-10-21, StarCraft-like): one per group that has ships, in number order
+  from the play area's bottom left, each 44 × 30 logical px, 2 px apart, so all ten fit the 480-px
+  play area of a 640-px screen (460 px). Boxes that don't fit a narrower play area are left out.
+  - **Icon:** shape 0 of the sprite of the group's most common ship type (on a tie, the type with
+    the larger sprite), at most 22 px, centred, as the minicomputer draws its icon. It comes from
+    the sprite table the level loaded, so it is Enhanced or Original art as chosen.
+  - **Badge:** the hotkey number (computer font, dark) on a small light-grey badge, top left.
+  - **Count:** the group's ships that can still take orders (tactical font, white), bottom right.
+    Read every frame, so it drops when one dies, is captured or becomes locked; an empty group's
+    box goes.
+  - **Panel:** a dark grey fill at about 70 % opacity (the battlefield shows faintly through) and
+    a thin grey frame.
+  - **Selected** (the group is exactly the selection): a bright yellow frame, as the selection
+    brackets, with a fainter inner line; the badge and count turn yellow.
+  - **Glow:** after a save (Ctrl+number) or Shift+number, the frame glows yellow, 1 px outside the
+    box too, fading out over 0.45 s.
+  - **No icon** (a ship without a sprite): the box shows "1 · 5" in the computer font instead.
+  - Drawn with blended rectangles, the font and the sprite texture, scaled by the integer UI scale
+    like the rest of the screen.
 - **Clicks:** a left-click on a box acts as the group's number (with Ctrl or Shift held, as
   Ctrl+number or Shift+number); a double-click also shows the group pointer, as a double tap. A
   left or right click on the bar never reaches the play area (no Classic click, no drag box, no
@@ -585,9 +594,10 @@ mode only (Classic, replays, the demo and the tutorials have none). Code: `group
 - **Tests:** `modern-multi` replay test: selecting the flagship empties the selection, then a
   left-click on group 1's box selects its three ships. Its screenshots now show the bar, a count
   dropping as a ship dies, and red messages above the bar. Two runs are identical.
-- **In game (srtm as a test scenario, Modern: Ares, windowed 1920×1080, UI 2×):** groups of 2 and 5
-  ships showed as "1 · 2" and "2 · 5", the second lit as the selection, readable and clear of the
-  left panel.
+- **In game (srtm as a test scenario, Modern: Ares, windowed 1920×1080, UI 2×):** the first
+  (text) bar showed groups of 2 and 5 ships, readable and clear of the left panel. The restyled bar
+  showed a Cruiser group (2) and a Heavy Cruiser group (3, selected) with their icons; that check
+  found the count drawn dark red (grey has no LIGHTEST shade, so it fell into red), now white.
 
 ### 2.4d Modern attack-move (2026-10-21)
 

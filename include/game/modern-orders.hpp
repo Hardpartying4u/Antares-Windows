@@ -92,9 +92,9 @@ std::vector<Handle<SpaceObject>> modern_group_ships(int group);
 void                             modern_group_pointer(int group);
 
 // The group bar (2026-10-21): along the bottom of the play area, a box per group that has ships,
-// in number order, showing its number and how many ("1 . 5", with a middle dot). A box flashes
-// when its group is saved or Shift+number is pressed, and stays lit while the group is the
-// selection. View only, except that a click on a box acts as the group's number
+// in number order: the icon of its most common ship type, its number in a badge and how many
+// ships it has. A box's frame glows when its group is saved or Shift+number is pressed, and is
+// bright yellow while the group is the selection. View only, except that a click on a box acts as the group's number
 // (PlayerShip::mouse_down). While it shows, red messages rise above it
 // (Messages::draw_message_screen). Only in the Modern mode.
 void    draw_modern_group_bar();
